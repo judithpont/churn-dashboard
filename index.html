@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Churn Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 22px; font-weight: 700; }
+    header span { font-size: 13px; opacity: 0.6; }
+
+    .filters { background: white; padding: 16px 32px; border-bottom: 1px solid #e0e0e0; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .filters label { font-size: 13px; font-weight: 600; color: #666; }
+    .filters select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 32px 0; }
+    .metric { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .metric .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .metric .value { font-size: 32px; font-weight: 700; }
+    .metric .sub { font-size: 13px; color: #888; margin-top: 4px; }
+    .metric.red .value { color: #FF4B4B; }
+    .metric.orange .value { color: #FFA500; }
+    .metric.green .value { color: #00CC96; }
+
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
+    .chart-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
+    .chart-card.full { grid-column: 1 / -1; }
+
+    .table-section { padding: 24px 32px 32px; }
+    .table-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
+    table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-collapse: collapse; }
+    th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9ff; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge.alto { background: #FFE0E0; color: #CC0000; }
+    .badge.medio { background: #FFF3E0; color: #CC7700; }
+    .badge.bajo { background: #E0FFE0; color: #007700; }
+    .badge.si { background: #FFE0E0; color: #CC0000; }
+    .badge.riesgo { background: #FFF3E0; color: #CC7700; }
+    .badge.no { background: #E0FFE0; color: #007700; }
+
+    .resumen-box { margin: 24px 32px 0; background: white; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid #FF4B4B; }
+    .resumen-box h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .resumen-box p { font-size: 14px; line-height: 1.8; color: #444; white-space: pre-wrap; }
+    .resumen-box .tag { background: #FF4B4B; color: white; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+
+    .loading { text-align: center; padding: 80px; color: #888; font-size: 16px; }
+    footer { text-align: center; padding: 24px; color: #999; font-size: 12px; }
+
+    @media (max-width: 768px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .charts { grid-template-columns: 1fr; }
+      .charts .chart-card.full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📊 Churn Dashboard — Revenue Ops</h1>
+  <span id="ultima-actualizacion">Cargando...</span>
+</header>
+
+<div class="filters">
+  <label>Owner</label>
+  <select id="filtro-owner" onchange="aplicarFiltros()">
+    <option value="todos">Todos</option>
+  </select>
+  <label>Nivel de riesgo</label>
+  <select id="filtro-riesgo" onchange="aplicarFiltros()">
+    <option value="todos">Todos</option>
+    <option value="alto">Alto</option>
+    <option value="medio">Medio</option>
+    <option value="bajo">Bajo</option>
+  </select>
+  <label>Churn</label>
+  <select id="filtro-churn" onchange="aplicarFiltros()">
+    <option value="todos">Todos</option>
+    <option value="sí">Sí</option>
+    <option value="riesgo">Riesgo</option>
+    <option value="no">No</option>
+  </select>
+</div>
+
+<div class="resumen-box" id="resumen-box">
+  <h3>🧠 ¿Por qué perdemos clientes?</h3>
+  <p style="color:#aaa">⏳ Cargando resumen...</p>
+</div>
+
+<div id="contenido">
+  <div class="loading">⏳ Cargando datos...</div>
+</div>
+
+<footer>🔄 Actualizado diariamente a las 8:00 AM · Análisis con Claude AI</footer>
+
+<script>
+// ============================================================
+// CONFIG — reemplaza con tus URLs de Google Sheets publicado como CSV
+// Sheets → Archivo → Compartir → Publicar en la web → CSV
+// ============================================================
+const SHEET_CSV_URL = "TU_URL_CSV_AQUI";             // pestaña Resultados_Churn
+const RESUMEN_CSV_URL = "TU_URL_RESUMEN_CSV_AQUI";   // pestaña Resumen_Ejecutivo
+
+let datosOriginales = [];
+let charts = {};
+
+// ============================================================
+// CARGAR RESUMEN EJECUTIVO
+// ============================================================
+async function cargarResumen() {
+  if (!RESUMEN_CSV_URL || RESUMEN_CSV_URL === "TU_URL_RESUMEN_CSV_AQUI") return;
+  Papa.parse(RESUMEN_CSV_URL, {
+    download: true,
+    complete: function(results) {
+      const filas = results.data;
+      let texto = "";
+      let fecha = "";
+      filas.forEach(f => {
+        if (f[0] === "Resumen") texto = f[1];
+        if (f[0] === "Actualizado") fecha = f[1];
+      });
+      if (texto) {
+        document.getElementById("resumen-box").innerHTML = `
+          <h3>🧠 ¿Por qué perdemos clientes? <span class="tag">IA · ${fecha}</span></h3>
+          <p>${texto}</p>
+        `;
+      }
+    }
+  });
+}
+
+// ============================================================
+// CARGAR DATOS
+// ============================================================
+async function cargarDatos() {
+  Papa.parse(SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      datosOriginales = results.data;
+      inicializar();
+    },
+    error: function(e) {
+      document.getElementById("contenido").innerHTML =
+        '<div class="loading">❌ Error cargando datos. Verifica la URL del Sheet.</div>';
+    }
+  });
+}
+
+function inicializar() {
+  // Poblar filtro de owners
+  const owners = [...new Set(datosOriginales.map(r => r["Dueño"]).filter(Boolean))].sort();
+  const sel = document.getElementById("filtro-owner");
+  owners.forEach(o => {
+    const opt = document.createElement("option");
+    opt.value = o; opt.textContent = o;
+    sel.appendChild(opt);
+  });
+
+  // Fecha actualización
+  const fechas = datosOriginales.map(r => r["Actualizado"]).filter(Boolean);
+  if (fechas.length) {
+    document.getElementById("ultima-actualizacion").textContent = "Actualizado: " + fechas[fechas.length - 1];
+  }
+
+  renderizar(datosOriginales);
+}
+
+function aplicarFiltros() {
+  const owner = document.getElementById("filtro-owner").value;
+  const riesgo = document.getElementById("filtro-riesgo").value;
+  const churn = document.getElementById("filtro-churn").value;
+
+  let df = datosOriginales.filter(r => {
+    if (owner !== "todos" && r["Dueño"] !== owner) return false;
+    if (riesgo !== "todos" && (r["Nivel de riesgo"] || "").toLowerCase() !== riesgo) return false;
+    if (churn !== "todos" && (r["Churn detectado"] || "").toLowerCase() !== churn) return false;
+    return true;
+  });
+
+  renderizar(df);
+}
+
+// ============================================================
+// RENDERIZAR DASHBOARD
+// ============================================================
+function renderizar(datos) {
+  const total = datos.length;
+  const churns = datos.filter(r => (r["Churn detectado"] || "").toLowerCase() === "sí").length;
+  const riesgo = datos.filter(r => (r["Churn detectado"] || "").toLowerCase() === "riesgo").length;
+  const ok = datos.filter(r => (r["Churn detectado"] || "").toLowerCase() === "no").length;
+
+  // Categorías
+  const cats = {};
+  datos.forEach(r => { const c = r["Categoría de churn"] || "N/A"; cats[c] = (cats[c] || 0) + 1; });
+  const catsSorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+
+  // Riesgo
+  const riesgos = {};
+  datos.forEach(r => { const v = (r["Nivel de riesgo"] || "N/A").toLowerCase(); riesgos[v] = (riesgos[v] || 0) + 1; });
+
+  // Por owner
+  const byOwner = {};
+  datos.forEach(r => {
+    const o = r["Dueño"] || "Sin asignar";
+    const c = (r["Churn detectado"] || "sin datos").toLowerCase();
+    if (!byOwner[o]) byOwner[o] = { sí: 0, riesgo: 0, no: 0 };
+    byOwner[o][c] = (byOwner[o][c] || 0) + 1;
+  });
+
+  document.getElementById("contenido").innerHTML = `
+    <div class="metrics">
+      <div class="metric">
+        <div class="label">Total llamadas</div>
+        <div class="value">${total}</div>
+      </div>
+      <div class="metric red">
+        <div class="label">🔴 Churn confirmado</div>
+        <div class="value">${churns}</div>
+        <div class="sub">${total ? Math.round(churns/total*100) : 0}% del total</div>
+      </div>
+      <div class="metric orange">
+        <div class="label">🟠 En riesgo</div>
+        <div class="value">${riesgo}</div>
+        <div class="sub">${total ? Math.round(riesgo/total*100) : 0}% del total</div>
+      </div>
+      <div class="metric green">
+        <div class="label">🟢 Sin riesgo</div>
+        <div class="value">${ok}</div>
+        <div class="sub">${total ? Math.round(ok/total*100) : 0}% del total</div>
+      </div>
+    </div>
+
+    <div class="charts">
+      <div class="chart-card">
+        <h3>🔥 Motivos de Churn por Categoría</h3>
+        <canvas id="chart-cats"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>🎯 Distribución de Riesgo</h3>
+        <canvas id="chart-riesgo"></canvas>
+      </div>
+      <div class="chart-card full">
+        <h3>👥 Churn por Owner</h3>
+        <canvas id="chart-owner"></canvas>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <h3>📋 Detalle de Clientes (${total})</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Owner</th><th>Fecha</th><th>Cliente</th>
+            <th>Churn</th><th>Categoría</th><th>Riesgo</th><th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${datos.map(r => `
+            <tr>
+              <td>${r["Dueño"] || "-"}</td>
+              <td>${r["Fecha"] || "-"}</td>
+              <td><strong>${r["Cliente"] || "-"}</strong></td>
+              <td><span class="badge ${(r["Churn detectado"]||"").toLowerCase()}">${r["Churn detectado"] || "-"}</span></td>
+              <td>${r["Categoría de churn"] || "-"}</td>
+              <td><span class="badge ${(r["Nivel de riesgo"]||"").toLowerCase()}">${r["Nivel de riesgo"] || "-"}</span></td>
+              <td>${r["Motivo principal"] || "-"}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Destruir charts anteriores
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+
+  // Chart categorías
+  charts.cats = new Chart(document.getElementById("chart-cats"), {
+    type: "bar",
+    data: {
+      labels: catsSorted.map(c => c[0]),
+      datasets: [{ data: catsSorted.map(c => c[1]), backgroundColor: "#FF4B4B99", borderColor: "#FF4B4B", borderWidth: 1 }]
+    },
+    options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+  });
+
+  // Chart riesgo
+  const riesgoColors = { alto: "#FF4B4B", medio: "#FFA500", bajo: "#00CC96", "n/a": "#CCCCCC" };
+  charts.riesgo = new Chart(document.getElementById("chart-riesgo"), {
+    type: "doughnut",
+    data: {
+      labels: Object.keys(riesgos),
+      datasets: [{ data: Object.values(riesgos), backgroundColor: Object.keys(riesgos).map(k => riesgoColors[k] || "#CCCCCC") }]
+    },
+    options: { plugins: { legend: { position: "bottom" } } }
+  });
+
+  // Chart por owner
+  const owners = Object.keys(byOwner);
+  charts.owner = new Chart(document.getElementById("chart-owner"), {
+    type: "bar",
+    data: {
+      labels: owners,
+      datasets: [
+        { label: "Churn", data: owners.map(o => byOwner[o]["sí"] || 0), backgroundColor: "#FF4B4B99" },
+        { label: "Riesgo", data: owners.map(o => byOwner[o]["riesgo"] || 0), backgroundColor: "#FFA50099" },
+        { label: "Sin riesgo", data: owners.map(o => byOwner[o]["no"] || 0), backgroundColor: "#00CC9699" }
+      ]
+    },
+    options: { plugins: { legend: { position: "bottom" } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+  });
+}
+
+cargarDatos();
+cargarResumen();
+</script>
+</body>
+</html>

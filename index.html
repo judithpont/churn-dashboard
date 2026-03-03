@@ -10,17 +10,28 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
 
-    header { background: #1a1a2e; color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    header { background: #1a1a2e; color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     header h1 { font-size: 22px; font-weight: 700; }
     header span { font-size: 13px; opacity: 0.6; }
 
-    nav { background: white; border-bottom: 1px solid #e0e0e0; display: flex; padding: 0 32px; gap: 4px; }
-    nav button { padding: 14px 20px; border: none; background: none; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    nav { background: white; border-bottom: 1px solid #e0e0e0; display: flex; padding: 0 32px; gap: 4px; overflow-x: auto; }
+    nav button { padding: 14px 20px; border: none; background: none; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; }
     nav button.active { color: #1a1a2e; border-bottom-color: #FF4B4B; font-weight: 700; }
+
+    /* FILTROS GLOBALES */
+    .global-filters { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .global-filters label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.4px; }
+    .global-filters input[type="date"] { padding: 7px 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; background: white; cursor: pointer; color: #333; }
+    .quick-btns { display: flex; gap: 6px; }
+    .quick-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 12px; background: white; cursor: pointer; color: #555; transition: all 0.15s; }
+    .quick-btn:hover { background: #f0f2f5; }
+    .quick-btn.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+    .gf-sep { width: 1px; height: 28px; background: #e0e0e0; }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* MÉTRICAS */
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 32px 0; }
     .metric { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .metric .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
@@ -30,115 +41,155 @@
     .metric.orange .value { color: #FFA500; }
     .metric.green .value { color: #00CC96; }
 
+    /* CHARTS */
     .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
     .chart-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
     .chart-card.full { grid-column: 1 / -1; }
 
-    /* FILTROS TABLA */
-    .table-filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    /* TABLA */
+    .table-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
     .table-filters label { font-size: 13px; font-weight: 600; color: #666; }
-    .table-filters select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; background: white; cursor: pointer; }
-    .table-filters .reset-btn { padding: 8px 14px; background: #f0f2f5; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; cursor: pointer; color: #555; }
-    .table-filters .reset-btn:hover { background: #e0e2e5; }
-    .result-count { font-size: 13px; color: #888; margin-left: auto; }
-
+    .table-filters select, .table-filters input[type="text"] { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; background: white; }
+    .table-filters input[type="text"] { width: 180px; }
+    .reset-btn { padding: 8px 14px; background: #f0f2f5; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; cursor: pointer; }
+    .result-count { font-size: 13px; color: #888; margin-left: auto; font-weight: 600; }
     .table-section { padding: 24px 32px 32px; }
-    .table-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
-    .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; cursor: pointer; user-select: none; }
-    th:hover { background: #2a2a3e; }
+    .table-section > h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
+    .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; }
     td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f8f9ff; }
-
-    /* RESUMEN EXPANDIBLE */
-    .resumen-cell { max-width: 320px; }
+    .resumen-cell { max-width: 300px; }
     .resumen-short { color: #666; line-height: 1.5; font-size: 12px; }
-    .resumen-full { display: none; color: #444; line-height: 1.6; font-size: 12px; white-space: pre-wrap; }
+    .resumen-full { display: none; color: #333; line-height: 1.6; font-size: 12px; margin-top: 6px; background: #f8f9ff; padding: 8px; border-radius: 6px; }
     .ver-mas { color: #4B8BFF; font-size: 11px; cursor: pointer; margin-top: 4px; display: inline-block; }
-    .ver-mas:hover { text-decoration: underline; }
 
-    /* TOOLTIP CATEGORÍA */
+    /* TOOLTIP */
     .cat-wrap { position: relative; display: inline-block; }
     .cat-label { cursor: help; border-bottom: 1px dashed #aaa; }
-    .tooltip { display: none; position: absolute; z-index: 100; background: #1a1a2e; color: white; padding: 10px 14px; border-radius: 8px; font-size: 12px; line-height: 1.6; width: 260px; top: 100%; left: 0; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .cat-wrap:hover .tooltip { display: block; }
+    .tooltip-box { display: none; position: absolute; z-index: 999; background: #1a1a2e; color: white; padding: 10px 14px; border-radius: 8px; font-size: 12px; line-height: 1.6; width: 240px; top: 100%; left: 0; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .cat-wrap:hover .tooltip-box { display: block; }
 
+    /* BADGES */
     .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge.alto, .badge.sí, .badge.si { background: #FFE0E0; color: #CC0000; }
     .badge.medio, .badge.riesgo { background: #FFF3E0; color: #CC7700; }
     .badge.bajo, .badge.no { background: #E0FFE0; color: #007700; }
 
     /* INSIGHTS */
-    .insights-page { padding: 24px 32px 32px; }
+    .insights-page { padding: 24px 32px 32px; max-width: 1200px; }
+
     .insight-block { background: white; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
-    .insight-block.highlight { border-left: 4px solid #FF4B4B; }
-    .insight-block.warning { border-left: 4px solid #FFA500; }
-    .insight-block.success { border-left: 4px solid #00CC96; }
-    .insight-block.mgmt { border-left: 4px solid #4B8BFF; background: #f8f9ff; }
-    .insight-block h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e; }
-    .insight-block h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; color: #333; }
-    .insight-block p { font-size: 14px; line-height: 1.8; color: #555; }
-    .insight-tag { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-bottom: 12px; font-weight: 600; }
-    .insight-tag.red { background: #FF4B4B; color: white; }
-    .insight-tag.orange { background: #FFA500; color: white; }
-    .insight-tag.green { background: #00CC96; color: white; }
-    .insight-tag.blue { background: #4B8BFF; color: white; }
+    .insight-block.red-border { border-left: 4px solid #FF4B4B; }
+    .insight-block.orange-border { border-left: 4px solid #FFA500; }
+    .insight-block.green-border { border-left: 4px solid #00CC96; }
+    .insight-block.blue-border { border-left: 4px solid #4B8BFF; background: #f8f9ff; }
+    .insight-block.dark-border { border-left: 4px solid #1a1a2e; }
 
-    .mgmt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
-    .mgmt-item { background: white; border-radius: 8px; padding: 16px; border: 1px solid #e0e8ff; }
-    .mgmt-item .mgmt-n { font-size: 36px; font-weight: 800; color: #FF4B4B; }
-    .mgmt-item .mgmt-label { font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; }
-    .mgmt-item .mgmt-desc { font-size: 13px; color: #444; line-height: 1.5; }
+    .insight-block h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+    .insight-block h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; color: #333; }
+    .insight-block p { font-size: 14px; line-height: 1.9; color: #444; }
 
-    .causa-item { border-left: 3px solid #FF4B4B; padding: 12px 16px; margin-bottom: 10px; background: #fff5f5; border-radius: 0 8px 8px 0; }
-    .causa-item.orange { border-color: #FFA500; background: #fff8f0; }
-    .causa-item.blue { border-color: #4B8BFF; background: #f0f5ff; }
-    .causa-item .causa-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-    .causa-item .causa-desc { font-size: 13px; color: #555; line-height: 1.6; }
-    .causa-item .causa-n { float: right; font-size: 22px; font-weight: 800; color: #FF4B4B; }
-    .causa-item.orange .causa-n { color: #FFA500; }
-    .causa-item.blue .causa-n { color: #4B8BFF; }
+    .tag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; font-weight: 700; }
+    .tag.red { background: #FF4B4B; color: white; }
+    .tag.orange { background: #FFA500; color: white; }
+    .tag.green { background: #00CC96; color: white; }
+    .tag.blue { background: #4B8BFF; color: white; }
+    .tag.dark { background: #1a1a2e; color: white; }
 
-    .patron-box { background: #fff8e1; border: 1px solid #FFD54F; border-radius: 8px; padding: 16px; margin-top: 12px; font-size: 14px; color: #5D4037; line-height: 1.7; }
+    /* SEÑALES DE ALERTA */
+    .alert-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+    .alert-item { border-radius: 10px; padding: 16px; }
+    .alert-item.red { background: #fff0f0; border: 1px solid #ffcccc; }
+    .alert-item.orange { background: #fff8f0; border: 1px solid #ffd9aa; }
+    .alert-item.blue { background: #f0f5ff; border: 1px solid #b3c9ff; }
+    .alert-item .alert-n { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
+    .alert-item.red .alert-n { color: #FF4B4B; }
+    .alert-item.orange .alert-n { color: #FFA500; }
+    .alert-item.blue .alert-n { color: #4B8BFF; }
+    .alert-item .alert-label { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
+    .alert-item .alert-desc { font-size: 12px; color: #666; line-height: 1.5; }
 
-    .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
-    .cat-item { background: #f8f9ff; border-radius: 8px; padding: 16px; }
-    .cat-item .cat-count { font-size: 28px; font-weight: 800; color: #FF4B4B; }
-    .cat-item .cat-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
-    .cat-item .cat-clients { font-size: 12px; color: #888; margin-top: 6px; }
-    .cat-freq { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
-    .cat-freq.alta { background: #FFE0E0; color: #CC0000; }
-    .cat-freq.media { background: #FFF0E0; color: #CC5500; }
-    .cat-freq.baja { background: #E0FFE0; color: #007700; }
+    /* CAUSAS */
+    .causa-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .causa { display: flex; align-items: flex-start; gap: 16px; background: #f8f9ff; border-radius: 10px; padding: 16px; }
+    .causa .causa-n { font-size: 32px; font-weight: 900; min-width: 56px; text-align: center; }
+    .causa.c1 .causa-n { color: #FF4B4B; }
+    .causa.c2 .causa-n { color: #FF7043; }
+    .causa.c3 .causa-n { color: #FFA500; }
+    .causa.c4 .causa-n { color: #FFB300; }
+    .causa .causa-body {}
+    .causa .causa-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .causa .causa-desc { font-size: 13px; color: #555; line-height: 1.6; }
+    .causa .causa-clientes { font-size: 12px; color: #888; margin-top: 6px; }
+    .causa .causa-pct { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: #FFE0E0; color: #CC0000; display: inline-block; margin-left: 8px; }
 
-    .owners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .owner-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid #1a1a2e; }
-    .owner-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-    .owner-stats { display: flex; gap: 12px; margin: 12px 0; }
-    .owner-stat { text-align: center; }
-    .owner-stat .n { font-size: 24px; font-weight: 800; }
-    .owner-stat .l { font-size: 11px; color: #888; }
+    /* SIN CATEGORÍA AGRUPADO */
+    .sincategoria-box { margin-top: 12px; background: #fffbe6; border: 1px solid #ffe082; border-radius: 8px; padding: 14px 16px; }
+    .sincategoria-box h4 { font-size: 13px; font-weight: 700; color: #7a5c00; margin-bottom: 8px; }
+    .sincategoria-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sincategoria-tag { font-size: 11px; background: #fff3cd; border: 1px solid #ffe082; color: #7a5c00; padding: 3px 10px; border-radius: 20px; }
+
+    /* URGENTES */
+    .urgentes-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .urgente-item { display: flex; align-items: center; gap: 12px; background: #fff5f5; border: 1px solid #ffdddd; border-radius: 8px; padding: 12px 16px; cursor: pointer; }
+    .urgente-item:hover { background: #ffe8e8; }
+    .urgente-item .u-owner { font-size: 11px; background: #1a1a2e; color: white; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .urgente-item .u-cliente { font-weight: 700; font-size: 14px; flex: 1; }
+    .urgente-item .u-cat { font-size: 12px; color: #888; }
+    .urgente-item .u-badge { font-size: 11px; font-weight: 700; background: #FFE0E0; color: #CC0000; padding: 2px 8px; border-radius: 20px; }
+    .urgente-detail { display: none; font-size: 12px; color: #555; padding: 8px 16px 12px; line-height: 1.6; background: #fff5f5; border: 1px solid #ffdddd; border-top: none; border-radius: 0 0 8px 8px; margin-top: -8px; }
+
+    /* PATRON */
+    .patron-steps { display: flex; gap: 0; margin-top: 16px; flex-wrap: wrap; }
+    .patron-step { background: #fff8e1; border: 1px solid #FFD54F; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #5D4037; flex: 1; min-width: 140px; text-align: center; position: relative; }
+    .patron-step:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #FFA500; z-index: 1; }
+    .patron-step strong { display: block; font-size: 11px; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+
+    /* RECOMENDACIONES */
+    .rec-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 12px; }
+    .rec-item { border-radius: 8px; padding: 16px; }
+    .rec-item.r1 { background: #fff0f0; border-left: 3px solid #FF4B4B; }
+    .rec-item.r2 { background: #fff8f0; border-left: 3px solid #FFA500; }
+    .rec-item.r3 { background: #f0fff8; border-left: 3px solid #00CC96; }
+    .rec-item .rec-plazo { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+    .rec-item .rec-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+    .rec-item .rec-desc { font-size: 13px; color: #555; line-height: 1.6; }
+
+    /* OWNERS */
+    .owners-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .owner-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .owner-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+    .owner-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
+    .owner-stat { text-align: center; background: #f8f9ff; border-radius: 8px; padding: 8px 4px; }
+    .owner-stat .n { font-size: 22px; font-weight: 800; }
+    .owner-stat .l { font-size: 10px; color: #888; text-transform: uppercase; }
     .owner-stat.red .n { color: #FF4B4B; }
     .owner-stat.orange .n { color: #FFA500; }
     .owner-stat.green .n { color: #00CC96; }
-    .owner-top { font-size: 12px; background: #fff0f0; border-left: 3px solid #FF4B4B; padding: 8px 12px; border-radius: 4px; color: #333; margin-top: 10px; }
-    .owner-motivos { margin-top: 10px; }
-    .owner-motivo { font-size: 12px; color: #555; padding: 6px 0; border-bottom: 1px solid #f5f5f5; line-height: 1.4; cursor: pointer; }
-    .owner-motivo:hover { color: #1a1a2e; }
-    .owner-motivo-full { display: none; font-size: 12px; color: #333; background: #f8f9ff; padding: 8px; border-radius: 6px; margin-top: 4px; line-height: 1.5; }
+    .owner-rate { font-size: 13px; background: #fff0f0; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; }
+    .owner-rate span { font-weight: 800; color: #FF4B4B; font-size: 18px; }
+    .owner-top { font-size: 12px; color: #666; margin-bottom: 10px; padding: 8px 12px; background: #f8f9ff; border-radius: 6px; }
+    .owner-casos { font-size: 12px; color: #333; }
+    .owner-caso { padding: 8px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+    .owner-caso:last-child { border-bottom: none; }
+    .owner-caso:hover { color: #FF4B4B; }
+    .owner-caso-det { display: none; font-size: 11px; color: #666; padding: 6px 8px; background: #f8f9ff; border-radius: 4px; margin-top: 4px; line-height: 1.5; }
 
     .loading { text-align: center; padding: 80px; color: #888; font-size: 16px; }
     footer { text-align: center; padding: 24px; color: #999; font-size: 12px; }
 
-    @media (max-width: 900px) {
-      .metrics { grid-template-columns: repeat(2, 1fr); }
-      .charts { grid-template-columns: 1fr; }
-      .owners-grid { grid-template-columns: 1fr; }
-      .cat-grid { grid-template-columns: 1fr; }
-      .mgmt-grid { grid-template-columns: 1fr; }
+    @media(max-width:900px) {
+      .metrics{grid-template-columns:repeat(2,1fr);}
+      .charts{grid-template-columns:1fr;}
+      .alert-grid{grid-template-columns:1fr;}
+      .rec-grid{grid-template-columns:1fr;}
+      .owners-grid{grid-template-columns:1fr;}
+      .patron-steps{flex-direction:column;}
+      .patron-step:not(:last-child)::after{content:"↓";right:auto;top:auto;bottom:-14px;left:50%;}
     }
   </style>
 </head>
@@ -150,13 +201,29 @@
 </header>
 
 <nav>
-  <button class="active" onclick="mostrarTab('dashboard', this)">📊 Dashboard</button>
-  <button onclick="mostrarTab('insights', this)">🧠 Insights de Churn</button>
-  <button onclick="mostrarTab('owners', this)">👥 Por Owner</button>
+  <button class="active" onclick="tab('dashboard',this)">📊 Dashboard</button>
+  <button onclick="tab('insights',this)">🧠 Insights</button>
+  <button onclick="tab('owners',this)">👥 Por Owner</button>
 </nav>
 
+<!-- FILTROS GLOBALES (afectan todas las pestañas) -->
+<div class="global-filters">
+  <label>📅 Período</label>
+  <div class="quick-btns">
+    <button class="quick-btn active" id="qb-todo" onclick="setPeriodo('todo',this)">Todo</button>
+    <button class="quick-btn" id="qb-7d" onclick="setPeriodo('7d',this)">7 días</button>
+    <button class="quick-btn" id="qb-30d" onclick="setPeriodo('30d',this)">30 días</button>
+    <button class="quick-btn" id="qb-90d" onclick="setPeriodo('90d',this)">3 meses</button>
+  </div>
+  <div class="gf-sep"></div>
+  <label>Desde</label>
+  <input type="date" id="gf-desde" onchange="onDateChange()" />
+  <label>Hasta</label>
+  <input type="date" id="gf-hasta" onchange="onDateChange()" />
+</div>
+
 <div id="tab-dashboard" class="tab-content active">
-  <div id="cont-dashboard"><div class="loading">⏳ Cargando datos...</div></div>
+  <div id="cont-dashboard"><div class="loading">⏳ Cargando...</div></div>
 </div>
 <div id="tab-insights" class="tab-content">
   <div class="insights-page" id="cont-insights"><div class="loading">⏳ Cargando...</div></div>
@@ -165,88 +232,238 @@
   <div class="insights-page" id="cont-owners"><div class="loading">⏳ Cargando...</div></div>
 </div>
 
-<footer>🔄 Actualizado diariamente a las 8:00 AM · Análisis con Claude AI</footer>
+<footer>🔄 Actualizado diariamente a las 8:00 AM · Análisis automático</footer>
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=0&single=true&output=csv";
-const DUENOS = ["Victor Ortega", "Óscar Lopo", "Martina Benalcazar", "Kamila Jiménez", "Gonzalo Rosales", "Franco Ferretti"];
+const DUENOS = ["Victor Ortega","Óscar Lopo","Martina Benalcazar","Kamila Jiménez","Gonzalo Rosales","Franco Ferretti"];
 
+// ============================================================
+// DETECCIÓN DE CHURN
+// ============================================================
 const CHURN_KW = {
-  "sí": ["cancela", "cancel", "baja definitiv", "devoluci", "no quiere continuar", "no desea continuar", "reembolso", "insatisf", "no voy a seguir", "no está interesada en continuar", "no tiene intención de continuar"],
-  "riesgo": ["frustrac", "no ve valor", "no entiende", "considera cancel", "no funciona", "problema técnico", "fallo", "no ha visto", "no recibe", "percepción negativa", "evaluar", "reconsiderar", "plantea dejar", "no está satisf", "no está conten"]
+  "sí": [
+    "cancela","baja definitiv","devoluci","no quiere continuar","no desea continuar",
+    "reembolso","insatisf","no voy a seguir","no está interesada en continuar",
+    "no tiene intención de continuar","definitivamente no","dar de baja","quiere darse de baja",
+    "ha decidido cancelar","ha cancelado","no va a renovar","no quiere renovar",
+    "solicita la baja","pide la baja","quiere la baja","no continuará","fin del contrato",
+    "no renueva","se da de baja"
+  ],
+  "riesgo": [
+    "frustrac","no ve valor","no entiende","considera cancel","no funciona","fallo",
+    "no ha visto publicac","no recibe","percepción negativa","evaluar","reconsiderar",
+    "plantea dejar","no está satisf","no está conten","considera abandonar","piensa en dejar",
+    "está pensando en","se lo está pensando","dudas sobre","evalúa si","no está seguro de continuar",
+    "planteado cancelar","en duda","pendiente de decidir","no sabe si continuar",
+    "decepcionado","no ve el retorno","no ve resultados","falta de resultados",
+    "no justifica el precio","demasiado caro","muy caro para lo que da","no merece la pena",
+    "no está funcionando","queja","insatisfecho","no convence","replantea"
+  ]
 };
 
+// ============================================================
+// CATEGORÍAS (ordenadas: más específicas primero)
+// ============================================================
 const CAT_KW = {
-  "Fallos técnicos":           ["vinculaci", "no se publica", "error técnico", "no funciona", "fallo técnico", "metricool", "carga lenta", "sincroniz", "bloqueo técnico", "no aparece", "publicación fallida"],
-  "Onboarding deficiente":     ["no entiende", "no sabe cómo", "confus", "demo en vivo", "no sabe usar", "no comprende", "cómo funciona", "no ha revisado", "no ha usado", "no ha explorado"],
-  "Bajo valor percibido":      ["no ve valor", "no ve resultados", "no justifica", "sin resultados", "no ha visto resultados", "no genera leads", "no genera ventas", "retorno", "no ve beneficio"],
-  "Contenido irrelevante":     ["no refleja", "contenido genérico", "no se ajusta", "propuesta fría", "no personaliz", "chat gpt", "automático sin", "no es relevante", "no captura"],
-  "Soporte deficiente":        ["no responde", "sin respuesta", "falta de comunicación", "no atiende", "múltiples contactos", "sin seguimiento", "no gestiona", "lentitud en"],
-  "Sorpresas en facturación":  ["cobro inesperado", "factura", "pago sin aviso", "no avisaron", "cargo inesperado", "no esperaba el cobro", "prueba gratuita", "cobro sin"],
-  "Limitaciones del producto": ["linkedin", "no permite cargar", "catalán", "limitación de la plataforma", "no soporta", "solo móvil", "no puede desde ordenador"],
-  "Razones externas":          ["crisis económica", "cambio laboral", "otra agencia", "traslado", "falta de tiempo", "circunstancias personales", "no tiene tiempo"]
+  "Sorpresas en facturación": [
+    "cobro inesperado","pago sin aviso","no avisaron del cobro","cargo inesperado",
+    "no esperaba el cobro","prueba gratuita","cobro sin previo","cobro automático",
+    "factura sorpresa","renovación automática","no sabía que se le cobraría",
+    "sin aviso de cobro","precio no esperado","tarifa","le cobraron sin","billing",
+    "pago no autorizado","recibo inesperado","cobrado sin","no se le notificó el cobro"
+  ],
+  "Fallos técnicos": [
+    "vinculaci","no se publica","error técnico","no funciona","metricool",
+    "carga lenta","sincroniz","bloqueo técnico","no aparece","publicación fallida",
+    "no puede conectar","no publica","problema con la cuenta","cuenta bloqueada",
+    "no sube","no se sube","falla la","falla el","error en","fallo en",
+    "no conecta","desvincula","reconectar","no está publicando","publicaciones no salen",
+    "instagram no","facebook no","no está vincula","volver a vincular","permisos",
+    "problema técnico","issue técnico","bug","no carga","acceso bloqueado",
+    "no puede entrar","contraseña","credenciales","token expirado"
+  ],
+  "Onboarding deficiente": [
+    "no entiende","no sabe cómo","confus","demo en vivo","no sabe usar",
+    "no comprende","cómo funciona","no ha revisado","no ha usado","no ha explorado",
+    "primera llamada","nunca ha usado","no ha empezado","no ha iniciado",
+    "primera vez que usa","explicar cómo","formación","tutorial","no ha podido acceder",
+    "no ha entrado","no ha visto la plataforma","no ha probado","le cuesta entender",
+    "no le queda claro","quiere que le expliquen","requiere ayuda para empezar",
+    "orientar al cliente","cliente nuevo","recién contratado","recién empezado",
+    "sin formación","no ha recibido formación","no sabe solicitar cambios"
+  ],
+  "Soporte deficiente": [
+    "no responde","sin respuesta","falta de comunicación","no atiende",
+    "múltiples contactos","sin seguimiento","no gestiona","lentitud en respuesta",
+    "no me responden","nadie me llama","no hay seguimiento","nadie me atiende",
+    "no he recibido respuesta","llevo esperando","días sin respuesta","semanas sin",
+    "no tiene respuesta","falta de atención","no se le hace caso","ignorado",
+    "no recibe feedback","tardanza en responder","demora en responder",
+    "no contestan","sin contacto desde","no dan señales de vida","abandono por parte de",
+    "mala comunicación","desatendido","no se le atiende","no hay persona de contacto"
+  ],
+  "Contenido irrelevante": [
+    "no refleja","contenido genérico","no se ajusta","propuesta fría","no personaliz",
+    "chat gpt","automático sin","no es relevante","no captura su negocio",
+    "no le gusta el contenido","contenido no representa","no le representa",
+    "no se identifica","no es lo que esperaba","cambiar el tono","cambiar el estilo",
+    "muy genérico","podría ser de cualquier empresa","no parece su empresa","no encaja",
+    "demasiado genérico","sin personalidad","no transmite su imagen","contenido repetitivo",
+    "propuesta no convence","no refleja su imagen","no refleja su marca",
+    "no habla de su negocio","contenido no es lo que quiere","no conecta con su audiencia",
+    "fotos no le gustan","diseño no le gusta","no le convence el contenido"
+  ],
+  "Bajo valor percibido": [
+    "no ve valor","no ve resultados","no justifica","sin resultados visibles",
+    "no ha visto resultados","no genera leads","no genera ventas","no ve beneficio",
+    "no ve retorno","no vale lo que cuesta","muy caro","no merece la pena",
+    "no está viendo impacto","expectativas no cumplidas","frustrado con los resultados",
+    "sin impacto","no está generando nada","no le aporta","no le sirve de nada",
+    "decepcionado con los resultados","no ha conseguido nada","inversión no rentable",
+    "no se justifica el coste","no está rentando","no le está ayudando a crecer",
+    "no ve el retorno de inversión","no ve mejora","nada ha cambiado desde que empezó",
+    "igual que antes de contratar","no nota diferencia","no crecen sus seguidores",
+    "no aumenta el engagement","no ve crecimiento"
+  ],
+  "Limitaciones del producto": [
+    "linkedin","no permite cargar","catalán","limitación de la plataforma",
+    "solo móvil","no puede desde ordenador","no tiene esta función","no puede hacer esto",
+    "falta la opción","no hay forma de","no soporta","no admite","solo instagram",
+    "no tiene linkedin","no permite subir","cargar archivos","desde pc","desde mac",
+    "plataforma limitada","funcionalidad no disponible","no está disponible en","no está en",
+    "no tiene esa opción","la app no permite","no puede programar desde","no permite vídeo",
+    "no gestiona tiktok","no tiene tiktok","idioma","euskera","valenciano"
+  ],
+  "Razones externas": [
+    "crisis económica","cambio laboral","otra agencia","traslado","falta de tiempo",
+    "circunstancias personales","cierra el negocio","cambia de negocio","se va de viaje",
+    "fuera del país","se jubila","vende el negocio","no tiene presupuesto",
+    "recorte de gastos","ajuste de presupuesto","reducción de costes","no puede permitirse",
+    "tema personal","situación personal","motivos personales","por ahora no puede",
+    "temporalmente no puede","pausa por","lo dejamos para más adelante",
+    "no es el momento","malas ventas","negocio va mal","dificultades económicas",
+    "está en un momento difícil","prioridades han cambiado","no puede pagar"
+  ]
 };
 
 const CAT_DESC = {
-  "Fallos técnicos": "Problemas con la vinculación de Instagram/Facebook, publicaciones que no salen, errores en la plataforma o carga lenta.",
-  "Onboarding deficiente": "El cliente no entiende cómo funciona la plataforma, no sabe solicitar cambios ni usar las funciones básicas.",
-  "Bajo valor percibido": "El cliente no ve resultados tangibles (ventas, leads, engagement) y siente que no justifica la inversión.",
-  "Contenido irrelevante": "Las propuestas son genéricas y no reflejan el negocio del cliente. Sensación de contenido automatizado sin personalización.",
-  "Soporte deficiente": "Lentitud en respuestas, múltiples interlocutores sin continuidad, solicitudes de cambio ignoradas.",
+  "Fallos técnicos":          "Problemas con vinculación de Instagram/Facebook, publicaciones que no salen, errores en plataforma o carga lenta.",
+  "Onboarding deficiente":    "El cliente no entiende cómo funciona la plataforma, no sabe solicitar cambios ni usar las funciones básicas.",
+  "Bajo valor percibido":     "No ve resultados tangibles (ventas, leads, engagement) y siente que no justifica la inversión.",
+  "Contenido irrelevante":    "Propuestas genéricas que no reflejan el negocio del cliente. Sensación de contenido automatizado sin personalización.",
+  "Soporte deficiente":       "Lentitud en respuestas, múltiples interlocutores sin continuidad, solicitudes ignoradas.",
   "Sorpresas en facturación": "Cobros inesperados, falta de transparencia sobre condiciones del plan o política de cancelación.",
-  "Limitaciones del producto": "La plataforma no gestiona LinkedIn, no permite cargar archivos desde ordenador, problemas con idiomas.",
-  "Razones externas": "Cancelaciones por crisis económica personal, cambio a otra agencia, falta de tiempo o circunstancias personales."
+  "Limitaciones del producto":"La plataforma no gestiona LinkedIn/TikTok, no permite cargar archivos desde ordenador, problemas de idioma.",
+  "Razones externas":         "Crisis económica personal, cambio a otra agencia, falta de tiempo o circunstancias personales.",
+  "Sin categoría":            "Llamada no clasificada automáticamente. Puede ser una llamada positiva, de seguimiento o con contenido muy específico."
 };
 
-let datos = [];
-let charts = {};
-let filtroChurn = "todos", filtroOwner = "todos", filtroCategoria = "todos";
+const CAT_ACCION = {
+  "Fallos técnicos":          "Revisar vinculación de cuentas y programación de publicaciones en las primeras 48h.",
+  "Onboarding deficiente":    "Agendar sesión de onboarding obligatoria en los primeros 3 días post-contratación.",
+  "Bajo valor percibido":     "Mostrar métricas de presencia digital y alinear expectativas desde la venta.",
+  "Contenido irrelevante":    "Rellenar brief detallado del negocio y revisar las primeras 3 propuestas con el cliente.",
+  "Soporte deficiente":       "Asignar un único punto de contacto y definir SLA de respuesta máxima de 24h.",
+  "Sorpresas en facturación": "Enviar email de aviso 7 días antes del cobro con resumen del servicio del mes.",
+  "Limitaciones del producto":"Informar proactivamente de las limitaciones y ofrecer alternativas manuales.",
+  "Razones externas":         "Ofrecer pausa del servicio en lugar de cancelación para recuperar el cliente en el futuro.",
+  "Sin categoría":            "Revisar manualmente estas llamadas para identificar patrones no detectados automáticamente."
+};
+
+let datos = [], charts = {},
+    filtroC="todos", filtroO="todos", filtroK="todos", busqueda="",
+    filtroDesde="", filtroHasta="";
+
+// ============================================================
+// FECHA HELPERS
+// ============================================================
+function parseDate(s) {
+  if (!s) return null;
+  // DD/MM/YYYY
+  const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m1) return new Date(parseInt(m1[3]), parseInt(m1[2])-1, parseInt(m1[1]));
+  // YYYY-MM-DD
+  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m2) return new Date(parseInt(m2[1]), parseInt(m2[2])-1, parseInt(m2[3]));
+  // DD-MM-YYYY
+  const m3 = s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if (m3) return new Date(parseInt(m3[3]), parseInt(m3[2])-1, parseInt(m3[1]));
+  return null;
+}
+function toInputDate(d) {
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${dd}`;
+}
+function setPeriodo(p, btn) {
+  document.querySelectorAll(".quick-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  const hoy = new Date();
+  if (p==="todo") {
+    filtroDesde=""; filtroHasta="";
+    document.getElementById("gf-desde").value="";
+    document.getElementById("gf-hasta").value="";
+  } else {
+    const dias = p==="7d"?7:p==="30d"?30:90;
+    const desde = new Date(); desde.setDate(hoy.getDate()-dias);
+    filtroDesde=toInputDate(desde); filtroHasta=toInputDate(hoy);
+    document.getElementById("gf-desde").value=filtroDesde;
+    document.getElementById("gf-hasta").value=filtroHasta;
+  }
+  reRenderAll();
+}
+function onDateChange() {
+  filtroDesde=document.getElementById("gf-desde").value;
+  filtroHasta=document.getElementById("gf-hasta").value;
+  document.querySelectorAll(".quick-btn").forEach(b=>b.classList.remove("active"));
+  reRenderAll();
+}
 
 // ============================================================
 // NAV
 // ============================================================
-function mostrarTab(tab, btn) {
-  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  document.getElementById("tab-" + tab).classList.add("active");
+function tab(id, btn) {
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
   btn.classList.add("active");
 }
 
 // ============================================================
 // DETECCIÓN
 // ============================================================
-function detectarChurn(r) {
-  const t = (r||"").toLowerCase();
-  for (const kw of CHURN_KW["sí"]) if (t.includes(kw)) return "sí";
-  for (const kw of CHURN_KW["riesgo"]) if (t.includes(kw)) return "riesgo";
+function detChurn(r){
+  const t=(r||"").toLowerCase();
+  for(const kw of CHURN_KW["sí"]) if(t.includes(kw)) return "sí";
+  for(const kw of CHURN_KW["riesgo"]) if(t.includes(kw)) return "riesgo";
   return "no";
 }
-function detectarCategoria(r) {
-  const t = (r||"").toLowerCase();
-  for (const [cat, kws] of Object.entries(CAT_KW)) if (kws.some(kw => t.includes(kw))) return cat;
+function detCat(r){
+  const t=(r||"").toLowerCase();
+  for(const[cat,kws] of Object.entries(CAT_KW)) if(kws.some(kw=>t.includes(kw))) return cat;
   return "Sin categoría";
 }
-function detectarRiesgo(c) { return c==="sí"?"alto":c==="riesgo"?"medio":"bajo"; }
+function detRiesgo(c){ return c==="sí"?"alto":c==="riesgo"?"medio":"bajo"; }
 
 // ============================================================
 // CARGAR
 // ============================================================
-function cargar() {
-  Papa.parse(SHEET_URL, {
-    download: true, header: true, skipEmptyLines: true,
-    complete: function(r) {
-      const raw = r.data.filter(row => DUENOS.includes((row["Dueño"]||"").trim()));
-      datos = raw.map(row => ({
-        dueno:     (row["Dueño"]||"").trim(),
-        fecha:     row["Fecha"]||"",
-        cliente:   (row["Participante"]||row["Título"]||"").split(",")[0].trim(),
-        resumen:   row["Resumen IA"]||"",
-        churn:     detectarChurn(row["Resumen IA"]),
-        categoria: detectarCategoria(row["Resumen IA"]),
-        riesgo:    detectarRiesgo(detectarChurn(row["Resumen IA"]))
+function cargar(){
+  Papa.parse(SHEET_URL,{
+    download:true,header:true,skipEmptyLines:true,
+    complete:function(r){
+      const raw=r.data.filter(row=>DUENOS.includes((row["Dueño"]||"").trim()));
+      datos=raw.map(row=>({
+        dueno:(row["Dueño"]||"").trim(),
+        fecha:row["Fecha"]||"",
+        cliente:(row["Participante"]||"").trim(),   // solo Participante
+        resumen:row["Resumen IA"]||"",
+        churn:detChurn(row["Resumen IA"]),
+        cat:detCat(row["Resumen IA"]),
+        riesgo:detRiesgo(detChurn(row["Resumen IA"]))
       }));
-      const fechas = raw.map(r=>r["Fecha"]).filter(Boolean).sort().reverse();
-      if (fechas.length) document.getElementById("ultima-act").textContent = "Datos hasta: " + fechas[0];
+      const fechas=raw.map(r=>r["Fecha"]).filter(Boolean).sort().reverse();
+      if(fechas.length) document.getElementById("ultima-act").textContent="Datos hasta: "+fechas[0];
       renderDashboard();
       renderInsights();
       renderOwners();
@@ -255,307 +472,353 @@ function cargar() {
 }
 
 // ============================================================
+// DATOS BASE (filtro fecha global)
+// ============================================================
+function datosBase(){
+  return datos.filter(d=>{
+    if(!filtroDesde && !filtroHasta) return true;
+    const fd=parseDate(d.fecha);
+    if(!fd) return true;
+    if(filtroDesde && fd < parseDate(filtroDesde)) return false;
+    if(filtroHasta){ const h=parseDate(filtroHasta); h.setHours(23,59,59); if(fd>h) return false; }
+    return true;
+  });
+}
+
+// ============================================================
 // FILTROS TABLA
 // ============================================================
-function datosFiltrados() {
-  return datos.filter(d =>
-    (filtroChurn === "todos" || d.churn === filtroChurn) &&
-    (filtroOwner === "todos" || d.dueno === filtroOwner) &&
-    (filtroCategoria === "todos" || d.categoria === filtroCategoria)
+function filtrados(){
+  return datosBase().filter(d=>
+    (filtroC==="todos"||d.churn===filtroC)&&
+    (filtroO==="todos"||d.dueno===filtroO)&&
+    (filtroK==="todos"||d.cat===filtroK)&&
+    (!busqueda||d.cliente.toLowerCase().includes(busqueda.toLowerCase())||d.resumen.toLowerCase().includes(busqueda.toLowerCase()))
   );
 }
-
-function aplicarFiltros() {
-  filtroChurn     = document.getElementById("f-churn").value;
-  filtroOwner     = document.getElementById("f-owner").value;
-  filtroCategoria = document.getElementById("f-cat").value;
-  actualizarTabla();
+function applyFilters(){
+  filtroC=document.getElementById("f-c").value;
+  filtroO=document.getElementById("f-o").value;
+  filtroK=document.getElementById("f-k").value;
+  busqueda=document.getElementById("f-s").value;
+  renderTabla();
 }
-
-function resetFiltros() {
-  filtroChurn = filtroOwner = filtroCategoria = "todos";
-  document.getElementById("f-churn").value = "todos";
-  document.getElementById("f-owner").value = "todos";
-  document.getElementById("f-cat").value   = "todos";
-  actualizarTabla();
+function resetFilters(){
+  filtroC=filtroO=filtroK="todos"; busqueda="";
+  ["f-c","f-o","f-k"].forEach(id=>{document.getElementById(id).value="todos";});
+  document.getElementById("f-s").value="";
+  renderTabla();
 }
-
-function actualizarTabla() {
-  const df = datosFiltrados();
-  document.getElementById("result-count").textContent = df.length + " llamadas";
-  document.getElementById("tabla-body").innerHTML = df.map((d, i) => `
+function renderTabla(){
+  const df=filtrados();
+  document.getElementById("result-count").textContent=df.length+" llamadas";
+  document.getElementById("tbody").innerHTML=df.map((d,i)=>`
     <tr>
-      <td>${d.dueno}</td>
-      <td>${d.fecha}</td>
-      <td><strong>${d.cliente}</strong></td>
+      <td>${d.dueno}</td><td>${d.fecha}</td>
+      <td><strong>${d.cliente||"—"}</strong></td>
       <td><span class="badge ${d.churn}">${d.churn}</span></td>
-      <td>
-        <div class="cat-wrap">
-          <span class="cat-label">${d.categoria}</span>
-          <div class="tooltip">${CAT_DESC[d.categoria]||""}</div>
-        </div>
-      </td>
+      <td><div class="cat-wrap"><span class="cat-label">${d.cat}</span><div class="tooltip-box">${CAT_DESC[d.cat]||""}</div></div></td>
       <td><span class="badge ${d.riesgo}">${d.riesgo}</span></td>
       <td class="resumen-cell">
-        <div class="resumen-short" id="rs-${i}">${d.resumen.substring(0,120)}...</div>
-        <div class="resumen-full" id="rf-${i}">${d.resumen}</div>
-        <span class="ver-mas" onclick="toggleResumen(${i})">▼ Ver más</span>
+        <div class="resumen-short" id="rs${i}">${d.resumen.substring(0,110)}${d.resumen.length>110?"...":""}</div>
+        <div class="resumen-full" id="rf${i}">${d.resumen}</div>
+        ${d.resumen.length>110?`<span class="ver-mas" onclick="toggleR(${i})">▼ Ver más</span>`:""}
       </td>
     </tr>`).join("");
 }
+function toggleR(i){
+  const s=document.getElementById("rs"+i),f=document.getElementById("rf"+i),b=s.nextElementSibling.nextElementSibling;
+  if(f.style.display==="block"){f.style.display="none";s.style.display="block";b.textContent="▼ Ver más";}
+  else{f.style.display="block";s.style.display="none";b.textContent="▲ Ver menos";}
+}
 
-function toggleResumen(i) {
-  const s = document.getElementById("rs-"+i);
-  const f = document.getElementById("rf-"+i);
-  const btn = s.nextElementSibling.nextElementSibling;
-  if (f.style.display === "block") {
-    f.style.display = "none"; s.style.display = "block"; btn.textContent = "▼ Ver más";
-  } else {
-    f.style.display = "block"; s.style.display = "none"; btn.textContent = "▲ Ver menos";
-  }
+// ============================================================
+// RE-RENDER ALL (al cambiar fecha global)
+// ============================================================
+function reRenderAll(){
+  renderDashboard();
+  renderInsights();
+  renderOwners();
 }
 
 // ============================================================
 // DASHBOARD
 // ============================================================
-function renderDashboard() {
-  const total  = datos.length;
-  const churns = datos.filter(d => d.churn === "sí").length;
-  const riesgo = datos.filter(d => d.churn === "riesgo").length;
-  const ok     = datos.filter(d => d.churn === "no").length;
+function renderDashboard(){
+  const base=datosBase();
+  const total=base.length,churns=base.filter(d=>d.churn==="sí").length,
+        riesgo=base.filter(d=>d.churn==="riesgo").length,ok=base.filter(d=>d.churn==="no").length;
+  const cats={};base.forEach(d=>{cats[d.cat]=(cats[d.cat]||0)+1;});
+  const cS=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const riesgos={};base.forEach(d=>{riesgos[d.riesgo]=(riesgos[d.riesgo]||0)+1;});
+  const bO={};base.forEach(d=>{if(!bO[d.dueno])bO[d.dueno]={"sí":0,"riesgo":0,"no":0};bO[d.dueno][d.churn]++;});
+  const catsU=[...new Set(base.map(d=>d.cat))].sort();
 
-  const cats = {}; datos.forEach(d => { cats[d.categoria] = (cats[d.categoria]||0)+1; });
-  const catsSorted = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
-  const riesgos = {}; datos.forEach(d => { riesgos[d.riesgo] = (riesgos[d.riesgo]||0)+1; });
-  const byOwner = {};
-  datos.forEach(d => {
-    if (!byOwner[d.dueno]) byOwner[d.dueno] = {"sí":0,"riesgo":0,"no":0};
-    byOwner[d.dueno][d.churn]++;
-  });
-
-  const categoriasUnicas = [...new Set(datos.map(d=>d.categoria))].sort();
-
-  document.getElementById("cont-dashboard").innerHTML = `
+  document.getElementById("cont-dashboard").innerHTML=`
     <div class="metrics">
       <div class="metric"><div class="label">Total llamadas</div><div class="value">${total}</div></div>
-      <div class="metric red"><div class="label">🔴 Churn confirmado</div><div class="value">${churns}</div><div class="sub">${total?Math.round(churns/total*100):0}% del total</div></div>
-      <div class="metric orange"><div class="label">🟠 En riesgo</div><div class="value">${riesgo}</div><div class="sub">${total?Math.round(riesgo/total*100):0}% del total</div></div>
-      <div class="metric green"><div class="label">🟢 Sin riesgo</div><div class="value">${ok}</div><div class="sub">${total?Math.round(ok/total*100):0}% del total</div></div>
+      <div class="metric red"><div class="label">🔴 Churn</div><div class="value">${churns}</div><div class="sub">${total?Math.round(churns/total*100):0}%</div></div>
+      <div class="metric orange"><div class="label">🟠 Riesgo</div><div class="value">${riesgo}</div><div class="sub">${total?Math.round(riesgo/total*100):0}%</div></div>
+      <div class="metric green"><div class="label">🟢 OK</div><div class="value">${ok}</div><div class="sub">${total?Math.round(ok/total*100):0}%</div></div>
     </div>
     <div class="charts">
-      <div class="chart-card"><h3>🔥 Motivos de Churn</h3><canvas id="chart-cats"></canvas></div>
-      <div class="chart-card"><h3>🎯 Distribución de Riesgo</h3><canvas id="chart-riesgo"></canvas></div>
-      <div class="chart-card full"><h3>👥 Churn por Owner</h3><canvas id="chart-owner"></canvas></div>
+      <div class="chart-card"><h3>🔥 Motivos de Churn</h3><canvas id="ch-cats"></canvas></div>
+      <div class="chart-card"><h3>🎯 Distribución de Riesgo</h3><canvas id="ch-riesgo"></canvas></div>
+      <div class="chart-card full"><h3>👥 Churn por Owner</h3><canvas id="ch-owner"></canvas></div>
     </div>
     <div class="table-section">
       <h3>📋 Detalle de Llamadas</h3>
       <div class="table-filters">
         <label>Churn</label>
-        <select id="f-churn" onchange="aplicarFiltros()">
-          <option value="todos">Todos</option>
-          <option value="sí">Sí</option>
-          <option value="riesgo">Riesgo</option>
-          <option value="no">No</option>
+        <select id="f-c" onchange="applyFilters()">
+          <option value="todos">Todos</option><option value="sí">Sí</option><option value="riesgo">Riesgo</option><option value="no">No</option>
         </select>
         <label>Owner</label>
-        <select id="f-owner" onchange="aplicarFiltros()">
-          <option value="todos">Todos</option>
-          ${DUENOS.map(d=>`<option value="${d}">${d}</option>`).join("")}
+        <select id="f-o" onchange="applyFilters()">
+          <option value="todos">Todos</option>${DUENOS.map(d=>`<option value="${d}">${d}</option>`).join("")}
         </select>
         <label>Categoría</label>
-        <select id="f-cat" onchange="aplicarFiltros()">
-          <option value="todos">Todas</option>
-          ${categoriasUnicas.map(c=>`<option value="${c}">${c}</option>`).join("")}
+        <select id="f-k" onchange="applyFilters()">
+          <option value="todos">Todas</option>${catsU.map(c=>`<option value="${c}">${c}</option>`).join("")}
         </select>
-        <button class="reset-btn" onclick="resetFiltros()">✕ Limpiar</button>
+        <input id="f-s" type="text" placeholder="🔍 Buscar cliente..." oninput="applyFilters()" />
+        <button class="reset-btn" onclick="resetFilters()">✕ Limpiar</button>
         <span class="result-count" id="result-count">${total} llamadas</span>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Owner</th><th>Fecha</th><th>Cliente</th><th>Churn</th>
-            <th>Categoría <span style="opacity:0.6;font-size:10px">(hover = info)</span></th>
-            <th>Riesgo</th><th>Resumen</th>
-          </tr></thead>
-          <tbody id="tabla-body"></tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente (Participante)</th><th>Churn</th><th>Categoría</th><th>Riesgo</th><th>Resumen</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
     </div>`;
 
-  actualizarTabla();
-
-  Object.values(charts).forEach(c=>c.destroy()); charts={};
+  renderTabla();
+  Object.values(charts).forEach(c=>c.destroy());charts={};
   const rc={alto:"#FF4B4B",medio:"#FFA500",bajo:"#00CC96"};
-  charts.cats = new Chart(document.getElementById("chart-cats"),{
-    type:"bar",data:{labels:catsSorted.map(c=>c[0]),datasets:[{data:catsSorted.map(c=>c[1]),backgroundColor:"#FF4B4B99",borderColor:"#FF4B4B",borderWidth:1}]},
-    options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
-  });
-  charts.riesgo = new Chart(document.getElementById("chart-riesgo"),{
-    type:"doughnut",data:{labels:Object.keys(riesgos),datasets:[{data:Object.values(riesgos),backgroundColor:Object.keys(riesgos).map(k=>rc[k]||"#CCC")}]},
-    options:{plugins:{legend:{position:"bottom"}}}
-  });
-  const owners=Object.keys(byOwner);
-  charts.owner = new Chart(document.getElementById("chart-owner"),{
-    type:"bar",data:{labels:owners,datasets:[
-      {label:"Churn",data:owners.map(o=>byOwner[o]["sí"]||0),backgroundColor:"#FF4B4B99"},
-      {label:"Riesgo",data:owners.map(o=>byOwner[o]["riesgo"]||0),backgroundColor:"#FFA50099"},
-      {label:"Sin riesgo",data:owners.map(o=>byOwner[o]["no"]||0),backgroundColor:"#00CC9699"}
-    ]},options:{plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}
-  });
+  charts.cats=new Chart(document.getElementById("ch-cats"),{type:"bar",data:{labels:cS.map(c=>c[0]),datasets:[{data:cS.map(c=>c[1]),backgroundColor:"#FF4B4B99",borderColor:"#FF4B4B",borderWidth:1}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
+  charts.riesgo=new Chart(document.getElementById("ch-riesgo"),{type:"doughnut",data:{labels:Object.keys(riesgos),datasets:[{data:Object.values(riesgos),backgroundColor:Object.keys(riesgos).map(k=>rc[k]||"#CCC")}]},options:{plugins:{legend:{position:"bottom"}}}});
+  const ow=Object.keys(bO);
+  charts.owner=new Chart(document.getElementById("ch-owner"),{type:"bar",data:{labels:ow,datasets:[{label:"Churn",data:ow.map(o=>bO[o]["sí"]||0),backgroundColor:"#FF4B4B99"},{label:"Riesgo",data:ow.map(o=>bO[o]["riesgo"]||0),backgroundColor:"#FFA50099"},{label:"OK",data:ow.map(o=>bO[o]["no"]||0),backgroundColor:"#00CC9699"}]},options:{plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}});
 }
 
 // ============================================================
-// INSIGHTS + SECCIÓN GERENCIA
+// INSIGHTS
 // ============================================================
-function renderInsights() {
-  const total  = datos.length;
-  const churns = datos.filter(d=>d.churn==="sí");
-  const riesgo = datos.filter(d=>d.churn==="riesgo");
-  const cats   = {}; datos.forEach(d=>{cats[d.categoria]=(cats[d.categoria]||0)+1;});
-  const catsSorted = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
-  const ownerChurn = {}; churns.forEach(d=>{ownerChurn[d.dueno]=(ownerChurn[d.dueno]||0)+1;});
-  const topOwner = Object.entries(ownerChurn).sort((a,b)=>b[1]-a[1]);
-  const clientesPorCat = {};
-  datos.forEach(d => {
-    if (!clientesPorCat[d.categoria]) clientesPorCat[d.categoria]=[];
-    if (!clientesPorCat[d.categoria].includes(d.cliente)) clientesPorCat[d.categoria].push(d.cliente);
-  });
+function renderInsights(){
+  const base=datosBase();
+  const total=base.length;
+  const churns=base.filter(d=>d.churn==="sí");
+  const riesgo=base.filter(d=>d.churn==="riesgo");
+  const urgentes=base.filter(d=>d.riesgo==="alto").slice(0,6);
 
-  function freq(n) { return n>=total*0.35?"alta":n>=total*0.15?"media":"baja"; }
+  const cats={};base.forEach(d=>{cats[d.cat]=(cats[d.cat]||0)+1;});
+  const cS=Object.entries(cats).filter(([k])=>k!=="Sin categoría").sort((a,b)=>b[1]-a[1]);
+  const sinCat=base.filter(d=>d.cat==="Sin categoría");
 
-  document.getElementById("cont-insights").innerHTML = `
+  const cxCat={};base.forEach(d=>{if(!cxCat[d.cat])cxCat[d.cat]=[];if(d.cliente&&!cxCat[d.cat].includes(d.cliente))cxCat[d.cat].push(d.cliente);});
 
-    <!-- SECCIÓN GERENCIA -->
-    <div class="insight-block mgmt">
-      <span class="insight-tag blue">Para Gerencia</span>
-      <h2>📋 ¿Por qué tenemos tantos churns?</h2>
-      <p>De <strong>${total} llamadas analizadas</strong>, <strong>${churns.length} clientes</strong> (${Math.round(churns.length/total*100)}%) muestran churn confirmado y <strong>${riesgo.length}</strong> están en riesgo. Hay <strong>3 causas raíz</strong> que explican la mayoría de los casos:</p>
+  // Porcentaje de llamadas ya clasificadas
+  const pctClasif=total?Math.round((total-sinCat.length)/total*100):0;
 
-      <div style="margin-top:16px">
-        <div class="causa-item">
-          <span class="causa-n">${catsSorted[0]?catsSorted[0][1]:0}</span>
-          <div class="causa-title">1. ${catsSorted[0]?catsSorted[0][0]:"—"}</div>
-          <div class="causa-desc">${CAT_DESC[catsSorted[0]?catsSorted[0][0]:""]||""} Es el motivo más frecuente y aparece en todos los owners.</div>
-        </div>
-        <div class="causa-item orange">
-          <span class="causa-n" style="color:#FFA500">${catsSorted[1]?catsSorted[1][1]:0}</span>
-          <div class="causa-title">2. ${catsSorted[1]?catsSorted[1][0]:"—"}</div>
-          <div class="causa-desc">${CAT_DESC[catsSorted[1]?catsSorted[1][0]:""]||""}</div>
-        </div>
-        <div class="causa-item blue">
-          <span class="causa-n" style="color:#4B8BFF">${catsSorted[2]?catsSorted[2][1]:0}</span>
-          <div class="causa-title">3. ${catsSorted[2]?catsSorted[2][0]:"—"}</div>
-          <div class="causa-desc">${CAT_DESC[catsSorted[2]?catsSorted[2][0]:""]||""}</div>
-        </div>
-      </div>
+  document.getElementById("cont-insights").innerHTML=`
 
-      <div class="mgmt-grid" style="margin-top:16px">
-        <div class="mgmt-item">
-          <div class="mgmt-label">Owner más afectado</div>
-          <div class="mgmt-n" style="font-size:20px;margin-top:4px">${topOwner[0]?topOwner[0][0]:"—"}</div>
-          <div class="mgmt-desc">${topOwner[0]?topOwner[0][1]:0} churns confirmados</div>
+    <!-- ESTADO ACTUAL -->
+    <div class="insight-block red-border">
+      <span class="tag red">⚡ Estado actual</span>
+      <h2>Qué está pasando ahora mismo</h2>
+      <div class="alert-grid">
+        <div class="alert-item red">
+          <div class="alert-n">${churns.length}</div>
+          <div class="alert-label">Churns confirmados</div>
+          <div class="alert-desc">${total?Math.round(churns.length/total*100):0}% de las llamadas analizadas han terminado en cancelación.</div>
         </div>
-        <div class="mgmt-item">
-          <div class="mgmt-label">Tasa de churn</div>
-          <div class="mgmt-n">${Math.round(churns.length/total*100)}%</div>
-          <div class="mgmt-desc">${churns.length} de ${total} llamadas</div>
+        <div class="alert-item orange">
+          <div class="alert-n">${riesgo.length}</div>
+          <div class="alert-label">Clientes en riesgo</div>
+          <div class="alert-desc">Pueden perderse si no se actúa esta semana. ${total?Math.round(riesgo.length/total*100):0}% del total analizado.</div>
         </div>
-        <div class="mgmt-item">
-          <div class="mgmt-label">Clientes en riesgo</div>
-          <div class="mgmt-n" style="color:#FFA500">${riesgo.length}</div>
-          <div class="mgmt-desc">Pueden perderse si no se actúa</div>
+        <div class="alert-item blue">
+          <div class="alert-n">${pctClasif}%</div>
+          <div class="alert-label">Llamadas clasificadas</div>
+          <div class="alert-desc">${total-sinCat.length} de ${total} llamadas tienen motivo identificado. ${sinCat.length} requieren revisión manual.</div>
         </div>
       </div>
     </div>
 
-    <!-- TODAS LAS CATEGORÍAS -->
-    <div class="insight-block">
-      <h2>Todas las categorías de churn</h2>
-      <div class="cat-grid">
-        ${catsSorted.map(([cat,n]) => `
-          <div class="cat-item">
-            <div class="cat-count">${n}</div>
-            <div class="cat-name">${cat}</div>
-            <span class="cat-freq ${freq(n)}">${freq(n)}</span>
-            <p style="font-size:13px;color:#555;line-height:1.5">${CAT_DESC[cat]||""}</p>
-            <div class="cat-clients">👥 ${(clientesPorCat[cat]||[]).slice(0,4).join(", ")}</div>
+    <!-- CASOS URGENTES -->
+    <div class="insight-block orange-border">
+      <span class="tag orange">🚨 Acción inmediata</span>
+      <h2>Clientes con riesgo alto</h2>
+      <p style="margin-bottom:12px">Estos clientes han dado señales claras de abandono. Necesitan contacto esta semana.</p>
+      <div class="urgentes-list">
+        ${urgentes.length?urgentes.map((d,i)=>`
+          <div>
+            <div class="urgente-item" onclick="toggleU(${i})">
+              <span class="u-owner">${d.dueno.split(" ")[0]}</span>
+              <span class="u-cliente">${d.cliente||"—"}</span>
+              <span class="u-cat">${d.cat}</span>
+              <span class="u-badge">riesgo alto</span>
+            </div>
+            <div class="urgente-detail" id="ud${i}">${d.resumen}</div>
+          </div>`).join("")
+        :`<p style="color:#aaa;font-size:13px;padding:12px 0">No hay clientes con riesgo alto en el período seleccionado.</p>`}
+      </div>
+    </div>
+
+    <!-- POR QUÉ PERDEMOS CLIENTES -->
+    <div class="insight-block dark-border">
+      <span class="tag dark">📊 Análisis de causas</span>
+      <h2>¿Por qué perdemos clientes?</h2>
+      <p>Causas detectadas automáticamente, ordenadas por frecuencia. Haz clic en cada una para ver clientes afectados y la acción recomendada.</p>
+      <div class="causa-list">
+        ${cS.map(([cat,n],i)=>`
+          <div class="causa c${Math.min(i+1,4)}" onclick="toggleCausa(${i})" style="cursor:pointer">
+            <div class="causa-n">${n}</div>
+            <div class="causa-body">
+              <div class="causa-title">${cat} <span class="causa-pct">${Math.round(n/total*100)}%</span></div>
+              <div class="causa-desc">${CAT_DESC[cat]||""}</div>
+              <div class="causa-clientes" id="causa-det-${i}" style="display:none">
+                <br>👥 Clientes: ${(cxCat[cat]||[]).filter(Boolean).slice(0,6).join(", ")||"—"}<br>
+                <strong>💡 Acción:</strong> ${CAT_ACCION[cat]||""}
+              </div>
+            </div>
           </div>`).join("")}
       </div>
+
+      <!-- SIN CATEGORÍA agrupado -->
+      ${sinCat.length?`
+      <div class="sincategoria-box">
+        <h4>⚠️ Sin clasificar (${sinCat.length} llamadas) — revisar manualmente</h4>
+        <p style="font-size:12px;color:#7a5c00;margin-bottom:8px">Estas llamadas no encajaron en ninguna categoría. Pueden ser positivas, de seguimiento o contener motivos nuevos.</p>
+        <div class="sincategoria-tags">
+          ${sinCat.filter(d=>d.cliente).slice(0,15).map(d=>`<span class="sincategoria-tag">${d.cliente}</span>`).join("")}
+          ${sinCat.length>15?`<span class="sincategoria-tag">+${sinCat.length-15} más</span>`:""}
+        </div>
+      </div>`:""}
     </div>
 
-    <!-- PATRÓN CRÍTICO -->
-    <div class="insight-block warning">
-      <span class="insight-tag orange">Patrón crítico</span>
-      <h2>⚠️ Ciclo de deterioro</h2>
-      <div class="patron-box">
-        <strong>Fallo técnico o expectativa no cumplida</strong> → cliente intenta comunicarse → sin respuesta clara o rápida → frustración → propuestas pendientes acumuladas → percepción de que "nada funciona" → <strong>cancelación</strong>.<br><br>
-        Los churns no son instantáneos. Los clientes dan señales durante semanas. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.
+    <!-- PATRÓN DE DETERIORO -->
+    <div class="insight-block orange-border">
+      <span class="tag orange">⚠️ Patrón crítico</span>
+      <h2>Ciclo de deterioro</h2>
+      <p>Los churns no son instantáneos. Los clientes siguen este patrón antes de cancelar:</p>
+      <div class="patron-steps">
+        <div class="patron-step"><strong>1</strong>Fallo técnico o expectativa no cumplida</div>
+        <div class="patron-step"><strong>2</strong>Cliente intenta comunicarse</div>
+        <div class="patron-step"><strong>3</strong>Sin respuesta clara o lenta</div>
+        <div class="patron-step"><strong>4</strong>Frustración y propuestas acumuladas</div>
+        <div class="patron-step"><strong>5</strong>"Nada funciona"</div>
+        <div class="patron-step"><strong>6</strong>Cancelación</div>
       </div>
     </div>
 
     <!-- RECOMENDACIONES -->
-    <div class="insight-block">
-      <span class="insight-tag red">0–30 días</span>
-      <h3>Acciones inmediatas</h3>
-      <p>Crear alertas para: clientes sin propuestas aprobadas en más de 10 días, sin cuentas vinculadas en la primera semana, o sin actividad en la app en 7 días. Hacer obligatoria una sesión de onboarding en los primeros 3 días post-contratación. Estandarizar el proceso de cancelación para evitar casos como Karina que no sabe cómo darse de baja.</p>
-    </div>
-    <div class="insight-block">
-      <span class="insight-tag orange">30–90 días</span>
-      <h3>Acciones a medio plazo</h3>
-      <p>Implementar feedback estructurado en la plataforma para cada propuesta. Quality Check mensual por cliente para verificar vinculaciones, propuestas sin resolver y alineación de contenido. Añadir email de aviso 5-7 días antes del cobro con resumen del mes.</p>
-    </div>
-    <div class="insight-block success">
-      <span class="insight-tag green">Estratégico</span>
-      <h3>Gap de expectativas</h3>
-      <p>Los clientes contratan esperando ventas y leads. El servicio entrega presencia digital. Este gap de expectativas es el motivo estructural detrás del bajo valor percibido. Alinearlo desde el proceso de venta reduciría el churn de forma sostenida.</p>
+    <div class="insight-block green-border">
+      <span class="tag green">✅ Qué hacer</span>
+      <h2>Recomendaciones por plazo</h2>
+      <div class="rec-grid">
+        <div class="rec-item r1">
+          <div class="rec-plazo">Esta semana</div>
+          <div class="rec-title">Contactar clientes urgentes</div>
+          <div class="rec-desc">Llamar a los ${urgentes.length} clientes con riesgo alto identificados arriba. Resolver vinculaciones técnicas pendientes.</div>
+        </div>
+        <div class="rec-item r2">
+          <div class="rec-plazo">Este mes</div>
+          <div class="rec-title">Revisar onboarding</div>
+          <div class="rec-desc">Implementar sesión obligatoria en los primeros 3 días. Crear alerta para clientes sin actividad en 7 días.</div>
+        </div>
+        <div class="rec-item r3">
+          <div class="rec-plazo">Este trimestre</div>
+          <div class="rec-title">Alinear expectativas</div>
+          <div class="rec-desc">Los clientes esperan ventas. El servicio entrega presencia digital. Resolver este gap desde la venta es el cambio más importante.</div>
+        </div>
+      </div>
     </div>
   `;
+}
+
+function toggleU(i){
+  const el=document.getElementById("ud"+i);
+  el.style.display=el.style.display==="block"?"none":"block";
+}
+function toggleCausa(i){
+  const el=document.getElementById("causa-det-"+i);
+  el.style.display=el.style.display==="block"?"none":"block";
 }
 
 // ============================================================
 // OWNERS
 // ============================================================
-function renderOwners() {
-  document.getElementById("cont-owners").innerHTML = `
-    <div class="insight-block highlight" style="margin-bottom:24px">
+function renderOwners(){
+  const base=datosBase();
+  document.getElementById("cont-owners").innerHTML=`
+    <div class="insight-block red-border" style="margin-bottom:24px">
       <h2>👥 Situación por Owner</h2>
-      <p>Resumen individual de cada responsable. Haz clic en los motivos para leer el resumen completo.</p>
+      <p>Tasa de churn y clientes que han cancelado o están en riesgo, por responsable. Haz clic en cada cliente para leer el resumen de la llamada.</p>
     </div>
     <div class="owners-grid">
-      ${DUENOS.map(dueno => {
-        const dd = datos.filter(d=>d.dueno===dueno);
-        if (!dd.length) return `<div class="owner-card"><h4>${dueno}</h4><p style="color:#aaa;font-size:13px">Sin llamadas</p></div>`;
-        const ch = dd.filter(d=>d.churn==="sí").length;
-        const ri = dd.filter(d=>d.churn==="riesgo").length;
-        const ok = dd.filter(d=>d.churn==="no").length;
-        const cats={}; dd.forEach(d=>{cats[d.categoria]=(cats[d.categoria]||0)+1;});
-        const topCat = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
-        const casosChurn = dd.filter(d=>d.churn==="sí").slice(0,4);
-        return `<div class="owner-card">
+      ${DUENOS.map(dueno=>{
+        const dd=base.filter(d=>d.dueno===dueno);
+        if(!dd.length) return `<div class="owner-card"><h4>${dueno}</h4><p style="color:#aaa;font-size:13px">Sin llamadas en el período</p></div>`;
+        const ch=dd.filter(d=>d.churn==="sí").length;
+        const ri=dd.filter(d=>d.churn==="riesgo").length;
+        const ok=dd.filter(d=>d.churn==="no").length;
+        const tasa=Math.round(ch/dd.length*100);
+
+        // Top categoría real (excluye Sin categoría)
+        const cats={};
+        dd.filter(d=>d.churn==="sí"||d.churn==="riesgo")
+          .filter(d=>d.cat!=="Sin categoría")
+          .forEach(d=>{cats[d.cat]=(cats[d.cat]||0)+1;});
+        const topCat=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+
+        // Casos de churn + riesgo para mostrar
+        const casosChurn=dd.filter(d=>d.churn==="sí"||d.churn==="riesgo")
+          .sort((a,b)=>a.churn==="sí"?-1:1).slice(0,5);
+        const id="oc"+dueno.replace(/[^a-zA-Z0-9]/g,"");
+
+        // Color borde según tasa
+        const borderColor=tasa>=40?"#FF4B4B":tasa>=20?"#FFA500":"#00CC96";
+
+        return `<div class="owner-card" style="border-top:3px solid ${borderColor}">
           <h4>${dueno}</h4>
+          <div class="owner-rate">Tasa de churn: <span>${tasa}%</span>
+            <span style="font-size:11px;color:#888;font-weight:400;margin-left:8px">(${ch} cancelaciones · ${ri} en riesgo)</span>
+          </div>
           <div class="owner-stats">
             <div class="owner-stat red"><div class="n">${ch}</div><div class="l">Churn</div></div>
             <div class="owner-stat orange"><div class="n">${ri}</div><div class="l">Riesgo</div></div>
             <div class="owner-stat green"><div class="n">${ok}</div><div class="l">OK</div></div>
             <div class="owner-stat"><div class="n">${dd.length}</div><div class="l">Total</div></div>
           </div>
-          ${topCat?`<div class="owner-top">🔥 Principal problema: <strong>${topCat[0]}</strong> (${topCat[1]} casos)</div>`:""}
-          <div class="owner-motivos">
-            ${casosChurn.map((d,i)=>`
-              <div class="owner-motivo" onclick="toggleMotivo('${dueno.replace(/\s/g,'')}-${i}')">
-                <strong>${d.cliente}</strong> · ${d.categoria} · <span style="color:#FF4B4B">churn</span>
-                <div class="owner-motivo-full" id="${dueno.replace(/\s/g,'')}-${i}">${d.resumen}</div>
-              </div>`).join("")}
+          ${topCat?`<div class="owner-top">🔥 Motivo más frecuente: <strong>${topCat[0]}</strong> (${topCat[1]} casos)<br><span style="font-size:11px;color:#4B8BFF">💡 ${CAT_ACCION[topCat[0]]||""}</span></div>`
+          :`<div class="owner-top" style="color:#aaa">Sin motivo dominante identificado</div>`}
+          ${casosChurn.length?`
+          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px;letter-spacing:0.4px">
+            Clientes afectados
           </div>
+          <div class="owner-casos">
+            ${casosChurn.map((d,i)=>{
+              const badgeColor=d.churn==="sí"?"#FFE0E0":"#FFF3E0";
+              const badgeText=d.churn==="sí"?"#CC0000":"#CC7700";
+              const badgeLabel=d.churn==="sí"?"canceló":"en riesgo";
+              return `<div class="owner-caso" onclick="toggleOC('${id}${i}')">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <strong style="font-size:13px">${d.cliente||"Cliente sin nombre"}</strong>
+                  <span style="font-size:10px;padding:2px 7px;border-radius:20px;background:${badgeColor};color:${badgeText};font-weight:700">${badgeLabel}</span>
+                  <span style="font-size:11px;color:#888">${d.cat}</span>
+                </div>
+                <div class="owner-caso-det" id="${id}${i}">${d.resumen||"Sin resumen disponible"}</div>
+              </div>`;
+            }).join("")}
+          </div>`
+          :`<p style="color:#aaa;font-size:12px;padding:8px 0">Sin cancelaciones ni riesgos en el período</p>`}
         </div>`;
       }).join("")}
-    </div>
-  `;
+    </div>`;
 }
-
-function toggleMotivo(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display==="block"?"none":"block";
+function toggleOC(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==="block"?"none":"block";
 }
 
 cargar();

@@ -40,7 +40,7 @@
     td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--bg);vertical-align:middle;}
     tr.dr:hover td{background:#f8faf2;cursor:pointer;}
     tr.xr td{padding:0;background:#f5fbee;}
-    .xi{padding:0 20px;font-size:13px;line-height:1.8;color:#333;display:none;border-left:4px solid var(--accent);margin:0;}
+    .xi{padding:0 20px;display:none;border-left:4px solid var(--accent);}
     .xi.open{display:block;padding:16px 20px;}
     .xi .xt{font-weight:700;color:var(--ad);margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
     .xi .xb{white-space:pre-wrap;overflow-y:auto;background:#fff;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.8;border:1px solid var(--border);}
@@ -58,7 +58,7 @@
     .mtag{display:inline-block;background:#eef7e0;color:var(--ad);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px;}
     .clist{display:flex;flex-wrap:wrap;gap:5px;}
     .cp{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-    .cp.ch{background:#FFE0E0;color:#CC0000;}.cp.ok{background:#E8F5E0;color:#2a7a00;}.cp.nc{background:#FEF3C7;color:#92400E;}
+    .cp.ch{background:#FFE0E0;color:#CC0000;}.cp.ok{background:#E8F5E0;color:#2a7a00;}
     .iw{display:flex;flex-direction:column;gap:14px;}
     .mb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .mb-card{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
@@ -107,15 +107,17 @@
   </div>
   <div class="meta" id="meta">Cargando...</div>
 </header>
+
 <div class="tabs">
   <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</div>
   <div class="tab" data-tab="tabla" onclick="switchTab('tabla')">📋 Tabla</div>
-  <div class="tab" data-tab="churns" onclick="switchTab('churns')">🔴 Churns</div>
 </div>
+
 <div class="subtabs" id="subtabs">
   <div class="subtab active" data-sub="insights" onclick="switchSub('insights')">💡 Insights</div>
   <div class="subtab" data-sub="owners" onclick="switchSub('owners')">👤 Owners</div>
 </div>
+
 <div class="fbar">
   <label>Owner</label>
   <select id="f-owner" onchange="applyFilter()"><option value="todos">Todos</option></select>
@@ -136,67 +138,62 @@
   <span class="dsep">Desde</span><input type="date" id="f-desde" onchange="applyFilter()"/>
   <span class="dsep">Hasta</span><input type="date" id="f-hasta" onchange="applyFilter()"/>
 </div>
+
 <div class="kpis">
   <div class="kpi"><div class="lbl">Total llamadas</div><div class="val" id="m-total">—</div><div class="sub">únicas registradas</div></div>
   <div class="kpi red"><div class="lbl">Churn detectado</div><div class="val" id="m-churn">—</div><div class="sub" id="m-cpct"></div></div>
   <div class="kpi grn"><div class="lbl">Sin churn</div><div class="val" id="m-ok">—</div></div>
   <div class="kpi amb"><div class="lbl">Tasa de churn</div><div class="val" id="m-rate">—</div><div class="sub">sobre llamadas totales</div></div>
 </div>
+
 <div class="content" id="content"><div class="loading">⏳ Cargando datos...</div></div>
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv";
-const DUENOS = ['Victor Ortega','Óscar Lopo','Oscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Kamila Jimenez','Martina Benalcazar'];
 const DUENOS_DISPLAY = ['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
 
 const CHURN_KW = ['dar de baja','quiero cancelar','quiero darme de baja','me doy de baja','voy a cancelar',
   'decido cancelar','solicito la baja','no quiero continuar','no quiero seguir','baja del servicio',
   'cancelo','he cancelado','me voy a dar de baja','quiero la baja','darse de baja'];
 
-// Sin categoría se fusiona con Sin resultados — fallback devuelve 'Sin resultados'
 const CAT_KW = {
   'Fallos técnicos':  ['no publica','no sale','no funciona','error','fallo','vinculaci','conecta','lento','carga','instagram','facebook','problema técnico','no se publica'],
-  'Onboarding':       ['no sé cómo','no entiendo','confus','demo','tutorial','aprobaci','flujo','primer','empezar','cómo funciona','no saben usar'],
-  'Sin resultados':   ['no veo result','no genera','sin ventas','no convierte','inversión','retorno','roi','engagement','sin resultado','no tengo cliente','no funciona para','no veo mejora'],
-  'Contenido':        ['contenido','propuesta','genérico','chatgpt','no refleja','no personali','calidad','irrelevante','no es mi estilo'],
-  'Soporte':          ['no responde','sin respuesta','nadie me atiende','soporte','espera','reclamaci','no me hace caso','no me atienden'],
-  'Facturación':      ['cobro','factura','cargo','precio','no esperaba','sorpresa','reembolso','cobran','pago incorrecto'],
-  'Limitaciones':     ['linkedin','catalán','catala','archivo','ordenador','limitaci','no puede','no soporta','no gestiona'],
-  'Razones externas': ['crisis','económic','agencia','traslado','tiempo','personal','otro servicio','me voy con']
+  'Onboarding':       ['no sé cómo','no entiendo','confus','demo','tutorial','aprobaci','flujo','primer','empezar','cómo funciona'],
+  'Sin resultados':   ['no veo result','no genera','sin ventas','no convierte','inversión','retorno','roi','engagement','sin resultado','no tengo cliente','no veo mejora'],
+  'Contenido':        ['contenido','propuesta','genérico','chatgpt','no refleja','no personali','calidad','irrelevante'],
+  'Soporte':          ['no responde','sin respuesta','nadie me atiende','soporte','espera','reclamaci','no me hace caso'],
+  'Facturación':      ['cobro','factura','cargo','precio','no esperaba','sorpresa','reembolso','cobran'],
+  'Limitaciones':     ['linkedin','catalán','catala','archivo','ordenador','limitaci','no puede','no soporta'],
+  'Razones externas': ['crisis','económic','agencia','traslado','tiempo','personal','otro servicio']
 };
 
 const BIEN_KW = ['muy bien','perfecto','genial','encantad','contento','contenta','satisfech',
   'funciona bien','me gusta','excelente','feliz','gracias','va bien','sin problemas','todo bien','bien atendid'];
 
-function normOwner(s){
-  return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-}
-// Map any owner variant to display name
-function canonicalOwner(raw){
-  const n=normOwner(raw);
+function canonicalOwner(s){
+  const n=(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').trim();
   if(n.includes('victor')&&n.includes('ortega'))return'Victor Ortega';
   if(n.includes('oscar')||n.includes('lopo'))return'Óscar Lopo';
   if(n.includes('gonzalo')||n.includes('rosales'))return'Gonzalo Rosales';
   if(n.includes('franco')||n.includes('ferretti'))return'Franco Ferretti';
   if(n.includes('kamila')||n.includes('jimenez'))return'Kamila Jiménez';
   if(n.includes('martina')||n.includes('benalcazar'))return'Martina Benalcazar';
-  return '';
+  return'';
 }
-
-function detCat(t){
-  if(!t)return 'Sin resultados'; // fusionado
-  const s=t.toLowerCase();
-  for(const[c,kws]of Object.entries(CAT_KW))if(kws.some(k=>s.includes(k)))return c;
-  return 'Sin resultados'; // sin categoría → sin resultados
-}
+function detCat(t){if(!t)return'Sin resultados';const s=t.toLowerCase();for(const[c,kws]of Object.entries(CAT_KW))if(kws.some(k=>s.includes(k)))return c;return'Sin resultados';}
 function detChurn(t){return t?CHURN_KW.some(k=>t.toLowerCase().includes(k)):false;}
 function detBien(t){return t?BIEN_KW.some(k=>t.toLowerCase().includes(k)):false;}
 function norm(s){return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
-function col(row,opts){for(const k of opts){if(row[k]!==undefined)return row[k]||'';}return '';}
+function col(row,opts){for(const k of opts){if(row[k]!==undefined)return row[k]||'';}return'';}
 
 let allRows=[],filtered=[],curTab='dashboard',curSub='insights';
 
-function switchTab(t){curTab=t;document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));document.getElementById('subtabs').style.display=t==='dashboard'?'flex':'none';render();}
+function switchTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));
+  document.getElementById('subtabs').style.display=t==='dashboard'?'flex':'none';
+  render();
+}
 function switchSub(s){curSub=s;document.querySelectorAll('.subtab').forEach(e=>e.classList.toggle('active',e.dataset.sub===s));render();}
 function setPeriod(days,btn){
   document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
@@ -228,46 +225,33 @@ function procesarDatos(raw){
   const seen=new Set();allRows=[];
   raw.forEach(row=>{
     const transcript=col(row,['Transcript','transcript','Transcripcion','transcripcion','Contenido','contenido']);
-    // Columna resumen — busca "Resumen IA" primero, luego variantes
-    const summary=col(row,['Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen','Resumen ejecutivo','Notes','notes','Notas','notas','Brief','brief']);
+    const summary=col(row,['Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen','Resumen ejecutivo','Notes','notes','Notas','notas']);
     const participantes=col(row,['Participantes','participantes','Participants','participants']);
     const duenoBruto=col(row,['Dueño','dueno','Dueno','Owner','owner','Comercial','comercial','Assigned to','assigned_to']);
     const fechaRaw=col(row,['Fecha','fecha','Date','date','Actualizado','actualizado','created_at','Fecha llamada']);
     const nombreBruto=col(row,['Nombre','nombre','Cliente','cliente','Company','company','Empresa','empresa']);
     const churnCol=col(row,['Churn','churn','Es churn','es_churn','Tipo','tipo','Estado','estado','Resultado']);
 
-    // Owner — buscar en participantes y columna dueño
-    let owner='';
-    const allText=participantes+' '+duenoBruto;
-    // Intentar con columna dueño primero
-    const ownerFromCol=canonicalOwner(duenoBruto);
-    if(ownerFromCol){owner=ownerFromCol;}
-    else{
-      // Buscar en participantes
+    // Owner
+    let owner=canonicalOwner(duenoBruto);
+    if(!owner){
       for(const d of DUENOS_DISPLAY){
-        if(norm(allText).includes(norm(d))||norm(allText).includes(norm(d).split(' ')[0]+' '+norm(d).split(' ')[1])){
-          owner=d;break;
-        }
+        if(norm(participantes).includes(norm(d))||norm(participantes).includes(norm(d).split(' ')[0]+' '+norm(d).split(' ')[1])){owner=d;break;}
       }
     }
     if(!owner)return;
 
-    // Cliente — parte antes de la primera coma en Participantes
-    // Si ese nombre coincide con el owner, usar la parte después de la coma
+    // Cliente — primera parte de Participantes antes de la coma que no sea el owner
     let cliente='';
     if(participantes){
-      const partes=participantes.split(',').map(p=>p.replace(/^\[(.+)\]$/,'$1').replace(/:[\s\S]*/,'').trim()).filter(p=>p.length>1&&p.length<80);
-      // Encontrar la primera parte que NO sea el owner
-      const ownerNorm=norm(owner);
-      cliente=partes.find(p=>{
-        const pn=norm(p);
-        // Descartar si es el owner (por nombre completo o primer nombre)
-        const ownerFirst=ownerNorm.split(' ')[0];
-        return !pn.includes(ownerNorm)&&!pn.startsWith(ownerFirst);
-      })||'';
+      const partes=participantes.split(',')
+        .map(p=>p.replace(/^\[(.+)\]$/,'$1').replace(/:[\s\S]*/,'').trim())
+        .filter(p=>p.length>1&&p.length<80);
+      const ownerFirst=norm(owner).split(' ')[0];
+      cliente=partes.find(p=>!norm(p).includes(norm(owner))&&!norm(p).startsWith(ownerFirst))||'';
     }
     if(!cliente)cliente=nombreBruto.trim();
-    if(!cliente||norm(cliente)===norm(owner))return; // skip si aún son iguales
+    if(!cliente||norm(cliente)===norm(owner))return;
 
     // Fecha
     let fechaStr='';
@@ -276,24 +260,20 @@ function procesarDatos(raw){
     // Churn
     let isChurn=false;
     if(churnCol){const cv=churnCol.toLowerCase();isChurn=['sí','si','yes','churn','true','1','cancelado','baja'].some(v=>cv.includes(v));}
-    else{isChurn=detChurn(transcript||summary);}
+    else isChurn=detChurn(transcript||summary);
 
     const cat=detCat(transcript||summary||nombreBruto);
     const esBien=detBien(transcript||summary);
-
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
     if(seen.has(key)||!norm(cliente))return;
     seen.add(key);
 
-    // Texto a mostrar: "Resumen IA" completo sin truncar, fallback a transcript
-    const displayText=(summary&&summary.trim().length>5)
-      ? summary.trim()
-      : (transcript||'').trim()||'Sin resumen disponible.';
+    // Resumen completo sin truncar
+    const displayText=(summary&&summary.trim().length>5)?summary.trim():(transcript||'').trim()||'Sin resumen disponible.';
 
     allRows.push({cliente,owner,cat,fechaStr,_f:fechaStr,isChurn,esBien,displayText});
   });
 
-  // Dropdowns
   const os=document.getElementById('f-owner');
   DUENOS_DISPLAY.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;os.appendChild(o);});
   const cs=document.getElementById('f-cat');
@@ -312,19 +292,19 @@ function updateKPIs(){
   document.getElementById('m-rate').textContent=rt+'%';
   document.getElementById('m-cpct').textContent=t?rt+'% del total':'';
 }
+
 function render(){
   if(curTab==='dashboard'){curSub==='insights'?renderInsights():renderOwners();}
-  else if(curTab==='tabla')renderTabla();
-  else renderChurns();
+  else renderTabla();
 }
 
-// ── EXPANDABLE ────────────────────────────────────────────
 function toggleDetail(id){
   const el=document.getElementById('d-'+id);if(!el)return;
   el.classList.toggle('open');
   const btn=document.getElementById('b-'+id);
   if(btn)btn.textContent=el.classList.contains('open')?'▲ Cerrar':'▼ Ver resumen';
 }
+
 function buildRows(rows){
   return rows.map((r,i)=>{
     const uid=r._uid||i;
@@ -343,7 +323,6 @@ function buildRows(rows){
   }).join('');
 }
 
-// ── TABLA ─────────────────────────────────────────────────
 function renderTabla(){
   const rows=filtered.slice(0,500).map((r,i)=>({...r,_uid:'t'+i}));
   document.getElementById('content').innerHTML=`
@@ -354,18 +333,6 @@ function renderTabla(){
     ${filtered.length>500?`<p style="text-align:center;padding:14px;color:var(--muted);font-size:13px">Mostrando 500 de ${filtered.length.toLocaleString()} registros</p>`:''}`;
 }
 
-// ── CHURNS ────────────────────────────────────────────────
-function renderChurns(){
-  const ch=filtered.filter(r=>r.isChurn).map((r,i)=>({...r,_uid:'c'+i}));
-  if(!ch.length){document.getElementById('content').innerHTML='<div class="loading">No se detectaron churns en este período.</div>';return;}
-  document.getElementById('content').innerHTML=`
-    <div class="tw"><table>
-      <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Churn</th><th>Resumen</th></tr></thead>
-      <tbody>${buildRows(ch)}</tbody>
-    </table></div>`;
-}
-
-// ── OWNERS ────────────────────────────────────────────────
 function renderOwners(){
   const od={};DUENOS_DISPLAY.forEach(d=>{od[d]={total:0,churns:0,cats:{},clients:[]};});
   filtered.forEach(r=>{
@@ -394,7 +361,6 @@ function renderOwners(){
   document.getElementById('content').innerHTML=`<div class="og">${cards}</div>`;
 }
 
-// ── INSIGHTS ──────────────────────────────────────────────
 function renderInsights(){
   const total=filtered.length||1;
   const churns=filtered.filter(r=>r.isChurn);
@@ -420,7 +386,7 @@ function renderInsights(){
   const bienItems=[
     `<div class="mb-item"><span class="mb-stat">${bienRows.length} llamadas</span> con señales positivas (${bienPct}% de no-churn)</div>`,
     ...topBien.slice(0,4).map(([o,n])=>`<div class="mb-item"><span class="mb-stat">${o}</span> — ${n} clientes satisfechos</div>`),
-    bienRows.length===0?`<div class="mb-item">Sin señales positivas detectadas en este período.</div>`:''
+    bienRows.length===0?`<div class="mb-item">Sin señales positivas detectadas.</div>`:''
   ].join('');
 
   function dynBadge(cat){return counts[cat]?`<span class="idyn">${counts[cat]} llamadas</span>`:'';}
@@ -441,8 +407,8 @@ function renderInsights(){
     <div class="ic c2"><div class="ih"><div class="in">2</div><div class="it">Onboarding deficiente / confusión de uso</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Onboarding')}</div>
       <p class="ib">Clientes que llevan semanas sin entender la plataforma. No saben solicitar cambios ni el flujo de aprobación. La demo reactiva indica que el onboarding inicial no es suficiente.</p>
       <div class="icl"><strong>Conocidos:</strong> Isabel, Ángel, Yolanda, Joaquim, María (odontopediatría).</div>${dynClients('Onboarding')}</div>
-    <div class="ic c2"><div class="ih"><div class="in">3</div><div class="it">Sin resultados / sin categoría</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Sin resultados')}</div>
-      <p class="ib">Clientes que no ven ventas, leads ni engagement, no justifican la inversión, o llamadas sin motivo de churn claro detectado.</p>
+    <div class="ic c2"><div class="ih"><div class="in">3</div><div class="it">Sin resultados</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Sin resultados')}</div>
+      <p class="ib">Clientes que no ven ventas, leads ni engagement y no justifican la inversión, o llamadas sin motivo de churn claro detectado.</p>
       <div class="icl"><strong>Conocidos:</strong> Ángel, Solventana, Virginia, Isabel, Samuel, María, Laia.</div>${dynClients('Sin resultados')}</div>
     <div class="ic c2"><div class="ih"><div class="in">4</div><div class="it">Calidad y relevancia del contenido</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Contenido')}</div>
       <p class="ib">Propuestas genéricas sin personalización. Clientes nicho sienten que la IA no captura su sector.</p>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Dashboard de Modjo</title>
+  <title>Dashboard de Churn</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     :root{--bg:#f2f5eb;--accent:#85D630;--card:#fff;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--danger:#ef4444;--warning:#f59e0b;--success:#22c55e;}
@@ -146,14 +146,14 @@
 <div id="globalTooltip" class="tooltip-box"></div>
 
 <div class="header">
-  <div class="logo">P</div>
-  <h1>Dashboard de Modjo</h1>
+  <div class="logo">📊</div>
+  <h1>Dashboard de Churn</h1>
   <span class="header-sub" id="lastUpdate">Actualizando…</span>
   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄 Actualizar</button>
 </div>
 
 <div class="main-tabs">
-  <div class="main-tab active" onclick="switchMain('modjo')">Dashboard de Modjo</div>
+  <div class="main-tab active" onclick="switchMain('modjo')">Dashboard de Churn</div>
   <div class="main-tab" onclick="switchMain('tabla-modjo')">Tabla Modjo</div>
   <div class="main-tab" onclick="switchMain('hubspot')">Dashboard HubSpot</div>
   <div class="main-tab" onclick="switchMain('tabla-hs')">Tabla HubSpot</div>
@@ -220,6 +220,7 @@
     <div class="section-title">Detalle por categoría</div>
     <div class="insights-grid" id="insightsModjo"></div>
     <div id="conclModjo"></div>
+    <div id="recomModjo"></div>
   </div>
 
   <div id="viewModjoOwners" style="display:none">
@@ -258,6 +259,7 @@
     <div class="section-title">Detalle por motivo</div>
     <div class="insights-grid" id="insightsHS"></div>
     <div id="conclHS"></div>
+    <div id="recomHS"></div>
     <div id="patternAnalysis"></div>
   </div>
 
@@ -288,8 +290,8 @@ function getClientType(name){
 }
 const CAT_KW={
   'Facturación':      ['factura','cobro','precio','coste','dinero','tarifa','renovación','renovacion','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado','cargo incorrecto','cargo inesperado','me han cobrado de más','cobro incorrecto','cobro inesperado'],
-  'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz'],
-  'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular','primer','empezar','setup'],
+  'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz','vinculación','vinculacion','instagram no','facebook no','no se publica','no se conecta','problema técnico','problema tecnico','cuenta bloqueada','acceso bloqueado','retraso','no se activo','no inicio el servicio','web inactiva','dominio','reactivar'],
+  'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular perfiles','empezar','setup','primer mes','alta nueva','proceso de alta','completar integración','completar integracion','vincular facebook','vincular instagram','accesos pendientes','falta vincular','permisos en facebook','gestionar permisos'],
   'Sin resultados':   ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica'],
   'Contenido':        ['contenido','publicación','publicacion','post','copy','imagen','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
   'Soporte':          ['soporte','respuesta','no contesta','no responden','tarda','atención','atencion','ayuda','nadie','no atiende'],
@@ -499,7 +501,22 @@ let filteredHS=[...HS_DATA],hsperiod='all',hsCurrentSub='insights';
 function norm(s){return(s||'').toLowerCase().trim().normalize('NFD').replace(/\p{Diacritic}/gu,'');}
 function col(row,...names){for(const n of names){for(const k of Object.keys(row)){if(norm(k)===norm(n)&&row[k]!==''&&row[k]!==undefined)return row[k];}}return'';}
 function canonicalOwner(s){const sn=norm(s||'');const map=[{k:['victor','ortega'],n:'Victor Ortega'},{k:['oscar','lopo'],n:'Óscar Lopo'},{k:['gonzalo','rosales'],n:'Gonzalo Rosales'},{k:['franco','ferretti'],n:'Franco Ferretti'},{k:['kamila','jimenez'],n:'Kamila Jiménez'},{k:['martina','benalcazar'],n:'Martina Benalcazar'}];for(const e of map){if(e.k.some(k=>sn.includes(norm(k))))return e.n;}return null;}
-function detCat(t){const tn=norm(t||'');for(const[c,kws]of Object.entries(CAT_KW)){if(kws.some(k=>tn.includes(norm(k))))return c;}return'Sin resultados';}
+function detCat(t){
+  const tn=norm(t||'');
+  let best='Sin resultados',bestScore=0;
+  for(const[c,kws]of Object.entries(CAT_KW)){
+    let score=0;
+    for(const k of kws){
+      const nk=norm(k);
+      // Multi-word phrases worth 3x, single words worth 1x
+      const weight=k.includes(' ')?3:1;
+      let pos=0;
+      while((pos=tn.indexOf(nk,pos))!==-1){score+=weight;pos+=nk.length;}
+    }
+    if(score>bestScore){bestScore=score;best=c;}
+  }
+  return best;
+}
 function detChurn(t){const tn=norm(t||'');return CHURN_KW.some(k=>tn.includes(norm(k)));}
 function parseDate(s){if(!s)return null;const p=s.split(/[\/\-\.]/);if(p.length===3){let[a,b,c]=p;if(a.length===4)return new Date(+a,+b-1,+c);if(c.length===4)return new Date(+c,+b-1,+a);return new Date(+c+2000,+b-1,+a);}const d=new Date(s);return isNaN(d)?null:d;}
 function splitSub(s){return(s||'').split(/\s*\+\s*/).map(p=>p.trim()).filter(Boolean);}
@@ -555,9 +572,12 @@ function procesarModjo(raw){
     if(partic){const ps=partic.split(',').map(p=>p.replace(/[\[\]]/g,'').trim()).filter(Boolean);for(const p of ps){if(!canonicalOwner(p)){cliente=p;break;}}}
     if(!cliente)cliente='Desconocido';
     const combined=(transcript||'')+' '+(summary||'');
+    // Use summary for categorization (avoids false positives from long transcripts)
+    // Fall back to combined if no summary
+    const catText=summary||combined;
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
     if(seen.has(key))continue;seen.add(key);
-    rows.push({owner,cliente,categoria:detCat(combined),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||''});
+    rows.push({owner,cliente,categoria:detCat(catText),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||''});
   }
   return rows;
 }
@@ -752,6 +772,94 @@ function hsConclHTML(){
 function toggleConcl(h){const b=h.nextElementSibling,t=h.querySelector('.concl-toggle');b.classList.toggle('open');t.classList.toggle('open');}
 
 // ============================================================
+// HUBSPOT RECOMMENDATIONS (dynamic, based on filtered period)
+// ============================================================
+const HS_RECOM_MAP={
+  'Forced Sales Closing':       {icon:'🤝',area:'Ventas',priority:'alta',action:'Implementar confirmación post-venta (24h tras el cierre): resumen escrito de qué incluye y qué NO incluye el servicio, firmado por el cliente antes de activar el cobro.',kpi:'Reducir churns en los primeros 30 días'},
+  'Sales Miscommunication':     {icon:'📢',area:'Ventas',priority:'alta',action:'Crear un "kit de expectativas" obligatorio en el cierre: ficha clara de qué es y qué NO es el servicio (sin atención 1:1 continua, modelo APP/IA). Revisión del guión de ventas.',kpi:'Reducir High-Touch Expectation'},
+  'Quality Issues':             {icon:'✏️',area:'CS / Contenido',priority:'alta',action:'Brief personalizado mínimo de 10 preguntas antes de activar la cuenta. Revisión humana obligatoria del primer mes de contenido para nichos específicos.',kpi:'Reducir Personalization Gap'},
+  'Poor CX / Platform Issues':  {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist técnico de vinculación de RRSS en las primeras 48h del alta. Alerta automática si las cuentas no están conectadas a los 3 días.',kpi:'Eliminar fallos de vinculación en onboarding'},
+  'Does not see impact on their business':{icon:'📈',area:'CS / Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones). Llamada proactiva al mes 2 si no hay mejora detectable vs. baseline.',kpi:'Aumentar retención meses 2-3'},
+  'Unrealistic Promise':        {icon:'🎯',area:'Ventas',priority:'alta',action:'Revisar script de ventas eliminando promesas de resultados inmediatos. Establecer expectativas realistas: resultados visibles en 3-6 meses.',kpi:'Reducir churn por expectativas no cumplidas'},
+  'Support or Service Issues':  {icon:'🎧',area:'Soporte / CS',priority:'media',action:'SLA de respuesta de 24h documentado y medido. Asignar un interlocutor fijo por cliente durante los primeros 3 meses para garantizar continuidad.',kpi:'Reducir churn por soporte — el más prevenible'},
+  'Competitor / Alternative':   {icon:'⚔️',area:'Producto',priority:'baja',action:'Análisis trimestral de competidores. Fortalecer diferenciadores (automatización, precio, volumen) y comunicarlos en el onboarding.',kpi:'Fortalecer propuesta de valor vs. alternativas'},
+  'Financial / Budget Constraints':{icon:'💰',area:'Ventas / CS',priority:'baja',action:'Ofrecer opción de pausa de 1-2 meses antes del churn definitivo. Crear plan de "mantenimiento mínimo" a precio reducido.',kpi:'Convertir churns financieros en pausas'},
+  'Product Does Not Fit':       {icon:'🔎',area:'Producto / Ventas',priority:'media',action:'Revisar criterios de cualificación de leads y el ICP (Ideal Customer Profile). Evitar contratar clientes que no encajan con el modelo SaaS/IA desde el inicio.',kpi:'Reducir churn estructural por mala cualificación'},
+  'External / Personal Reasons':{icon:'🌍',area:'CS',priority:'baja',action:'Ofrecer pausa de cuenta (1-3 meses) como alternativa al churn definitivo para razones externas. Registro obligatorio del motivo específico.',kpi:'Recuperar clientes en situación temporal'},
+};
+const RECOM_COLOR={alta:'#ef4444',media:'#f59e0b',baja:'#22c55e'};
+const RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad Baja'};
+
+function renderHSRecomendaciones(){
+  const el=document.getElementById('recomHS');
+  if(!el)return;
+  const t=filteredHS.length;
+  if(!t){el.innerHTML='';return;}
+  const wr=filteredHS.filter(r=>r.churn_reason).length;
+  const docRate=Math.round(wr/t*100);
+  // Build reason counts from filtered data
+  const reasonRecs={};
+  filteredHS.forEach(r=>{
+    const k=r.churn_reason;
+    if(!k)return;
+    if(!reasonRecs[k])reasonRecs[k]=[];
+    reasonRecs[k].push(r);
+  });
+  const sorted=Object.entries(reasonRecs).sort((a,b)=>b[1].length-a[1].length).slice(0,6);
+  // Documentation alert (always shown if <90%)
+  const docAlert=docRate<90?`
+    <div style="display:flex;gap:16px;padding:16px;background:#fff;border-radius:10px;border:1px solid var(--border);border-left:4px solid #f59e0b">
+      <div style="font-size:22px;flex-shrink:0">📝</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:700">Completar documentación de churns</span>
+          <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:#f59e0b20;color:#f59e0b">Prioridad Alta</span>
+          <span style="font-size:11px;color:var(--muted)">· Área: Operaciones / CS</span>
+        </div>
+        <p style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:6px">Solo el <strong>${docRate}% de los churns tiene motivo documentado</strong> en HubSpot (${wr} de ${t}). Hacer obligatorio rellenar "Churn Reason SaaS" antes de cerrar cualquier baja. Sin datos completos no hay análisis preventivo posible.</p>
+        <div style="font-size:11px;color:#15803d;background:#f0fdf4;padding:4px 8px;border-radius:6px;display:inline-block"><strong>Objetivo:</strong> 100% documentación en 30 días</div>
+      </div>
+    </div>`:'';
+  // Per-reason recommendations
+  const itemsHTML=sorted.map(([k,recs])=>{
+    const v=recs.length,pct=Math.round(v/t*100);
+    const info=HS_REASON[k],label=info?info.es:k;
+    const rec=HS_RECOM_MAP[k];
+    if(!rec)return'';
+    const subCounts=buildSubCounts(k).slice(0,2);
+    const subCtx=subCounts.length?`<p style="font-size:12px;color:var(--muted);margin-bottom:8px">Sub-motivos principales: ${subCounts.map(([s,n])=>`${s} (${n})`).join(', ')}.</p>`:'';
+    const col=RECOM_COLOR[rec.priority];
+    return`<div style="display:flex;gap:16px;padding:16px;background:#fff;border-radius:10px;border:1px solid var(--border);border-left:4px solid ${col}">
+      <div style="font-size:22px;flex-shrink:0">${rec.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:700">${label}</span>
+          <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:${col}20;color:${col}">${RECOM_LABEL[rec.priority]}</span>
+          <span style="font-size:11px;color:var(--muted)">· ${v} casos (${pct}%) · Área: ${rec.area}</span>
+        </div>
+        ${subCtx}
+        <p style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:6px">${rec.action}</p>
+        <div style="font-size:11px;color:#15803d;background:#f0fdf4;padding:4px 8px;border-radius:6px;display:inline-block"><strong>Objetivo:</strong> ${rec.kpi}</div>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+  el.innerHTML=`
+  <div class="concl-section" style="margin-top:24px">
+    <div class="concl-header" onclick="toggleConcl(this)" style="background:#f0f9ff">
+      <h2>🎯 Recomendaciones — basadas en datos del período</h2>
+      <span class="concl-toggle">▶</span>
+    </div>
+    <div class="concl-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Acciones priorizadas en base a los <strong>${t} churns del período</strong>, ordenadas por volumen de casos.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${docAlert}
+        ${itemsHTML}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
 // MODJO RENDER
 // ============================================================
 // ============================================================
@@ -799,6 +907,71 @@ function renderModjoKPI(id){
     <div class="kpi-card kpi-ok"><div class="kpi-label">Sin churn</div><div class="kpi-value">${t-c}</div><div class="kpi-sub">llamadas OK</div></div>
     <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${t?Math.round(c/t*100):0}%</div><div class="kpi-sub">del total</div></div>`;
 }
+// ============================================================
+// MODJO RECOMMENDATIONS (dynamic, based on filtered period)
+// ============================================================
+const MODJO_RECOM_MAP={
+  'Facturación':      {icon:'💳',area:'Ventas / Operaciones',priority:'alta',action:'Clarificar la política de cancelación (20 días de preaviso) en el momento del alta, por escrito y con confirmación explícita del cliente. Enviar email de confirmación de baja en menos de 24h.',kpi:'Reducir reclamaciones y disputas de cobro'},
+  'Fallos técnicos':  {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS obligatorio en las primeras 48h del alta. Alerta automática si Instagram/Facebook no están conectados a los 3 días. Protocolo de escalado técnico en menos de 4h.',kpi:'Eliminar fallos de vinculación en onboarding'},
+  'Onboarding':       {icon:'🚀',area:'CS / Producto',priority:'alta',action:'Vídeo de onboarding de 3 minutos enviado el día 1. Llamada de bienvenida obligatoria en los primeros 7 días. Checklist de activación visible en el dashboard del cliente.',kpi:'Reducir churn en el primer mes'},
+  'Sin resultados':   {icon:'📈',area:'CS / Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) enviado al cliente. Llamada proactiva al mes 2 si no hay mejora detectable vs. baseline.',kpi:'Aumentar retención meses 2-3'},
+  'Contenido':        {icon:'✏️',area:'CS / Contenido',priority:'media',action:'Brief personalizado mínimo de 10 preguntas antes de activar la cuenta. Revisión humana obligatoria del primer mes de contenido. Proceso de feedback simplificado: aprobar/rechazar con un clic.',kpi:'Reducir Personalization Gap — contenido que no encaja'},
+  'Soporte':          {icon:'🎧',area:'Soporte / CS',priority:'media',action:'SLA de respuesta de 24h documentado y medido semanalmente. Asignar un interlocutor fijo por cliente durante los primeros 3 meses. Registro obligatorio de todas las incidencias.',kpi:'El tipo de churn más prevenible — reducir al 0%'},
+  'Limitaciones':     {icon:'🔎',area:'Producto',priority:'media',action:'Comunicar proactivamente el roadmap de producto al onboarding. Para limitaciones conocidas (LinkedIn, catalán, móvil), registrar en HubSpot y agrupar para priorización de producto.',kpi:'Reducir churn por limitaciones no comunicadas'},
+  'Razones externas': {icon:'🌍',area:'CS',priority:'baja',action:'Ofrecer pausa de cuenta de 1-3 meses como alternativa al churn definitivo. Registrar motivo específico en HubSpot. Campaña de reactivación a los 3 meses.',kpi:'Convertir churns externos en pausas recuperables'},
+};
+const MODJO_RECOM_COLOR={alta:'#ef4444',media:'#f59e0b',baja:'#22c55e'};
+const MODJO_RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad Baja'};
+
+function renderModjoRecomendaciones(){
+  const el=document.getElementById('recomModjo');
+  if(!el)return;
+  const t=filteredModjo.length;
+  if(!t){el.innerHTML='';return;}
+  // Build category churn counts from filtered data
+  const cc={};
+  Object.keys(CAT_KW).forEach(k=>{cc[k]={total:0,churn:0,rows:[]};});
+  filteredModjo.forEach(r=>{
+    if(cc[r.categoria]){cc[r.categoria].total++;cc[r.categoria].rows.push(r);if(r.esChurn)cc[r.categoria].churn++;}
+  });
+  // Only categories with churns in the period, sorted by churn count
+  const sorted=Object.entries(cc).filter(([,v])=>v.churn>0).sort((a,b)=>b[1].churn-a[1].churn);
+  if(!sorted.length){el.innerHTML='';return;}
+  const totalChurns=filteredModjo.filter(r=>r.esChurn).length||1;
+  const itemsHTML=sorted.map(([cat,data])=>{
+    const rec=MODJO_RECOM_MAP[cat];
+    if(!rec)return'';
+    const pct=Math.round(data.churn/totalChurns*100);
+    const col=MODJO_RECOM_COLOR[rec.priority];
+    // Top affected clients for context
+    const topClients=[...new Set(data.rows.filter(r=>r.esChurn).map(r=>r.cliente))].slice(0,2).join(', ');
+    return`<div style="display:flex;gap:16px;padding:16px;background:#fff;border-radius:10px;border:1px solid var(--border);border-left:4px solid ${col}">
+      <div style="font-size:22px;flex-shrink:0">${rec.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:700">${cat}</span>
+          <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:${col}20;color:${col}">${MODJO_RECOM_LABEL[rec.priority]}</span>
+          <span style="font-size:11px;color:var(--muted)">· ${data.churn} churns (${pct}% del total) · Área: ${rec.area}</span>
+        </div>
+        ${topClients?`<p style="font-size:12px;color:var(--muted);margin-bottom:8px">Casos en el período: ${topClients}${data.churn>2?'…':''}</p>`:''}
+        <p style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:6px">${rec.action}</p>
+        <div style="font-size:11px;color:#15803d;background:#f0fdf4;padding:4px 8px;border-radius:6px;display:inline-block"><strong>Objetivo:</strong> ${rec.kpi}</div>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+  el.innerHTML=`
+  <div class="concl-section" style="margin-top:24px">
+    <div class="concl-header" onclick="toggleConcl(this)" style="background:#f0f9ff">
+      <h2>🎯 Recomendaciones — basadas en datos del período</h2>
+      <span class="concl-toggle">▶</span>
+    </div>
+    <div class="concl-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Acciones priorizadas en base a los <strong>${totalChurns} churns detectados en el período</strong>, ordenadas por volumen de casos.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">${itemsHTML}</div>
+    </div>
+  </div>`;
+}
+
 function renderModjoInsights(){
   const cats=Object.keys(CAT_KW);
   const cc={};cats.forEach(c=>{cc[c]={total:0,churn:0};});
@@ -842,6 +1015,7 @@ function renderModjoInsights(){
       ${exHTML}
     </div>`;}).join('');
   document.getElementById('conclModjo').innerHTML=modjoConclHTML();
+  renderModjoRecomendaciones();
 }
 function renderModjoOwners(){
   renderModjoKPI('kpiRowModjoOwners');
@@ -1033,6 +1207,7 @@ function renderHSInsights(){
     </div>`;}).join('');
 
   document.getElementById('conclHS').innerHTML=hsConclHTML();
+  renderHSRecomendaciones();
   renderPatternAnalysis();
 }
 

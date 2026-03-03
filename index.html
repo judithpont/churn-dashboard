@@ -198,6 +198,7 @@
 <div class="filter-bar" id="filterHS" style="display:none">
   <input type="text" class="search-input" id="fHSSearch" placeholder="🔍 Buscar empresa…" oninput="applyHSFilters()"/>
   <select id="fHSReason" onchange="applyHSFilters()"><option value="">Todos los motivos</option></select>
+  <select id="fHSOwner" onchange="applyHSFilters()"><option value="">Todos los owners</option></select>
   <div class="period-btns">
     <button class="period-btn hs-period active" onclick="setHSPeriod('all',this)">Todo</button>
     <button class="period-btn hs-period" onclick="setHSPeriod('7d',this)">7d</button>
@@ -245,7 +246,7 @@
   <div id="viewHSOwners" style="display:none">
     <div class="kpi-row" id="kpiRowHSOwners"></div>
     <div class="section-title">Rendimiento por Product Success Owner</div>
-    <div class="owners-grid" id="hsOwnersGrid"></div>
+    <div id="hsOwnersGrid"></div>
   </div>
 
   <div id="viewHSInsights" style="display:none">
@@ -504,6 +505,7 @@ function setModjoPeriod(p,btn){modjoperiod=p;document.querySelectorAll('.m-perio
 // ============================================================
 function applyHSFilters(){
   const fR=document.getElementById('fHSReason').value;
+  const fHSO=document.getElementById('fHSOwner').value;
   const fHS=(document.getElementById('fHSSearch').value||'').toLowerCase().trim();
   const dF=document.getElementById('hsDFrom').value?new Date(document.getElementById('hsDFrom').value):null;
   const dT=document.getElementById('hsDTo').value?new Date(document.getElementById('hsDTo').value):null;
@@ -514,6 +516,7 @@ function applyHSFilters(){
   filteredHS=HS_DATA.filter(r=>{
     if(fHS&&!(r.name||'').toLowerCase().includes(fHS))return false;
     if(fR&&r.churn_reason!==fR)return false;
+    if(fHSO&&(r.owner||'')!==fHSO)return false;
     const d=parseDate(r.churn_date);
     if(d){if(pF&&d<pF)return false;if(dF&&d<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(d>dt)return false;}}
     return true;
@@ -663,7 +666,7 @@ function renderModjoKPI(id){
     <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${t?Math.round(c/t*100):0}%</div><div class="kpi-sub">del total</div></div>`;
 }
 function renderModjoInsights(){
-  const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
+  const cats=Object.keys(CAT_KW);
   const cc={};cats.forEach(c=>{cc[c]={total:0,churn:0};});
   filteredModjo.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
   const sorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].churn-cc[a].churn);
@@ -950,59 +953,79 @@ function renderHSOwners(){
   const owners=Object.entries(ownerMap).sort((a,b)=>b[1].total-a[1].total);
   const grand=filteredHS.length||1;
   const realOwners=owners.filter(([o])=>o!=='Sin asignar');
+  const sinAsignar=ownerMap['Sin asignar']||{total:0,sinMotivo:0};
+
   // KPI row
   document.getElementById('kpiRowHSOwners').innerHTML=`
     <div class="kpi-card kpi-churn"><div class="kpi-label">Total churns</div><div class="kpi-value">${filteredHS.length}</div><div class="kpi-sub">período actual</div></div>
     <div class="kpi-card"><div class="kpi-label">Product Success Owners</div><div class="kpi-value" style="color:#8b5cf6">${realOwners.length}</div><div class="kpi-sub">con datos registrados</div></div>
-    <div class="kpi-card kpi-rate"><div class="kpi-label">Sin owner asignado</div><div class="kpi-value">${(ownerMap['Sin asignar']||{}).total||0}</div><div class="kpi-sub">${Math.round(((ownerMap['Sin asignar']||{}).total||0)/grand*100)}% del total</div></div>
-    <div class="kpi-card kpi-ok"><div class="kpi-label">Mayor carga</div><div class="kpi-value" style="font-size:16px;font-weight:700">${realOwners[0]?realOwners[0][0].split(' ')[0]:'–'}</div><div class="kpi-sub">${realOwners[0]?realOwners[0][1].total+' churns':''}</div></div>`;
-  // Comparison bar chart
+    <div class="kpi-card kpi-rate"><div class="kpi-label">Sin owner asignado</div><div class="kpi-value">${sinAsignar.total}</div><div class="kpi-sub">${Math.round(sinAsignar.total/grand*100)}% del total</div></div>
+    <div class="kpi-card kpi-ok"><div class="kpi-label">Mayor carga</div><div class="kpi-value" style="font-size:20px;font-weight:700">${realOwners[0]?realOwners[0][0].split(' ')[0]:'–'}</div><div class="kpi-sub">${realOwners[0]?realOwners[0][1].total+' churns':''}</div></div>`;
+
+  // Comparison chart — full width
   const maxV=Math.max(...realOwners.map(([,d])=>d.total),1);
-  const chartHTML=`
+  const chartSection=`
   <div class="chart-section" style="margin-bottom:24px">
     <div class="section-title">Comparativa de churns por owner</div>
-    <div class="chart-bars" style="margin-top:12px">
+    <div class="chart-bars" style="margin-top:16px">
       ${realOwners.map(([o,d])=>{
         const pct=Math.round(d.total/grand*100);
         const undocPct=d.total?Math.round(d.sinMotivo/d.total*100):0;
         const barColor=undocPct>50?'#ef4444':undocPct>30?'#f59e0b':'var(--accent)';
+        const undocLabel=undocPct>0?`<span style="color:${undocPct>40?'#ef4444':'#f59e0b'};font-weight:600">${undocPct}% sin doc</span>`:`<span style="color:#22c55e">✓ documentado</span>`;
         return`<div class="chart-bar-row">
-          <div class="chart-bar-label" style="width:160px;font-size:12px">${o.split(' ').slice(0,2).join(' ')}</div>
+          <div class="chart-bar-label" style="width:170px;font-size:13px;font-weight:500">${o.split(' ').slice(0,2).join(' ')}</div>
           <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(d.total/maxV*100,4)}%;background:${barColor}">${d.total}</div></div>
-          <div style="width:90px;text-align:right;font-size:11px;color:var(--muted)">${pct}% · <span style="color:${undocPct>40?'#ef4444':'var(--muted)'}">${undocPct}% s/doc</span></div>
+          <div style="width:130px;text-align:right;font-size:11px;padding-left:8px">${pct}% del total · ${undocLabel}</div>
         </div>`;
       }).join('')}
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px">🔴 rojo = >50% sin documentar · 🟡 amarillo = 30-50% sin documentar</div>
   </div>`;
-  // Owner cards
-  const cardsHTML=owners.map(([o,data])=>{
+
+  // Owner cards — clean design
+  const cardsHTML=realOwners.map(([o,data])=>{
     const topReasons=Object.entries(data.reasons).sort((a,b)=>b[1]-a[1]).slice(0,3);
     const pct=Math.round(data.total/grand*100);
     const undocPct=data.total?Math.round(data.sinMotivo/data.total*100):0;
-    const barColor=pct>20?'#ef4444':pct>10?'#f59e0b':'var(--accent)';
-    const undocColor=undocPct>50?'#ef4444':undocPct>30?'#f59e0b':'#22c55e';
-    return`<div class="owner-card" style="${pct>20?'border-color:#ef4444':''}">
-      <div class="owner-name">${o}</div>
-      <div class="owner-meta">${data.total} churns · ${pct}% del total</div>
-      <div style="margin-bottom:10px">
-        <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:4px">
-          <div style="height:100%;width:${Math.min(pct*3,100)}%;background:${barColor};border-radius:3px"></div>
+    const accentColor=pct>=20?'#ef4444':pct>=15?'#f59e0b':'var(--accent)';
+    return`<div class="owner-card" style="border-top:3px solid ${accentColor}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div class="owner-name">${o}</div>
+          <div class="owner-meta" style="margin-bottom:0">${data.total} churns · ${pct}% del total</div>
         </div>
-        <div style="font-size:11px;display:flex;justify-content:space-between">
-          <span style="color:var(--muted)">Sin motivo documentado:</span>
-          <strong style="color:${undocColor}">${data.sinMotivo} (${undocPct}%)</strong>
-        </div>
+        <div style="font-size:24px;font-weight:800;color:${accentColor};line-height:1">${data.total}</div>
       </div>
-      ${topReasons.length?`<div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Top motivos</div>
-      <div style="display:flex;flex-direction:column;gap:4px">${topReasons.map(([k,n])=>`
-        <div style="display:flex;justify-content:space-between;font-size:12px">
+      <div style="height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-bottom:12px">
+        <div style="height:100%;width:${Math.min(pct*4,100)}%;background:${accentColor};border-radius:2px"></div>
+      </div>
+      ${undocPct>0?`<div style="font-size:11px;background:#fef3c7;border-radius:6px;padding:5px 8px;margin-bottom:10px;display:flex;justify-content:space-between">
+        <span style="color:#92400e">⚠️ Sin documentar</span>
+        <strong style="color:#d97706">${data.sinMotivo} (${undocPct}%)</strong>
+      </div>`:''}
+      ${topReasons.length?`<div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Top motivos</div>
+      <div style="display:flex;flex-direction:column;gap:5px">${topReasons.map(([k,n],i)=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
           <span style="color:var(--text)">${HS_REASON[k]?HS_REASON[k].es:k}</span>
-          <strong>${n}</strong>
-        </div>`).join('')}</div>`:'<div style="font-size:11px;color:var(--muted)">Sin motivos registrados</div>'}
+          <span style="background:var(--bg);border-radius:10px;padding:1px 7px;font-weight:700;font-size:11px">${n}</span>
+        </div>`).join('')}</div>`:'<div style="font-size:11px;color:var(--muted);font-style:italic">Sin motivos registrados</div>'}
     </div>`;
   }).join('');
-  document.getElementById('hsOwnersGrid').innerHTML=chartHTML+`<div class="owners-grid">${cardsHTML}</div>`;
+
+  // Sin asignar — separate warning card
+  const sinCard=sinAsignar.total>0?`
+    <div class="owner-card" style="border-top:3px solid #ef4444;background:#fff5f5;grid-column:1/-1;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div class="owner-name" style="color:#dc2626">⚠️ Sin asignar</div>
+        <div class="owner-meta">${sinAsignar.total} churns · ${Math.round(sinAsignar.total/grand*100)}% del total</div>
+      </div>
+      <div style="flex:2;min-width:200px;font-size:13px;color:#7f1d1d;line-height:1.6">
+        ${sinAsignar.sinMotivo>0?`<strong>${sinAsignar.sinMotivo} de ${sinAsignar.total}</strong> churns sin owner ni motivo documentado.`:''}
+        Estos registros no tienen Product Success Owner asignado en HubSpot. Asignarlos mejoraría la trazabilidad del churn.
+      </div>
+    </div>`:'' ;
+
+  document.getElementById('hsOwnersGrid').innerHTML=`${chartSection}<div class="owners-grid" style="margin-top:8px">${cardsHTML}${sinCard}</div>`;
 }
 
 // ============================================================
@@ -1097,10 +1120,12 @@ function switchSub(tab){
 // ============================================================
 function initFilters(){
   document.getElementById('fOwner').innerHTML='<option value="">Todos los owners</option>'+DUENOS.map(d=>`<option value="${d}">${d}</option>`).join('');
-  const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
+  const cats=Object.keys(CAT_KW);
   document.getElementById('fCat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
   const reasons=[...new Set(HS_DATA.map(r=>r.churn_reason).filter(Boolean))].sort();
   document.getElementById('fHSReason').innerHTML='<option value="">Todos los motivos</option>'+reasons.map(r=>{const i=HS_REASON[r];return`<option value="${r}">${i?i.es:r}</option>`;}).join('');
+  const hsOwners=[...new Set(HS_DATA.map(r=>r.owner).filter(Boolean))].sort();
+  document.getElementById('fHSOwner').innerHTML='<option value="">Todos los owners</option>'+hsOwners.map(o=>`<option value="${o}">${o}</option>`).join('');
 }
 
 window.addEventListener('load',function(){

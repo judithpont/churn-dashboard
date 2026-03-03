@@ -9,20 +9,16 @@
     :root{--bg:#f2f5eb;--accent:#85D630;--ad:#6ab520;--text:#1a2e0e;--card:#fff;--border:#e2e8d0;--muted:#7a8a6a;}
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
-    /* HEADER */
     header{background:var(--card);border-bottom:3px solid var(--accent);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
     .logo{font-size:22px;font-weight:800;letter-spacing:-1px;}.logo span{color:var(--accent);}
     .meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.6;}
-    /* MAIN TABS */
     .tabs{background:var(--card);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:2px;}
     .tab{padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .2s;user-select:none;}
     .tab.active{color:var(--ad);border-bottom-color:var(--accent);}
     .tab:hover:not(.active){color:var(--text);}
-    /* SUB TABS */
     .subtabs{background:var(--bg);padding:10px 32px;display:none;gap:8px;align-items:center;border-bottom:1px solid var(--border);}
     .subtab{padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--muted);transition:all .2s;}
     .subtab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-    /* FILTER BAR */
     .fbar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
     .fbar label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
     .fbar select{padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;background:#fff;color:var(--text);cursor:pointer;}
@@ -31,27 +27,25 @@
     .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
     .dsep{color:var(--muted);font-size:12px;}
     input[type=date]{padding:5px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;background:#fff;color:var(--text);}
-    /* KPIS */
     .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 32px 0;}
     .kpi{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
     .kpi .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:6px;}
     .kpi .val{font-size:30px;font-weight:800;}
     .kpi .sub{font-size:12px;color:var(--muted);margin-top:3px;}
     .kpi.red .val{color:#E53E3E;}.kpi.amb .val{color:#D97706;}.kpi.grn .val{color:var(--ad);}
-    /* CONTENT */
     .content{padding:20px 32px 48px;}
-    /* TABLE */
+    /* TABLE + EXPANDABLE */
     .tw{overflow-x:auto;}
     table{width:100%;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);border-collapse:collapse;}
     th{background:#2a3a1a;color:#fff;padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
     td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--bg);vertical-align:middle;}
-    tr.data-row:hover td{background:#f8faf2;cursor:pointer;}
-    tr.detail-row td{padding:0;background:#f8fff2;border-bottom:1px solid var(--border);}
-    .detail-inner{padding:16px 20px;font-size:13px;line-height:1.75;color:#333;display:none;border-left:4px solid var(--accent);}
-    .detail-inner.open{display:block;}
-    .detail-inner .dt{font-weight:700;color:var(--ad);margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;}
-    .detail-inner .body{white-space:pre-wrap;max-height:300px;overflow-y:auto;background:#fff;border-radius:8px;padding:12px;font-size:13px;line-height:1.7;}
-    .expand-btn{font-size:11px;color:var(--ad);cursor:pointer;font-weight:600;white-space:nowrap;background:none;border:none;padding:0;}
+    tr.dr:hover td{background:#f8faf2;cursor:pointer;}
+    tr.xr td{padding:0;background:#f5fbee;}
+    .xi{padding:0 20px;font-size:13px;line-height:1.8;color:#333;display:none;border-left:4px solid var(--accent);margin:0;}
+    .xi.open{display:block;padding:16px 20px;}
+    .xi .xt{font-weight:700;color:var(--ad);margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+    .xi .xb{white-space:pre-wrap;max-height:320px;overflow-y:auto;background:#fff;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.8;border:1px solid var(--border);}
+    .xbtn{font-size:11px;color:var(--ad);cursor:pointer;font-weight:700;white-space:nowrap;background:none;border:none;padding:0;text-decoration:underline;}
     .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
     .badge.ch{background:#FFE0E0;color:#CC0000;}.badge.ok{background:#E8F5E0;color:#2a7a00;}
     /* OWNERS */
@@ -69,14 +63,7 @@
     .cp.ch{background:#FFE0E0;color:#CC0000;}.cp.ok{background:#E8F5E0;color:#2a7a00;}.cp.nc{background:#FEF3C7;color:#92400E;}
     /* INSIGHTS */
     .iw{display:flex;flex-direction:column;gap:14px;}
-    .cat-summary{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .cat-summary h3{font-size:14px;font-weight:700;margin-bottom:14px;}
-    .cbrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-    .cblabel{font-size:13px;min-width:180px;}.cbtrack{flex:1;background:#f0f4e8;border-radius:20px;height:10px;overflow:hidden;}
-    .cbfill{height:100%;border-radius:20px;background:var(--accent);transition:width .5s;}
-    .cbcount{font-size:13px;font-weight:700;color:var(--ad);min-width:36px;text-align:right;}
-    /* mal/bien */
-    .mb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:6px;}
+    .mb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .mb-card{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
     .mb-card.mal{border-top:4px solid #E53E3E;}.mb-card.bien{border-top:4px solid var(--accent);}
     .mb-card h3{font-size:14px;font-weight:700;margin-bottom:14px;}
@@ -84,7 +71,12 @@
     .mb-item::before{content:"•";font-weight:900;flex-shrink:0;}
     .mb-card.mal .mb-item::before{color:#E53E3E;}.mb-card.bien .mb-item::before{color:var(--ad);}
     .mb-stat{font-weight:700;color:var(--text);}
-    /* insight cards */
+    .cat-summary{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .cat-summary h3{font-size:14px;font-weight:700;margin-bottom:14px;}
+    .cbrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .cblabel{font-size:13px;min-width:180px;}.cbtrack{flex:1;background:#f0f4e8;border-radius:20px;height:10px;overflow:hidden;}
+    .cbfill{height:100%;border-radius:20px;background:var(--accent);transition:width .5s;}
+    .cbcount{font-size:13px;font-weight:700;color:var(--ad);min-width:36px;text-align:right;}
     .ic{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:5px solid var(--accent);}
     .ic.c1{border-left-color:#E53E3E;}.ic.c2{border-left-color:#DD6B20;}.ic.c3{border-left-color:#D97706;}.ic.c4{border-left-color:#4A90D9;}
     .ih{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
@@ -135,16 +127,11 @@
   <div class="subtab" data-sub="owners" onclick="switchSub('owners')">👤 Owners</div>
 </div>
 
-<!-- Filter bar -->
 <div class="fbar">
   <label>Owner</label>
-  <select id="f-owner" onchange="applyFilter()">
-    <option value="todos">Todos</option>
-  </select>
+  <select id="f-owner" onchange="applyFilter()"><option value="todos">Todos</option></select>
   <label>Categoría</label>
-  <select id="f-cat" onchange="applyFilter()">
-    <option value="todas">Todas</option>
-  </select>
+  <select id="f-cat" onchange="applyFilter()"><option value="todas">Todas</option></select>
   <label>Churn</label>
   <select id="f-churn" onchange="applyFilter()">
     <option value="todos">Todos</option>
@@ -172,161 +159,125 @@
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv";
+const DUENOS = ['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
 
-const DUENOS = [
-  'Victor Ortega','Óscar Lopo','Gonzalo Rosales',
-  'Franco Ferretti','Kamila Jiménez','Martina Benalcazar'
-];
-
-const CHURN_KW = ['dar de baja','quiero cancelar','quiero darme de baja','me doy de baja',
-  'voy a cancelar','decido cancelar','solicito la baja','no quiero continuar',
-  'no quiero seguir','baja del servicio','cancelo','he cancelado','me voy a dar de baja',
-  'quiero la baja','darse de baja'];
+const CHURN_KW = ['dar de baja','quiero cancelar','quiero darme de baja','me doy de baja','voy a cancelar',
+  'decido cancelar','solicito la baja','no quiero continuar','no quiero seguir','baja del servicio',
+  'cancelo','he cancelado','me voy a dar de baja','quiero la baja'];
 
 const CAT_KW = {
-  'Fallos técnicos':  ['no publica','no sale','no funciona','error','fallo','vinculaci','conecta','lento','carga','instagram','facebook','problema técnico','no se publica'],
-  'Onboarding':       ['no sé cómo','no entiendo','confus','demo','tutorial','aprobaci','flujo','primer','empezar','no saben','cómo funciona'],
-  'Sin resultados':   ['no veo result','no genera','sin ventas','no convierte','inversión','retorno','roi','engagement','no tengo cliente','sin resultado'],
-  'Contenido':        ['contenido','propuesta','genérico','chatgpt','no refleja','no personali','calidad','no es mi estilo','irrelevante'],
-  'Soporte':          ['no responde','sin respuesta','nadie me atiende','soporte','espera','reclamaci','no me hace caso','sin atención'],
-  'Facturación':      ['cobro','factura','cargo','precio','no esperaba','sorpresa','reembolso','pago','cobran'],
-  'Limitaciones':     ['linkedin','catalán','catala','archivo','ordenador','limitaci','no puede','no soporta','no gestiona'],
-  'Razones externas': ['crisis','económic','agencia','traslado','tiempo','personal','otro servicio','me voy']
+  'Fallos técnicos':  ['no publica','no sale','no funciona','error','fallo','vinculaci','conecta','lento','carga','instagram','facebook','problema técnico'],
+  'Onboarding':       ['no sé cómo','no entiendo','confus','demo','tutorial','aprobaci','flujo','primer','empezar','cómo funciona'],
+  'Sin resultados':   ['no veo result','no genera','sin ventas','no convierte','inversión','retorno','roi','engagement','sin resultado'],
+  'Contenido':        ['contenido','propuesta','genérico','chatgpt','no refleja','no personali','calidad','irrelevante'],
+  'Soporte':          ['no responde','sin respuesta','nadie me atiende','soporte','espera','reclamaci','no me hace caso'],
+  'Facturación':      ['cobro','factura','cargo','precio','no esperaba','sorpresa','reembolso','cobran'],
+  'Limitaciones':     ['linkedin','catalán','catala','archivo','ordenador','limitaci','no puede','no soporta'],
+  'Razones externas': ['crisis','económic','agencia','traslado','tiempo','personal','otro servicio']
 };
 
 const BIEN_KW = ['muy bien','perfecto','genial','encantad','contento','contenta','satisfech','funciona bien',
-  'me gusta','excelente','increíble','feliz','gracias','va bien','sin problemas','buena experiencia',
-  'funcionando','todo bien','muy satisf','bien atendid'];
+  'me gusta','excelente','feliz','gracias','va bien','sin problemas','todo bien','bien atendid'];
 
-function detCat(t){
-  if(!t) return 'Sin categoría';
-  const s=t.toLowerCase();
-  for(const[c,kws]of Object.entries(CAT_KW)) if(kws.some(k=>s.includes(k))) return c;
-  return 'Sin categoría';
-}
-function detChurn(t){ return t?CHURN_KW.some(k=>t.toLowerCase().includes(k)):false; }
-function detBien(t){ return t?BIEN_KW.some(k=>t.toLowerCase().includes(k)):false; }
-function norm(s){ return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
-function col(row,opts){ for(const k of opts){ if(row[k]!==undefined) return row[k]||''; } return ''; }
+function detCat(t){if(!t)return 'Sin categoría';const s=t.toLowerCase();for(const[c,kws]of Object.entries(CAT_KW))if(kws.some(k=>s.includes(k)))return c;return 'Sin categoría';}
+function detChurn(t){return t?CHURN_KW.some(k=>t.toLowerCase().includes(k)):false;}
+function detBien(t){return t?BIEN_KW.some(k=>t.toLowerCase().includes(k)):false;}
+function norm(s){return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+function col(row,opts){for(const k of opts){if(row[k]!==undefined)return row[k]||'';}return '';}
 
 let allRows=[],filtered=[],curTab='dashboard',curSub='insights';
-let fOwner='todos',fCat='todas',fChurn='todos';
 
-function switchTab(t){
-  curTab=t;
-  document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));
-  document.getElementById('subtabs').style.display=t==='dashboard'?'flex':'none';
-  render();
-}
-function switchSub(s){
-  curSub=s;
-  document.querySelectorAll('.subtab').forEach(e=>e.classList.toggle('active',e.dataset.sub===s));
-  render();
-}
+function switchTab(t){curTab=t;document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));document.getElementById('subtabs').style.display=t==='dashboard'?'flex':'none';render();}
+function switchSub(s){curSub=s;document.querySelectorAll('.subtab').forEach(e=>e.classList.toggle('active',e.dataset.sub===s));render();}
+
 function setPeriod(days,btn){
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   if(!days){document.getElementById('f-desde').value='';document.getElementById('f-hasta').value='';}
-  else{
-    const now=new Date(),from=new Date(now-days*86400000);
-    document.getElementById('f-desde').value=from.toISOString().split('T')[0];
-    document.getElementById('f-hasta').value=now.toISOString().split('T')[0];
-  }
+  else{const now=new Date(),from=new Date(now-days*86400000);document.getElementById('f-desde').value=from.toISOString().split('T')[0];document.getElementById('f-hasta').value=now.toISOString().split('T')[0];}
   applyFilter();
 }
+
 function applyFilter(){
-  fOwner=document.getElementById('f-owner').value;
-  fCat=document.getElementById('f-cat').value;
-  fChurn=document.getElementById('f-churn').value;
+  const fo=document.getElementById('f-owner').value,fc=document.getElementById('f-cat').value,fch=document.getElementById('f-churn').value;
   const d=document.getElementById('f-desde').value,h=document.getElementById('f-hasta').value;
   filtered=allRows.filter(r=>{
-    if(d&&r._f&&r._f<d)return false;
-    if(h&&r._f&&r._f>h)return false;
-    if(fOwner!=='todos'&&r.owner!==fOwner)return false;
-    if(fCat!=='todas'&&r.cat!==fCat)return false;
-    if(fChurn==='si'&&!r.isChurn)return false;
-    if(fChurn==='no'&&r.isChurn)return false;
+    if(d&&r._f&&r._f<d)return false;if(h&&r._f&&r._f>h)return false;
+    if(fo!=='todos'&&r.owner!==fo)return false;
+    if(fc!=='todas'&&r.cat!==fc)return false;
+    if(fch==='si'&&!r.isChurn)return false;if(fch==='no'&&r.isChurn)return false;
     return true;
   });
   updateKPIs();render();
 }
 
 function cargarDatos(){
-  Papa.parse(SHEET_URL,{
-    download:true,header:true,skipEmptyLines:true,
+  Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
     complete:r=>procesarDatos(r.data),
-    error:()=>{ document.getElementById('content').innerHTML='<div class="loading">❌ Error cargando datos. Verifica la URL del Sheet.</div>'; }
+    error:()=>{document.getElementById('content').innerHTML='<div class="loading">❌ Error cargando datos.</div>';}
   });
 }
 
 function procesarDatos(raw){
-  const seen=new Set();
-  allRows=[];
+  const seen=new Set();allRows=[];
   raw.forEach(row=>{
-    const transcript=col(row,['Transcript','transcript','Transcripcion','transcripcion','Contenido','contenido','Resumen','resumen','Summary','summary']);
+    // Transcript — para detección de keywords
+    const transcript=col(row,['Transcript','transcript','Transcripcion','transcripcion','Contenido','contenido']);
+    // Summary — lo que se muestra al usuario en el desplegable
+    const summary=col(row,['Summary','summary','Resumen','resumen','Resumen ejecutivo','resumen_ejecutivo','Brief','brief','Notes','notes','Notas','notas']);
     const participantes=col(row,['Participantes','participantes','Participants','participants']);
-    const duenoBruto=col(row,['Dueño','dueno','Dueno','Owner','owner','Comercial','comercial','Assigned to','assigned_to']);
-    const fechaRaw=col(row,['Fecha','fecha','Date','date','Actualizado','actualizado','created_at','Fecha llamada','fecha_llamada']);
+    const duenoBruto=col(row,['Dueño','dueno','Dueno','Owner','owner','Comercial','comercial','Assigned to']);
+    const fechaRaw=col(row,['Fecha','fecha','Date','date','Actualizado','actualizado','created_at','Fecha llamada']);
     const nombreBruto=col(row,['Nombre','nombre','Cliente','cliente','Company','company','Empresa','empresa']);
-    const churnCol=col(row,['Churn','churn','Es churn','es_churn','Tipo','tipo','Estado','estado','Resultado','resultado']);
+    const churnCol=col(row,['Churn','churn','Es churn','es_churn','Tipo','tipo','Estado','estado','Resultado']);
 
-    // Owner — check DUENOS in participantes or dueno column
+    // Owner
     let owner='';
     const search=norm(participantes+' '+duenoBruto);
-    for(const d of DUENOS){
-      const nparts=norm(d).split(' ');
-      if(search.includes(norm(d))||search.includes(nparts[0]+' '+nparts[1])||search.includes(nparts[0])){
-        owner=d;break;
-      }
-    }
-    // Only process rows that have a known owner
-    if(!owner) return;
+    for(const d of DUENOS){const np=norm(d).split(' ');if(search.includes(norm(d))||search.includes(np[0]+' '+np[1])||search.includes(np[0])){owner=d;break;}}
+    if(!owner)return;
 
     // Cliente — todo antes de la primera coma en Participantes
-    let cliente = '';
+    let cliente='';
     if(participantes){
-      const beforeComma = participantes.split(',')[0].trim();
-      // Limpiar brackets: [Nombre] → Nombre
-      cliente = beforeComma.replace(/^\[(.+)\]$/, '$1').trim();
+      const bc=participantes.split(',')[0].trim();
+      cliente=bc.replace(/^\[(.+)\]$/,'$1').trim();
     }
-    if(!cliente) cliente = nombreBruto.trim();
-
-    // Skip if cliente is the owner
-    if(owner && norm(cliente).includes(norm(DUENOS.find(d=>d===owner)||'').split(' ')[0])) {
-      // try second part after comma or use nombre
-      cliente = nombreBruto.trim() || cliente;
-    }
+    if(!cliente)cliente=nombreBruto.trim();
 
     // Fecha
     let fechaStr='';
     if(fechaRaw){const d=new Date(fechaRaw);if(!isNaN(d))fechaStr=d.toISOString().split('T')[0];}
 
-    // Churn — columna o keywords
+    // Churn
     let isChurn=false;
-    if(churnCol){
-      const cv=churnCol.toLowerCase();
-      isChurn=['sí','si','yes','churn','true','1','cancelado','baja'].some(v=>cv.includes(v));
-    } else { isChurn=detChurn(transcript); }
+    if(churnCol){const cv=churnCol.toLowerCase();isChurn=['sí','si','yes','churn','true','1','cancelado','baja'].some(v=>cv.includes(v));}
+    else{isChurn=detChurn(transcript);}
 
-    const cat=detCat(transcript||nombreBruto);
-    const esBien=detBien(transcript);
+    // Usar transcript o summary para detección de categoría
+    const textForCat=transcript||summary||nombreBruto;
+    const cat=detCat(textForCat);
+    const esBien=detBien(transcript||summary);
+
     const key=norm(cliente)+'_'+fechaStr+'_'+owner;
     if(seen.has(key)||!norm(cliente))return;
     seen.add(key);
 
-    allRows.push({cliente,owner,cat,fechaStr,_f:fechaStr,isChurn,esBien,
-      transcript:transcript||'',snip:(transcript||'').substring(0,300)});
+    // El summary a mostrar: primero columna summary, si no hay usar inicio del transcript
+    const displayText = summary && summary.trim().length > 10
+      ? summary.trim()
+      : (transcript||'').trim().substring(0,600) || 'Sin resumen disponible.';
+
+    allRows.push({cliente,owner,cat,fechaStr,_f:fechaStr,isChurn,esBien,displayText});
   });
 
-  // Populate filter dropdowns
-  const ownerSel=document.getElementById('f-owner');
-  DUENOS.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;ownerSel.appendChild(o);});
-  const catSel=document.getElementById('f-cat');
-  [...Object.keys(CAT_KW),'Sin categoría'].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
+  // Dropdowns
+  const os=document.getElementById('f-owner');
+  DUENOS.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;os.appendChild(o);});
+  const cs=document.getElementById('f-cat');
+  [...Object.keys(CAT_KW),'Sin categoría'].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});
 
   filtered=[...allRows];
-  document.getElementById('meta').innerHTML=
-    `Actualizado: ${new Date().toLocaleString('es-ES')}<br>${allRows.length.toLocaleString()} llamadas cargadas`;
+  document.getElementById('meta').innerHTML=`Actualizado: ${new Date().toLocaleString('es-ES')}<br>${allRows.length.toLocaleString()} llamadas cargadas`;
   updateKPIs();render();
 }
 
@@ -345,247 +296,174 @@ function render(){
   else renderChurns();
 }
 
-// ── EXPANDABLE ROWS ──────────────────────────────────────
+// ── EXPANDABLE ────────────────────────────────────────────
 function toggleDetail(id){
-  const el=document.getElementById('d-'+id);
-  if(!el)return;
+  const el=document.getElementById('d-'+id);if(!el)return;
   el.classList.toggle('open');
   const btn=document.getElementById('b-'+id);
-  if(btn)btn.textContent=el.classList.contains('open')?'▲ Cerrar':'▼ Ver resumen';
+  if(btn)btn.textContent=el.classList.contains('open')?'▲ Cerrar resumen':'▼ Ver resumen';
 }
 
 function buildRows(rows){
   return rows.map((r,i)=>{
     const uid=r._uid||i;
-    const body=(r.transcript||'Sin transcript disponible').trim();
-    const hasT=body.length>5;
+    const hasS=r.displayText&&r.displayText.length>5;
+    const safe=(r.displayText||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return `
-      <tr class="data-row" onclick="${hasT?`toggleDetail('${uid}')`:``}">
+      <tr class="dr" onclick="${hasS?`toggleDetail('${uid}')`:``}">
         <td>${r.owner||'—'}</td>
         <td>${r.fechaStr||'—'}</td>
         <td><strong>${r.cliente||'—'}</strong></td>
         <td>${r.cat}</td>
         <td>${r.isChurn?'<span class="badge ch">Churn</span>':'<span class="badge ok">OK</span>'}</td>
-        <td>${hasT?`<button class="expand-btn" id="b-${uid}" onclick="event.stopPropagation();toggleDetail('${uid}')">▼ Ver resumen</button>`:'—'}</td>
+        <td>${hasS?`<button class="xbtn" id="b-${uid}" onclick="event.stopPropagation();toggleDetail('${uid}')">▼ Ver resumen</button>`:'—'}</td>
       </tr>
-      <tr class="detail-row">
-        <td colspan="6">
-          <div class="detail-inner" id="d-${uid}">
-            <div class="dt">📝 Resumen de la llamada — ${r.cliente} · ${r.fechaStr||''}</div>
-            <div class="body">${body.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-          </div>
-        </td>
-      </tr>`;
+      <tr class="xr"><td colspan="6">
+        <div class="xi" id="d-${uid}">
+          <div class="xt">📋 Resumen — ${r.cliente||''} · ${r.fechaStr||''} · ${r.owner||''}</div>
+          <div class="xb">${safe}</div>
+        </div>
+      </td></tr>`;
   }).join('');
 }
 
-// ── TABLA ────────────────────────────────────────────────
+// ── TABLA ─────────────────────────────────────────────────
 function renderTabla(){
   const rows=filtered.slice(0,400).map((r,i)=>({...r,_uid:'t'+i}));
   const sincat=[...new Set(filtered.filter(r=>r.cat==='Sin categoría').map(r=>r.cliente).filter(Boolean))];
   document.getElementById('content').innerHTML=`
     <div class="tw"><table>
-      <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Churn</th><th>Detalle</th></tr></thead>
+      <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Churn</th><th>Resumen</th></tr></thead>
       <tbody>${buildRows(rows)}</tbody>
     </table></div>
     ${filtered.length>400?`<p style="text-align:center;padding:14px;color:var(--muted);font-size:13px">Mostrando 400 de ${filtered.length.toLocaleString()} registros</p>`:''}
     ${sincat.length?`<div class="scb"><h4>⚠️ Sin categoría — revisar manualmente (${sincat.length})</h4><div class="scpills">${sincat.map(c=>`<span class="scp">${c}</span>`).join('')}</div></div>`:''}`;
 }
 
-// ── CHURNS ───────────────────────────────────────────────
+// ── CHURNS ────────────────────────────────────────────────
 function renderChurns(){
   const ch=filtered.filter(r=>r.isChurn).map((r,i)=>({...r,_uid:'c'+i}));
-  if(!ch.length){document.getElementById('content').innerHTML='<div class="loading">No se detectaron churns en el período seleccionado.</div>';return;}
+  if(!ch.length){document.getElementById('content').innerHTML='<div class="loading">No se detectaron churns en este período.</div>';return;}
   document.getElementById('content').innerHTML=`
     <div class="tw"><table>
-      <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Churn</th><th>Detalle</th></tr></thead>
+      <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Churn</th><th>Resumen</th></tr></thead>
       <tbody>${buildRows(ch)}</tbody>
     </table></div>`;
 }
 
-// ── OWNERS ───────────────────────────────────────────────
+// ── OWNERS ────────────────────────────────────────────────
 function renderOwners(){
-  const od={};
-  DUENOS.forEach(d=>{od[d]={total:0,churns:0,cats:{},clients:[]};});
+  const od={};DUENOS.forEach(d=>{od[d]={total:0,churns:0,cats:{},clients:[]};});
   filtered.forEach(r=>{
     if(!r.owner||!od[r.owner])return;
-    const o=od[r.owner];o.total++;
-    if(r.isChurn)o.churns++;
+    const o=od[r.owner];o.total++;if(r.isChurn)o.churns++;
     if(r.cat&&r.cat!=='Sin categoría')o.cats[r.cat]=(o.cats[r.cat]||0)+1;
     o.clients.push(r);
   });
   const cards=DUENOS.map(name=>{
-    const o=od[name];
-    const rate=o.total?Math.round(o.churns/o.total*100):0;
+    const o=od[name];const rate=o.total?Math.round(o.churns/o.total*100):0;
     const bc=rate>=50?'br':rate>=25?'ba':'bg';
     const topCat=Object.entries(o.cats).sort((a,b)=>b[1]-a[1])[0];
     const pills=o.clients.sort((a,b)=>(b.isChurn?1:0)-(a.isChurn?1:0)).slice(0,10)
       .map(c=>`<span class="cp ${c.isChurn?'ch':c.cat==='Sin categoría'?'nc':'ok'}">${c.isChurn?'✕':'✓'} ${c.cliente||'—'}</span>`).join('');
     return `<div class="oc ${bc}">
-      <div class="oname">${name}</div>
-      <div class="orate">${rate}% churn · ${o.total} llamadas</div>
+      <div class="oname">${name}</div><div class="orate">${rate}% churn · ${o.total} llamadas</div>
       <div class="ostats">
         <div class="ostat red"><div class="n">${o.churns}</div><div class="l">Churns</div></div>
         <div class="ostat grn"><div class="n">${o.total-o.churns}</div><div class="l">OK</div></div>
       </div>
       ${topCat?`<div class="mtag">⚡ ${topCat[0]}</div>`:''}
       <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Clientes</div>
-      <div class="clist">${pills||'<span style="color:var(--muted);font-size:12px">Sin datos en este período</span>'}</div>
+      <div class="clist">${pills||'<span style="color:var(--muted);font-size:12px">Sin datos</span>'}</div>
     </div>`;
   }).join('');
   document.getElementById('content').innerHTML=`<div class="og">${cards}</div>`;
 }
 
-// ── INSIGHTS (dinámico) ──────────────────────────────────
+// ── INSIGHTS ──────────────────────────────────────────────
 function renderInsights(){
   const total=filtered.length||1;
   const churns=filtered.filter(r=>r.isChurn);
   const noChurns=filtered.filter(r=>!r.isChurn);
-
-  // Category counts
-  const counts={};
-  filtered.forEach(r=>{counts[r.cat]=(counts[r.cat]||0)+1;});
+  const counts={};filtered.forEach(r=>{counts[r.cat]=(counts[r.cat]||0)+1;});
   const maxN=Math.max(...Object.values(counts),1);
   const catOrder=[...Object.keys(CAT_KW),'Sin categoría'];
   const barRows=catOrder.map(cat=>{
     const n=counts[cat]||0,pct=Math.round(n/total*100),bw=Math.round(n/maxN*100);
-    return `<div class="cbrow">
-      <div class="cblabel">${cat}</div>
-      <div class="cbtrack"><div class="cbfill" style="width:${bw}%"></div></div>
-      <div class="cbcount">${n}<span style="font-size:10px;color:var(--muted);font-weight:400"> ${pct}%</span></div>
-    </div>`;
+    return `<div class="cbrow"><div class="cblabel">${cat}</div><div class="cbtrack"><div class="cbfill" style="width:${bw}%"></div></div><div class="cbcount">${n}<span style="font-size:10px;color:var(--muted);font-weight:400"> ${pct}%</span></div></div>`;
   }).join('');
 
-  // LO QUE HACEMOS MAL — top categorías en churns
-  const churnCats={};
-  churns.forEach(r=>{if(r.cat!=='Sin categoría')churnCats[r.cat]=(churnCats[r.cat]||0)+1;});
+  const churnCats={};churns.forEach(r=>{if(r.cat!=='Sin categoría')churnCats[r.cat]=(churnCats[r.cat]||0)+1;});
   const topMal=Object.entries(churnCats).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const malItems=topMal.length?topMal.map(([cat,n])=>{
-    const clients=[...new Set(churns.filter(r=>r.cat===cat).map(r=>r.cliente).filter(Boolean))].slice(0,4).join(', ');
-    return `<div class="mb-item"><div><span class="mb-stat">${cat}</span> — ${n} llamadas de churn${clients?`<br><span style="font-size:12px;color:#999">${clients}</span>`:''}</div></div>`;
-  }).join(''):`<div class="mb-item">Sin datos suficientes en este período.</div>`;
+    const cls=[...new Set(churns.filter(r=>r.cat===cat).map(r=>r.cliente).filter(Boolean))].slice(0,4).join(', ');
+    return `<div class="mb-item"><div><span class="mb-stat">${cat}</span> — ${n} llamadas${cls?`<br><span style="font-size:12px;color:#999">${cls}</span>`:''}</div></div>`;
+  }).join(''):`<div class="mb-item">Sin datos en este período.</div>`;
 
-  // LO QUE HACEMOS BIEN — llamadas sin churn con keywords positivos
   const bienRows=noChurns.filter(r=>r.esBien);
-  const bienCats={};
-  bienRows.forEach(r=>{if(r.owner)bienCats[r.owner]=(bienCats[r.owner]||0)+1;});
+  const bienCats={};bienRows.forEach(r=>{if(r.owner)bienCats[r.owner]=(bienCats[r.owner]||0)+1;});
   const topBien=Object.entries(bienCats).sort((a,b)=>b[1]-a[1]);
   const bienPct=noChurns.length?Math.round(bienRows.length/noChurns.length*100):0;
-  const bienItems=topBien.length?[
-    `<div class="mb-item"><span class="mb-stat">${bienRows.length} llamadas</span> con señales positivas (${bienPct}% de las no-churn)</div>`,
-    ...topBien.slice(0,4).map(([owner,n])=>`<div class="mb-item"><span class="mb-stat">${owner}</span> — ${n} clientes satisfechos</div>`),
-    `<div class="mb-item">Los clientes satisfechos mencionan: buena atención, plataforma funcionando correctamente, propuestas aceptadas.</div>`
-  ].join(''):`<div class="mb-item">Sin suficientes datos positivos en este período.</div>`;
+  const bienItems=[
+    `<div class="mb-item"><span class="mb-stat">${bienRows.length} llamadas</span> con señales positivas (${bienPct}% de no-churn)</div>`,
+    ...topBien.slice(0,4).map(([o,n])=>`<div class="mb-item"><span class="mb-stat">${o}</span> — ${n} clientes satisfechos</div>`),
+    bienRows.length===0?`<div class="mb-item">Sin suficientes señales positivas detectadas.</div>`:''
+  ].join('');
 
-  // Dynamic client lists for insight cards
-  function dynClients(catName){
-    const cls=[...new Set(filtered.filter(r=>r.cat===catName&&r.isChurn).map(r=>r.cliente).filter(Boolean))].slice(0,6);
-    const n=counts[catName]||0;
-    if(!n)return '';
-    return `<div class="idyn-clients">📊 <strong>${n} llamadas</strong> detectadas en este período${cls.length?` · Clientes en churn: <strong>${cls.join(', ')}</strong>`:''}.</div>`;
+  function dynBadge(cat){return counts[cat]?`<span class="idyn">${counts[cat]} llamadas</span>`:'';}
+  function dynClients(cat){
+    const cls=[...new Set(filtered.filter(r=>r.cat===cat&&r.isChurn).map(r=>r.cliente).filter(Boolean))].slice(0,6);
+    return cls.length?`<div class="idyn-clients">Clientes en churn: <strong>${cls.join(', ')}</strong></div>`:'';
   }
 
-  document.getElementById('content').innerHTML=`
-  <div class="iw">
-
+  document.getElementById('content').innerHTML=`<div class="iw">
     <div class="mb-grid">
-      <div class="mb-card mal">
-        <h3>🔴 Lo que estamos haciendo mal</h3>
-        ${malItems}
-      </div>
-      <div class="mb-card bien">
-        <h3>🟢 Lo que estamos haciendo bien</h3>
-        ${bienItems}
-      </div>
+      <div class="mb-card mal"><h3>🔴 Lo que estamos haciendo mal</h3>${malItems}</div>
+      <div class="mb-card bien"><h3>🟢 Lo que estamos haciendo bien</h3>${bienItems}</div>
     </div>
-
     <div class="cat-summary">
-      <h3>📊 Llamadas por categoría — ${filtered.length.toLocaleString()} registros en el período</h3>
-      ${barRows}
+      <h3>📊 Llamadas por categoría — ${filtered.length.toLocaleString()} registros</h3>${barRows}
     </div>
-
-    <div class="ic c1">
-      <div class="ih"><div class="in">1</div><div class="it">Fallos técnicos recurrentes</div><span class="ifreq f1">⚠️ Muy alta frecuencia</span>${counts['Fallos técnicos']?`<span class="idyn">${counts['Fallos técnicos']} llamadas</span>`:''}</div>
-      <p class="ib">Publicaciones que no salen a tiempo, vinculación fallida con Instagram/Facebook, errores en el sistema de pagos, carga lenta de la plataforma y cuentas no conectadas correctamente.</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Karina, Enrique, Patricia, María (varias), Leticia, Isabel, Yolanda, Heidy.</div>
-      ${dynClients('Fallos técnicos')}
-    </div>
-
-    <div class="ic c2">
-      <div class="ih"><div class="in">2</div><div class="it">Onboarding deficiente / confusión de uso</div><span class="ifreq f2">Alta frecuencia</span>${counts['Onboarding']?`<span class="idyn">${counts['Onboarding']} llamadas</span>`:''}</div>
-      <p class="ib">Clientes que llevan semanas sin entender cómo funciona la plataforma. No saben solicitar cambios ni el flujo de aprobación. La solución reactiva universal "demo el lunes" indica que el onboarding inicial no es suficiente.</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Isabel, prospecta del gimnasio, Ángel, Yolanda, Joaquim, María (odontopediatría).</div>
-      ${dynClients('Onboarding')}
-    </div>
-
-    <div class="ic c2">
-      <div class="ih"><div class="in">3</div><div class="it">Bajo valor percibido / ausencia de resultados</div><span class="ifreq f2">Alta frecuencia</span>${counts['Sin resultados']?`<span class="idyn">${counts['Sin resultados']} llamadas</span>`:''}</div>
-      <p class="ib">Clientes que no ven ventas, leads ni engagement y no justifican la inversión. Algunos dicen que sus publicaciones propias tienen más tráfico que las del equipo.</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Ángel, Solventana, Virginia, Isabel, Samuel, María (odontopediatría), Laia.</div>
-      ${dynClients('Sin resultados')}
-    </div>
-
-    <div class="ic c2">
-      <div class="ih"><div class="in">4</div><div class="it">Calidad y relevancia del contenido</div><span class="ifreq f2">Alta frecuencia</span>${counts['Contenido']?`<span class="idyn">${counts['Contenido']} llamadas</span>`:''}</div>
-      <p class="ib">Propuestas genéricas sin personalización real. Clientes con negocios nicho sienten que la IA no captura su sector. Sensación de "ChatGPT sin contexto".</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Ángel, Aikari, María (cancelación), Yolanda, Enrique, Laia.</div>
-      ${dynClients('Contenido')}
-    </div>
-
-    <div class="ic c2">
-      <div class="ih"><div class="in">5</div><div class="it">Comunicación y soporte deficiente</div><span class="ifreq f2">Alta frecuencia</span>${counts['Soporte']?`<span class="idyn">${counts['Soporte']} llamadas</span>`:''}</div>
-      <p class="ib">Solicitudes que no se registran, respuestas lentas, múltiples interlocutores sin continuidad. Samuel lleva 20+ propuestas sin feedback. José cancela agresivamente tras reclamaciones sin respuesta.</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Karina, Samuel, José, María, Fran, Heidy, Enrique.</div>
-      ${dynClients('Soporte')}
-    </div>
-
-    <div class="ic c3">
-      <div class="ih"><div class="in">6</div><div class="it">Sorpresas en facturación</div><span class="ifreq f3">Frecuencia media</span>${counts['Facturación']?`<span class="idyn">${counts['Facturación']} llamadas</span>`:''}</div>
-      <p class="ib">Cobros inesperados, falta de transparencia en el plan y política de cancelación (20 días de aviso). Miryam cancela solo por esto. Patricia se siente engañada con la prueba gratuita.</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Miryam, Patricia, Heidy, Fran, Karina.</div>
-      ${dynClients('Facturación')}
-    </div>
-
-    <div class="ic c3">
-      <div class="ih"><div class="in">7</div><div class="it">Limitaciones del producto</div><span class="ifreq f3">Frecuencia media</span>${counts['Limitaciones']?`<span class="idyn">${counts['Limitaciones']} llamadas</span>`:''}</div>
-      <p class="ib">Sin gestión de LinkedIn, sin subida de archivos desde ordenador, problemas con el catalán sin resolver. Reducen el valor percibido en clientes con necesidades específicas.</p>
-      <div class="icl"><strong>Clientes conocidos:</strong> Leticia, María (cancelación), Laia.</div>
-      ${dynClients('Limitaciones')}
-    </div>
-
-    <div class="ic c4">
-      <div class="ih"><div class="in">8</div><div class="it">Razones externas</div><span class="ifreq f4">Frecuencia baja</span>${counts['Razones externas']?`<span class="idyn">${counts['Razones externas']} llamadas</span>`:''}</div>
-      <p class="ib">Crisis económica, cambio a otra agencia, falta de tiempo por traslado o cambios vitales. No relacionadas directamente con el servicio.</p>
-      ${dynClients('Razones externas')}
-    </div>
-
-    <div class="alert-box">
-      <h3>⚠️ Patrón crítico</h3>
-      <p>Ciclo de deterioro claro: <strong>Fallo técnico → intento de contacto → sin respuesta → frustración → propuestas bloqueadas → cancelación.</strong><br><br>
-      Los churns no son instantáneos. Las señales aparecen semanas antes. Las llamadas de rescate llegan demasiado tarde.</p>
-    </div>
-
-    <div class="rec">
-      <h3>✅ Recomendaciones</h3>
+    <div class="ic c1"><div class="ih"><div class="in">1</div><div class="it">Fallos técnicos recurrentes</div><span class="ifreq f1">⚠️ Muy alta frecuencia</span>${dynBadge('Fallos técnicos')}</div>
+      <p class="ib">Publicaciones que no salen a tiempo, vinculación fallida con Instagram/Facebook, errores en pagos, carga lenta y cuentas no conectadas.</p>
+      <div class="icl"><strong>Conocidos:</strong> Karina, Enrique, Patricia, María, Leticia, Isabel, Yolanda, Heidy.</div>${dynClients('Fallos técnicos')}</div>
+    <div class="ic c2"><div class="ih"><div class="in">2</div><div class="it">Onboarding deficiente / confusión de uso</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Onboarding')}</div>
+      <p class="ib">Clientes que llevan semanas sin entender la plataforma. No saben solicitar cambios ni el flujo de aprobación. La demo reactiva de rescate indica que el onboarding inicial no es suficiente.</p>
+      <div class="icl"><strong>Conocidos:</strong> Isabel, Ángel, Yolanda, Joaquim, María (odontopediatría).</div>${dynClients('Onboarding')}</div>
+    <div class="ic c2"><div class="ih"><div class="in">3</div><div class="it">Bajo valor percibido / ausencia de resultados</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Sin resultados')}</div>
+      <p class="ib">No ven ventas, leads ni engagement y no justifican la inversión. Algunos dicen que sus publicaciones propias generan más tráfico.</p>
+      <div class="icl"><strong>Conocidos:</strong> Ángel, Solventana, Virginia, Isabel, Samuel, María, Laia.</div>${dynClients('Sin resultados')}</div>
+    <div class="ic c2"><div class="ih"><div class="in">4</div><div class="it">Calidad y relevancia del contenido</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Contenido')}</div>
+      <p class="ib">Propuestas genéricas sin personalización. Clientes nicho sienten que la IA no captura su sector. Sensación de "ChatGPT sin contexto".</p>
+      <div class="icl"><strong>Conocidos:</strong> Ángel, Aikari, María, Yolanda, Enrique, Laia.</div>${dynClients('Contenido')}</div>
+    <div class="ic c2"><div class="ih"><div class="in">5</div><div class="it">Comunicación y soporte deficiente</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Soporte')}</div>
+      <p class="ib">Solicitudes que no se registran, respuestas lentas, múltiples interlocutores sin continuidad.</p>
+      <div class="icl"><strong>Conocidos:</strong> Karina, Samuel, José, María, Fran, Heidy, Enrique.</div>${dynClients('Soporte')}</div>
+    <div class="ic c3"><div class="ih"><div class="in">6</div><div class="it">Sorpresas en facturación</div><span class="ifreq f3">Frecuencia media</span>${dynBadge('Facturación')}</div>
+      <p class="ib">Cobros inesperados, falta de transparencia en plan y política de cancelación (20 días de aviso).</p>
+      <div class="icl"><strong>Conocidos:</strong> Miryam, Patricia, Heidy, Fran, Karina.</div>${dynClients('Facturación')}</div>
+    <div class="ic c3"><div class="ih"><div class="in">7</div><div class="it">Limitaciones del producto</div><span class="ifreq f3">Frecuencia media</span>${dynBadge('Limitaciones')}</div>
+      <p class="ib">Sin gestión de LinkedIn, sin subida de archivos desde ordenador, problemas con el catalán sin resolver.</p>
+      <div class="icl"><strong>Conocidos:</strong> Leticia, María, Laia.</div>${dynClients('Limitaciones')}</div>
+    <div class="ic c4"><div class="ih"><div class="in">8</div><div class="it">Razones externas</div><span class="ifreq f4">Frecuencia baja</span>${dynBadge('Razones externas')}</div>
+      <p class="ib">Crisis económica, cambio a otra agencia, traslado o cambios vitales. No relacionadas con el servicio.</p>${dynClients('Razones externas')}</div>
+    <div class="alert-box"><h3>⚠️ Patrón crítico</h3>
+      <p>Ciclo claro: <strong>Fallo técnico → intento de contacto → sin respuesta → frustración → propuestas bloqueadas → cancelación.</strong><br><br>Los churns no son instantáneos. Las señales aparecen semanas antes y las llamadas de rescate llegan demasiado tarde.</p></div>
+    <div class="rec"><h3>✅ Recomendaciones</h3>
       <div class="rg"><h4>Corto plazo (0–30 días)</h4>
-        <div class="ri">Alerta temprana: sin propuestas aprobadas en +10 días, cuentas sin vincular tras primera semana, sin actividad en app en 7 días.</div>
-        <div class="ri">Sesión de onboarding obligatoria en los primeros 3 días. Evitaría ~40% de los churns detectados.</div>
-        <div class="ri">Proceso de cancelación claro y documentado — reduce frustración incluso en los que se van.</div>
-      </div>
+        <div class="ri">Alerta temprana: sin propuestas aprobadas en +10 días, cuentas sin vincular tras primera semana, sin actividad en 7 días.</div>
+        <div class="ri">Onboarding obligatorio en los primeros 3 días. Evitaría ~40% de los churns.</div>
+        <div class="ri">Proceso de cancelación claro y documentado.</div></div>
       <div class="rg"><h4>Medio plazo (30–90 días)</h4>
-        <div class="ri">Feedback estructurado por propuesta dentro de la plataforma — evita pérdida de info por WhatsApp/mail.</div>
-        <div class="ri">Quality Check mensual: cuentas vinculadas, propuestas sin resolver, alineación con el brief.</div>
-        <div class="ri">Email de aviso 5–7 días antes del cobro con resumen del mes.</div>
-      </div>
+        <div class="ri">Feedback estructurado por propuesta dentro de la plataforma.</div>
+        <div class="ri">Quality Check mensual: cuentas vinculadas, propuestas sin resolver, alineación con brief.</div>
+        <div class="ri">Email de aviso 5–7 días antes del cobro con resumen del mes.</div></div>
       <div class="rg"><h4>Estratégico</h4>
-        <div class="ri">Alinear expectativas desde la venta: el servicio entrega presencia digital, no ventas directas. Este gap genera el churn más difícil de retener.</div>
-      </div>
+        <div class="ri">Alinear expectativas desde la venta: el servicio entrega presencia digital, no ventas directas.</div></div>
     </div>
-
   </div>`;
 }
 
-// INIT
 document.getElementById('subtabs').style.display='flex';
 cargarDatos();
 </script>

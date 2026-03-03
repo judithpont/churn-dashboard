@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Churn Dashboard</title>
+  <title>Churn Dashboard — Revenue Ops</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
@@ -14,10 +14,15 @@
     header h1 { font-size: 22px; font-weight: 700; }
     header span { font-size: 13px; opacity: 0.6; }
 
-    .filters { background: white; padding: 16px 32px; border-bottom: 1px solid #e0e0e0; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-    .filters label { font-size: 13px; font-weight: 600; color: #666; }
-    .filters select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+    nav { background: white; border-bottom: 1px solid #e0e0e0; display: flex; padding: 0 32px; gap: 4px; }
+    nav button { padding: 14px 20px; border: none; background: none; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    nav button.active { color: #1a1a2e; border-bottom-color: #FF4B4B; font-weight: 700; }
+    nav button:hover { color: #1a1a2e; }
 
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* MÉTRICAS */
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 32px 0; }
     .metric { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .metric .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
@@ -27,39 +32,68 @@
     .metric.orange .value { color: #FFA500; }
     .metric.green .value { color: #00CC96; }
 
+    /* CHARTS */
     .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
     .chart-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
     .chart-card.full { grid-column: 1 / -1; }
 
+    /* TABLA */
     .table-section { padding: 24px 32px 32px; }
     .table-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
     table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-collapse: collapse; }
-    th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; }
     td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f8f9ff; }
 
+    /* BADGES */
     .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge.alto { background: #FFE0E0; color: #CC0000; }
-    .badge.medio { background: #FFF3E0; color: #CC7700; }
-    .badge.bajo { background: #E0FFE0; color: #007700; }
-    .badge.si { background: #FFE0E0; color: #CC0000; }
-    .badge.riesgo { background: #FFF3E0; color: #CC7700; }
-    .badge.no { background: #E0FFE0; color: #007700; }
+    .badge.alto, .badge.sí, .badge.si { background: #FFE0E0; color: #CC0000; }
+    .badge.medio, .badge.riesgo { background: #FFF3E0; color: #CC7700; }
+    .badge.bajo, .badge.no { background: #E0FFE0; color: #007700; }
 
-    .resumen-box { margin: 24px 32px 0; background: white; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid #FF4B4B; }
-    .resumen-box h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-    .resumen-box p { font-size: 14px; line-height: 1.8; color: #444; white-space: pre-wrap; }
-    .resumen-box .tag { background: #FF4B4B; color: white; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    /* INSIGHTS */
+    .insights-page { padding: 24px 32px 32px; }
+    .insight-block { background: white; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    .insight-block.highlight { border-left: 4px solid #FF4B4B; }
+    .insight-block.warning { border-left: 4px solid #FFA500; }
+    .insight-block.success { border-left: 4px solid #00CC96; }
+    .insight-block h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e; }
+    .insight-block h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; color: #333; }
+    .insight-block p { font-size: 14px; line-height: 1.8; color: #555; }
+    .insight-tag { display: inline-block; background: #FF4B4B; color: white; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-bottom: 12px; font-weight: 600; }
+    .insight-tag.orange { background: #FFA500; }
+    .insight-tag.green { background: #00CC96; }
 
-    .loading { text-align: center; padding: 80px; color: #888; font-size: 16px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
+    .cat-item { background: #f8f9ff; border-radius: 8px; padding: 16px; }
+    .cat-item .cat-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+    .cat-item .cat-freq { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+    .cat-item .cat-freq.muy-alta { background: #FFE0E0; color: #CC0000; }
+    .cat-item .cat-freq.alta { background: #FFF0E0; color: #CC5500; }
+    .cat-item .cat-freq.media { background: #FFF9E0; color: #CC8800; }
+    .cat-item .cat-freq.baja { background: #E0FFE0; color: #007700; }
+    .cat-item p { font-size: 13px; color: #555; line-height: 1.6; }
+    .cat-item .clientes { font-size: 12px; color: #888; margin-top: 6px; }
+
+    /* OWNERS */
+    .owners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
+    .owner-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid #1a1a2e; }
+    .owner-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e; }
+    .owner-card .owner-resumen { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 10px; }
+    .owner-card .owner-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+    .owner-card .owner-value { font-size: 13px; color: #333; margin-bottom: 10px; }
+    .owner-card .owner-accion { font-size: 12px; background: #f0f7ff; border-left: 3px solid #4B8BFF; padding: 10px 12px; border-radius: 4px; color: #2255CC; line-height: 1.5; }
+
+    .loading { text-align: center; padding: 60px; color: #888; font-size: 16px; }
     footer { text-align: center; padding: 24px; color: #999; font-size: 12px; }
 
     @media (max-width: 768px) {
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .charts { grid-template-columns: 1fr; }
-      .charts .chart-card.full { grid-column: 1; }
+      .cat-grid { grid-template-columns: 1fr; }
+      .owners-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -70,260 +104,268 @@
   <span id="ultima-actualizacion">Cargando...</span>
 </header>
 
-<div class="filters">
-  <label>Owner</label>
-  <select id="filtro-owner" onchange="aplicarFiltros()">
-    <option value="todos">Todos</option>
-  </select>
-  <label>Nivel de riesgo</label>
-  <select id="filtro-riesgo" onchange="aplicarFiltros()">
-    <option value="todos">Todos</option>
-    <option value="alto">Alto</option>
-    <option value="medio">Medio</option>
-    <option value="bajo">Bajo</option>
-  </select>
-  <label>Churn</label>
-  <select id="filtro-churn" onchange="aplicarFiltros()">
-    <option value="todos">Todos</option>
-    <option value="sí">Sí</option>
-    <option value="riesgo">Riesgo</option>
-    <option value="no">No</option>
-  </select>
+<nav>
+  <button class="active" onclick="mostrarTab('dashboard')">📊 Dashboard</button>
+  <button onclick="mostrarTab('insights')">🧠 Insights de Churn</button>
+  <button onclick="mostrarTab('owners')">👥 Por Owner</button>
+</nav>
+
+<!-- ============ TAB: DASHBOARD ============ -->
+<div id="tab-dashboard" class="tab-content active">
+  <div id="contenido-dashboard">
+    <div class="loading">⏳ Cargando datos...</div>
+  </div>
 </div>
 
-<div class="resumen-box" id="resumen-box">
-  <h3>🧠 ¿Por qué perdemos clientes?</h3>
-  <p style="color:#aaa">⏳ Cargando resumen...</p>
+<!-- ============ TAB: INSIGHTS ============ -->
+<div id="tab-insights" class="tab-content">
+  <div class="insights-page" id="contenido-insights">
+    <div class="loading">⏳ Cargando insights...</div>
+  </div>
 </div>
 
-<div id="contenido">
-  <div class="loading">⏳ Cargando datos...</div>
+<!-- ============ TAB: OWNERS ============ -->
+<div id="tab-owners" class="tab-content">
+  <div class="insights-page" id="contenido-owners">
+    <div class="loading">⏳ Cargando datos por owner...</div>
+  </div>
 </div>
 
 <footer>🔄 Actualizado diariamente a las 8:00 AM · Análisis con Claude AI</footer>
 
 <script>
 // ============================================================
-// CONFIG — reemplaza con tus URLs de Google Sheets publicado como CSV
-// Sheets → Archivo → Compartir → Publicar en la web → CSV
+// CONFIG
 // ============================================================
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=0&single=true&output=csv";             // pestaña Resultados_Churn
-const RESUMEN_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=139397477&single=true&output=csv";   // pestaña Resumen_Ejecutivo
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=0&single=true&output=csv";
+const INSIGHTS_CSV_URL = "TU_URL_INSIGHTS_CSV_AQUI"; // pestaña Insights_Churn
+
+const DUENOS = ["Victor Ortega", "Oscar Lopo", "Kamila", "Martina", "Gonzalo", "Franco"];
 
 let datosOriginales = [];
+let insightsData = [];
 let charts = {};
 
 // ============================================================
-// CARGAR RESUMEN EJECUTIVO
+// NAVEGACIÓN
 // ============================================================
-async function cargarResumen() {
-  if (!RESUMEN_CSV_URL || RESUMEN_CSV_URL === "TU_URL_RESUMEN_CSV_AQUI") return;
-  Papa.parse(RESUMEN_CSV_URL, {
-    download: true,
-    complete: function(results) {
-      const filas = results.data;
-      let texto = "";
-      let fecha = "";
-      filas.forEach(f => {
-        if (f[0] === "Resumen") texto = f[1];
-        if (f[0] === "Actualizado") fecha = f[1];
-      });
-      if (texto) {
-        document.getElementById("resumen-box").innerHTML = `
-          <h3>🧠 ¿Por qué perdemos clientes? <span class="tag">IA · ${fecha}</span></h3>
-          <p>${texto}</p>
-        `;
-      }
-    }
-  });
+function mostrarTab(tab) {
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  event.target.classList.add("active");
 }
 
 // ============================================================
-// CARGAR DATOS
+// CARGAR DATOS PRINCIPALES
 // ============================================================
-async function cargarDatos() {
+function cargarDatos() {
   Papa.parse(SHEET_CSV_URL, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      datosOriginales = results.data;
-      inicializar();
+    download: true, header: true, skipEmptyLines: true,
+    complete: function(r) {
+      datosOriginales = r.data.filter(row => DUENOS.some(d => (row["Dueño"] || "").includes(d)));
+      const fechas = datosOriginales.map(r => r["Actualizado"]).filter(Boolean);
+      if (fechas.length) document.getElementById("ultima-actualizacion").textContent = "Actualizado: " + fechas[0];
+      renderDashboard(datosOriginales);
     },
-    error: function(e) {
-      document.getElementById("contenido").innerHTML =
-        '<div class="loading">❌ Error cargando datos. Verifica la URL del Sheet.</div>';
+    error: () => {
+      document.getElementById("contenido-dashboard").innerHTML = '<div class="loading">❌ Error cargando datos.</div>';
     }
   });
 }
 
-function inicializar() {
-  // Poblar filtro de owners
-  const owners = [...new Set(datosOriginales.map(r => r["Dueño"]).filter(Boolean))].sort();
-  const sel = document.getElementById("filtro-owner");
-  owners.forEach(o => {
-    const opt = document.createElement("option");
-    opt.value = o; opt.textContent = o;
-    sel.appendChild(opt);
-  });
-
-  // Fecha actualización
-  const fechas = datosOriginales.map(r => r["Actualizado"]).filter(Boolean);
-  if (fechas.length) {
-    document.getElementById("ultima-actualizacion").textContent = "Actualizado: " + fechas[fechas.length - 1];
+// ============================================================
+// CARGAR INSIGHTS
+// ============================================================
+function cargarInsights() {
+  if (!INSIGHTS_CSV_URL || INSIGHTS_CSV_URL === "TU_URL_INSIGHTS_CSV_AQUI") {
+    document.getElementById("contenido-insights").innerHTML = '<div class="loading">⚠️ Configura INSIGHTS_CSV_URL para ver los insights.</div>';
+    document.getElementById("contenido-owners").innerHTML = '<div class="loading">⚠️ Configura INSIGHTS_CSV_URL para ver los insights por owner.</div>';
+    return;
   }
-
-  renderizar(datosOriginales);
-}
-
-function aplicarFiltros() {
-  const owner = document.getElementById("filtro-owner").value;
-  const riesgo = document.getElementById("filtro-riesgo").value;
-  const churn = document.getElementById("filtro-churn").value;
-
-  let df = datosOriginales.filter(r => {
-    if (owner !== "todos" && r["Dueño"] !== owner) return false;
-    if (riesgo !== "todos" && (r["Nivel de riesgo"] || "").toLowerCase() !== riesgo) return false;
-    if (churn !== "todos" && (r["Churn detectado"] || "").toLowerCase() !== churn) return false;
-    return true;
+  Papa.parse(INSIGHTS_CSV_URL, {
+    download: true, header: false, skipEmptyLines: true,
+    complete: function(r) {
+      insightsData = r.data;
+      renderInsights();
+      renderOwners();
+    }
   });
+}
 
-  renderizar(df);
+function getInsight(seccion, owner) {
+  const fila = insightsData.find(f => f[0] === seccion && (!owner || f[1] === owner));
+  return fila ? fila[2] : "";
+}
+
+function getCategorias() {
+  return insightsData.filter(f => f[0] === "categoria").map(f => {
+    try { return JSON.parse(f[2]); } catch { return null; }
+  }).filter(Boolean);
 }
 
 // ============================================================
-// RENDERIZAR DASHBOARD
+// RENDER DASHBOARD
 // ============================================================
-function renderizar(datos) {
+function renderDashboard(datos) {
   const total = datos.length;
-  const churns = datos.filter(r => (r["Churn detectado"] || "").toLowerCase() === "sí").length;
-  const riesgo = datos.filter(r => (r["Churn detectado"] || "").toLowerCase() === "riesgo").length;
-  const ok = datos.filter(r => (r["Churn detectado"] || "").toLowerCase() === "no").length;
+  const churns = datos.filter(r => (r["Churn detectado"]||"").toLowerCase() === "sí").length;
+  const riesgo = datos.filter(r => (r["Churn detectado"]||"").toLowerCase() === "riesgo").length;
+  const ok = datos.filter(r => (r["Churn detectado"]||"").toLowerCase() === "no").length;
 
-  // Categorías
   const cats = {};
-  datos.forEach(r => { const c = r["Categoría de churn"] || "N/A"; cats[c] = (cats[c] || 0) + 1; });
-  const catsSorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  datos.forEach(r => { const c = r["Categoría de churn"]||"N/A"; cats[c] = (cats[c]||0)+1; });
+  const catsSorted = Object.entries(cats).sort((a,b) => b[1]-a[1]);
 
-  // Riesgo
   const riesgos = {};
-  datos.forEach(r => { const v = (r["Nivel de riesgo"] || "N/A").toLowerCase(); riesgos[v] = (riesgos[v] || 0) + 1; });
+  datos.forEach(r => { const v = (r["Nivel de riesgo"]||"N/A").toLowerCase(); riesgos[v] = (riesgos[v]||0)+1; });
 
-  // Por owner
   const byOwner = {};
   datos.forEach(r => {
-    const o = r["Dueño"] || "Sin asignar";
-    const c = (r["Churn detectado"] || "sin datos").toLowerCase();
-    if (!byOwner[o]) byOwner[o] = { sí: 0, riesgo: 0, no: 0 };
-    byOwner[o][c] = (byOwner[o][c] || 0) + 1;
+    const o = r["Dueño"]||"Sin asignar";
+    const c = (r["Churn detectado"]||"sin datos").toLowerCase();
+    if (!byOwner[o]) byOwner[o] = {"sí":0,"riesgo":0,"no":0};
+    byOwner[o][c] = (byOwner[o][c]||0)+1;
   });
 
-  document.getElementById("contenido").innerHTML = `
+  document.getElementById("contenido-dashboard").innerHTML = `
     <div class="metrics">
-      <div class="metric">
-        <div class="label">Total llamadas</div>
-        <div class="value">${total}</div>
-      </div>
-      <div class="metric red">
-        <div class="label">🔴 Churn confirmado</div>
-        <div class="value">${churns}</div>
-        <div class="sub">${total ? Math.round(churns/total*100) : 0}% del total</div>
-      </div>
-      <div class="metric orange">
-        <div class="label">🟠 En riesgo</div>
-        <div class="value">${riesgo}</div>
-        <div class="sub">${total ? Math.round(riesgo/total*100) : 0}% del total</div>
-      </div>
-      <div class="metric green">
-        <div class="label">🟢 Sin riesgo</div>
-        <div class="value">${ok}</div>
-        <div class="sub">${total ? Math.round(ok/total*100) : 0}% del total</div>
-      </div>
+      <div class="metric"><div class="label">Total llamadas</div><div class="value">${total}</div></div>
+      <div class="metric red"><div class="label">🔴 Churn confirmado</div><div class="value">${churns}</div><div class="sub">${total?Math.round(churns/total*100):0}% del total</div></div>
+      <div class="metric orange"><div class="label">🟠 En riesgo</div><div class="value">${riesgo}</div><div class="sub">${total?Math.round(riesgo/total*100):0}% del total</div></div>
+      <div class="metric green"><div class="label">🟢 Sin riesgo</div><div class="value">${ok}</div><div class="sub">${total?Math.round(ok/total*100):0}% del total</div></div>
     </div>
-
     <div class="charts">
-      <div class="chart-card">
-        <h3>🔥 Motivos de Churn por Categoría</h3>
-        <canvas id="chart-cats"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>🎯 Distribución de Riesgo</h3>
-        <canvas id="chart-riesgo"></canvas>
-      </div>
-      <div class="chart-card full">
-        <h3>👥 Churn por Owner</h3>
-        <canvas id="chart-owner"></canvas>
-      </div>
+      <div class="chart-card"><h3>🔥 Motivos de Churn por Categoría</h3><canvas id="chart-cats"></canvas></div>
+      <div class="chart-card"><h3>🎯 Distribución de Riesgo</h3><canvas id="chart-riesgo"></canvas></div>
+      <div class="chart-card full"><h3>👥 Churn por Owner</h3><canvas id="chart-owner"></canvas></div>
     </div>
-
     <div class="table-section">
       <h3>📋 Detalle de Clientes (${total})</h3>
       <table>
-        <thead>
-          <tr>
-            <th>Owner</th><th>Fecha</th><th>Cliente</th>
-            <th>Churn</th><th>Categoría</th><th>Riesgo</th><th>Motivo</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Churn</th><th>Categoría</th><th>Riesgo</th><th>Motivo</th></tr></thead>
         <tbody>
-          ${datos.map(r => `
-            <tr>
-              <td>${r["Dueño"] || "-"}</td>
-              <td>${r["Fecha"] || "-"}</td>
-              <td><strong>${r["Cliente"] || "-"}</strong></td>
-              <td><span class="badge ${(r["Churn detectado"]||"").toLowerCase()}">${r["Churn detectado"] || "-"}</span></td>
-              <td>${r["Categoría de churn"] || "-"}</td>
-              <td><span class="badge ${(r["Nivel de riesgo"]||"").toLowerCase()}">${r["Nivel de riesgo"] || "-"}</span></td>
-              <td>${r["Motivo principal"] || "-"}</td>
-            </tr>`).join("")}
+          ${datos.map(r => `<tr>
+            <td>${r["Dueño"]||"-"}</td>
+            <td>${r["Fecha"]||"-"}</td>
+            <td><strong>${r["Cliente"]||"-"}</strong></td>
+            <td><span class="badge ${(r["Churn detectado"]||"").toLowerCase()}">${r["Churn detectado"]||"-"}</span></td>
+            <td>${r["Categoría de churn"]||"-"}</td>
+            <td><span class="badge ${(r["Nivel de riesgo"]||"").toLowerCase()}">${r["Nivel de riesgo"]||"-"}</span></td>
+            <td>${r["Motivo principal"]||"-"}</td>
+          </tr>`).join("")}
         </tbody>
       </table>
-    </div>
-  `;
+    </div>`;
 
-  // Destruir charts anteriores
   Object.values(charts).forEach(c => c.destroy());
   charts = {};
+  const riesgoColors = {alto:"#FF4B4B",medio:"#FFA500",bajo:"#00CC96","n/a":"#CCCCCC"};
 
-  // Chart categorías
   charts.cats = new Chart(document.getElementById("chart-cats"), {
-    type: "bar",
-    data: {
-      labels: catsSorted.map(c => c[0]),
-      datasets: [{ data: catsSorted.map(c => c[1]), backgroundColor: "#FF4B4B99", borderColor: "#FF4B4B", borderWidth: 1 }]
-    },
-    options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+    type:"bar", data:{ labels:catsSorted.map(c=>c[0]), datasets:[{data:catsSorted.map(c=>c[1]),backgroundColor:"#FF4B4B99",borderColor:"#FF4B4B",borderWidth:1}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
   });
-
-  // Chart riesgo
-  const riesgoColors = { alto: "#FF4B4B", medio: "#FFA500", bajo: "#00CC96", "n/a": "#CCCCCC" };
   charts.riesgo = new Chart(document.getElementById("chart-riesgo"), {
-    type: "doughnut",
-    data: {
-      labels: Object.keys(riesgos),
-      datasets: [{ data: Object.values(riesgos), backgroundColor: Object.keys(riesgos).map(k => riesgoColors[k] || "#CCCCCC") }]
-    },
-    options: { plugins: { legend: { position: "bottom" } } }
+    type:"doughnut", data:{labels:Object.keys(riesgos),datasets:[{data:Object.values(riesgos),backgroundColor:Object.keys(riesgos).map(k=>riesgoColors[k]||"#CCCCCC")}]},
+    options:{plugins:{legend:{position:"bottom"}}}
   });
-
-  // Chart por owner
   const owners = Object.keys(byOwner);
   charts.owner = new Chart(document.getElementById("chart-owner"), {
-    type: "bar",
-    data: {
-      labels: owners,
-      datasets: [
-        { label: "Churn", data: owners.map(o => byOwner[o]["sí"] || 0), backgroundColor: "#FF4B4B99" },
-        { label: "Riesgo", data: owners.map(o => byOwner[o]["riesgo"] || 0), backgroundColor: "#FFA50099" },
-        { label: "Sin riesgo", data: owners.map(o => byOwner[o]["no"] || 0), backgroundColor: "#00CC9699" }
-      ]
-    },
-    options: { plugins: { legend: { position: "bottom" } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+    type:"bar", data:{labels:owners,datasets:[
+      {label:"Churn",data:owners.map(o=>byOwner[o]["sí"]||0),backgroundColor:"#FF4B4B99"},
+      {label:"Riesgo",data:owners.map(o=>byOwner[o]["riesgo"]||0),backgroundColor:"#FFA50099"},
+      {label:"Sin riesgo",data:owners.map(o=>byOwner[o]["no"]||0),backgroundColor:"#00CC9699"}
+    ]},
+    options:{plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}
   });
 }
 
+// ============================================================
+// RENDER INSIGHTS
+// ============================================================
+function renderInsights() {
+  const cats = getCategorias();
+  const fecha = getInsight("fecha", "global");
+
+  document.getElementById("contenido-insights").innerHTML = `
+    <div class="insight-block highlight">
+      <span class="insight-tag">IA · ${fecha}</span>
+      <h2>¿Por qué estamos perdiendo clientes?</h2>
+      <p>${getInsight("resumen_ejecutivo","global")}</p>
+    </div>
+
+    <div class="insight-block">
+      <h2>Categorías de churn</h2>
+      <div class="cat-grid">
+        ${cats.map(c => `
+          <div class="cat-item">
+            <div class="cat-name">${c.nombre||""}</div>
+            <span class="cat-freq ${(c.frecuencia||"").replace(" ","").toLowerCase()}">${c.frecuencia||""}</span>
+            <p>${c.descripcion||""}</p>
+            <div class="clientes">👥 ${c.clientes_afectados||""}</div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="insight-block warning">
+      <h2>⚠️ Patrón crítico detectado</h2>
+      <p>${getInsight("patron_critico","global")}</p>
+    </div>
+
+    <div class="insight-block">
+      <span class="insight-tag">0–30 días</span>
+      <h3>Acciones inmediatas</h3>
+      <p>${getInsight("recomendaciones_corto","global")}</p>
+    </div>
+
+    <div class="insight-block">
+      <span class="insight-tag orange">30–90 días</span>
+      <h3>Medio plazo</h3>
+      <p>${getInsight("recomendaciones_medio","global")}</p>
+    </div>
+
+    <div class="insight-block success">
+      <span class="insight-tag green">Estratégico</span>
+      <h3>Visión a largo plazo</h3>
+      <p>${getInsight("recomendaciones_estrategico","global")}</p>
+    </div>
+  `;
+}
+
+// ============================================================
+// RENDER OWNERS
+// ============================================================
+function renderOwners() {
+  document.getElementById("contenido-owners").innerHTML = `
+    <div class="insight-block highlight" style="margin-bottom:24px">
+      <h2>👥 Situación por Owner</h2>
+      <p>Análisis individual de cada responsable: su principal problema y la acción más urgente.</p>
+    </div>
+    <div class="owners-grid">
+      ${DUENOS.map(d => {
+        const resumen = getInsight("owner_resumen", d);
+        const problema = getInsight("owner_problema", d);
+        const accion = getInsight("owner_accion", d);
+        if (!resumen) return `<div class="owner-card"><h4>${d}</h4><p class="owner-resumen" style="color:#aaa">Sin datos disponibles</p></div>`;
+        return `
+          <div class="owner-card">
+            <h4>${d}</h4>
+            <p class="owner-resumen">${resumen}</p>
+            <div class="owner-label">Problema principal</div>
+            <div class="owner-value">${problema}</div>
+            <div class="owner-accion">💡 ${accion}</div>
+          </div>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+// ============================================================
+// INIT
+// ============================================================
 cargarDatos();
-cargarResumen();
+cargarInsights();
 </script>
 </body>
 </html>

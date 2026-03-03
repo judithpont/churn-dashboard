@@ -11,7 +11,7 @@ from datetime import datetime
 # ============================================================
 SHEET_URL = "https://docs.google.com/spreadsheets/d/16Tv2U164NammrDBe2u8b1_BuuHiWCkHaO1J5mFkl6OY"
 RESULTS_TAB = "Resultados_Churn"
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "sk-ant-...")  # usa variable de entorno
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "sk-ant-...")
 
 DUENOS_OBJETIVO = ["Victor Ortega", "Oscar Lopo", "Kamila", "Martina", "Gonzalo", "Franco"]
 
@@ -29,25 +29,21 @@ def conectar():
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
-    # En GitHub Actions usa variable de entorno GOOGLE_CREDENTIALS
     if os.environ.get("GOOGLE_CREDENTIALS"):
         creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
         creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     else:
         creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
-
     client = gspread.authorize(creds)
-    spreadsheet = client.open_by_url(SHEET_URL)
-    return spreadsheet
+    return client.open_by_url(SHEET_URL)
 
 # ============================================================
-# ANÁLISIS CON CLAUDE
+# ANÁLISIS INDIVIDUAL CON CLAUDE
 # ============================================================
 def analizar_churn(resumen: str, cliente: str) -> dict:
     if not resumen or len(resumen.strip()) < 20:
         return {"churn_detectado": "sin datos", "categoria": "N/A",
                 "nivel_riesgo": "N/A", "motivo_principal": "Sin resumen"}
-
     ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
 Analiza este resumen de llamada del cliente "{cliente}":
@@ -67,6 +63,90 @@ Responde SOLO en JSON: churn_detectado, categoria, nivel_riesgo, motivo_principa
     )
     texto = msg.content[0].text.strip()
     return json.loads(texto[texto.find("{"):texto.rfind("}")+1])
+
+# ============================================================
+# GENERAR INSIGHTS DETALLADOS POR OWNER
+# ============================================================
+def generar_insights(df_res: pd.DataFrame, todos_resumenes: list) -> dict:
+    ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    insights = {}
+
+    # Insights globales
+    total = len(df_res)
+    churns = len(df_res[df_res["Churn detectado"] == "sí"])
+    riesgo_alto = len(df_res[df_res["Nivel de riesgo"] == "alto"])
+    cats = df_res["Categoría de churn"].value_counts().to_dict()
+    por_dueno = df_res[df_res["Churn detectado"].isin(["sí", "riesgo"])].groupby("Dueño").size().to_dict()
+    motivos = [r["Motivo principal"] for r in todos_resumenes if r["Churn detectado"] in ["sí", "riesgo"]][:20]
+
+    prompt_global = f"""
+Eres un analista de Revenue Operations. Analiza estos datos de llamadas con clientes y genera un informe ejecutivo detallado en español con estas secciones exactas:
+
+DATOS:
+- Total llamadas: {total}
+- Churn confirmado: {churns} ({round(churns/total*100) if total else 0}%)
+- Riesgo alto: {riesgo_alto}
+- Categorías de churn: {cats}
+- Owners con más churn/riesgo: {por_dueno}
+- Motivos detectados: {motivos}
+
+Genera el informe con estas secciones en formato JSON:
+{{
+  "resumen_ejecutivo": "2-3 frases resumiendo la situación global",
+  "categorias": [
+    {{"nombre": "nombre categoría", "frecuencia": "muy alta/alta/media/baja", "descripcion": "qué está pasando en 2-3 frases", "clientes_afectados": "lista de clientes mencionados"}}
+  ],
+  "patron_critico": "descripción del ciclo de deterioro detectado en 2-3 frases",
+  "recomendaciones_corto": "2-3 acciones inmediatas (0-30 días) en texto corrido",
+  "recomendaciones_medio": "2-3 acciones a medio plazo (30-90 días) en texto corrido",
+  "recomendaciones_estrategico": "1-2 reflexiones estratégicas en texto corrido",
+  "fecha": "{datetime.now().strftime('%Y-%m-%d %H:%M')}"
+}}
+"""
+    msg = ai.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=2000,
+        messages=[{"role": "user", "content": prompt_global}]
+    )
+    texto = msg.content[0].text.strip()
+    insights["global"] = json.loads(texto[texto.find("{"):texto.rfind("}")+1])
+
+    # Insights por owner
+    for dueno in DUENOS_OBJETIVO:
+        df_d = df_res[df_res["Dueño"].str.contains(dueno, case=False, na=False)]
+        if df_d.empty:
+            continue
+        total_d = len(df_d)
+        churns_d = len(df_d[df_d["Churn detectado"] == "sí"])
+        riesgo_d = len(df_d[df_d["Churn detectado"] == "riesgo"])
+        cats_d = df_d["Categoría de churn"].value_counts().head(3).to_dict()
+        motivos_d = df_d["Motivo principal"].tolist()
+
+        prompt_owner = f"""
+Analiza los datos de llamadas del owner "{dueno}" y genera un resumen ejecutivo en JSON:
+- Total llamadas: {total_d}
+- Churn confirmado: {churns_d}
+- En riesgo: {riesgo_d}
+- Top categorías: {cats_d}
+- Motivos: {motivos_d}
+
+Responde en JSON:
+{{
+  "resumen": "2 frases sobre la situación de este owner",
+  "principal_problema": "el problema más crítico que tiene este owner",
+  "accion_inmediata": "qué debería hacer este owner esta semana"
+}}
+"""
+        msg_d = ai.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=400,
+            messages=[{"role": "user", "content": prompt_owner}]
+        )
+        texto_d = msg_d.content[0].text.strip()
+        insights[dueno] = json.loads(texto_d[texto_d.find("{"):texto_d.rfind("}")+1])
+        print(f"   📝 Insights generados para {dueno}")
+
+    return insights
 
 # ============================================================
 # MAIN
@@ -99,7 +179,7 @@ if __name__ == "__main__":
             })
             print(f"   ✓ {row.get('Participante','')} → {analisis.get('churn_detectado','')} | {analisis.get('nivel_riesgo','')}")
 
-    # Escribir resultados en pestaña Resultados_Churn
+    # Guardar resultados individuales
     try:
         ws = spreadsheet.worksheet(RESULTS_TAB)
         ws.clear()
@@ -109,54 +189,39 @@ if __name__ == "__main__":
     if resultados:
         df_res = pd.DataFrame(resultados)
         ws.update([df_res.columns.tolist()] + df_res.values.tolist())
-        print(f"\n✅ {len(resultados)} resultados escritos en pestaña '{RESULTS_TAB}'")
+        print(f"\n✅ {len(resultados)} resultados en '{RESULTS_TAB}'")
 
-    # ============================================================
-    # GENERAR RESUMEN EJECUTIVO CON CLAUDE
-    # ============================================================
-    if resultados:
-        df_res = pd.DataFrame(resultados)
-        total = len(df_res)
-        churns = len(df_res[df_res["Churn detectado"] == "sí"])
-        riesgo_alto = len(df_res[df_res["Nivel de riesgo"] == "alto"])
-        cats = df_res["Categoría de churn"].value_counts().head(3).to_dict()
-        por_dueno = df_res[df_res["Churn detectado"] == "sí"].groupby("Dueño").size().to_dict()
+        # Generar insights detallados
+        print("\n🧠 Generando insights con Claude...")
+        insights = generar_insights(df_res, resultados)
 
-        ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        prompt_resumen = f"""
-Eres un analista de Revenue Operations. Con estos datos de llamadas con clientes, escribe un resumen ejecutivo en español de máximo 4 párrafos cortos explicando:
-1. Por qué estamos perdiendo clientes (motivos principales)
-2. Qué owners tienen más casos críticos
-3. Qué deberíamos hacer de forma inmediata para reducir el churn
-
-Datos del análisis:
-- Total llamadas analizadas: {total}
-- Clientes con churn confirmado: {churns} ({round(churns/total*100) if total else 0}%)
-- Clientes con riesgo alto: {riesgo_alto}
-- Top 3 categorías de churn: {cats}
-- Churn confirmado por owner: {por_dueno}
-- Motivos individuales: {[r['Motivo principal'] for r in resultados if r['Churn detectado'] == 'sí'][:15]}
-
-Escribe el resumen de forma directa, sin bullets, como un análisis ejecutivo. Sé específico con los datos.
-"""
-        msg_resumen = ai.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=800,
-            messages=[{"role": "user", "content": prompt_resumen}]
-        )
-        resumen_ejecutivo = msg_resumen.content[0].text.strip()
-
-        # Guardar resumen en pestaña separada
+        # Guardar insights en pestaña
         try:
-            ws_resumen = spreadsheet.worksheet("Resumen_Ejecutivo")
-            ws_resumen.clear()
+            ws_ins = spreadsheet.worksheet("Insights_Churn")
+            ws_ins.clear()
         except:
-            ws_resumen = spreadsheet.add_worksheet(title="Resumen_Ejecutivo", rows=20, cols=2)
+            ws_ins = spreadsheet.add_worksheet(title="Insights_Churn", rows=100, cols=3)
 
-        ws_resumen.update("A1", [
-            ["Actualizado", datetime.now().strftime("%Y-%m-%d %H:%M")],
-            ["Resumen", resumen_ejecutivo]
-        ])
-        print(f"\n📝 Resumen ejecutivo generado y guardado en 'Resumen_Ejecutivo'")
+        filas_insights = [["Seccion", "Owner", "Contenido"]]
+        g = insights.get("global", {})
+        filas_insights.append(["resumen_ejecutivo", "global", g.get("resumen_ejecutivo", "")])
+        filas_insights.append(["patron_critico", "global", g.get("patron_critico", "")])
+        filas_insights.append(["recomendaciones_corto", "global", g.get("recomendaciones_corto", "")])
+        filas_insights.append(["recomendaciones_medio", "global", g.get("recomendaciones_medio", "")])
+        filas_insights.append(["recomendaciones_estrategico", "global", g.get("recomendaciones_estrategico", "")])
+        filas_insights.append(["fecha", "global", g.get("fecha", "")])
 
-    print("✅ Análisis completado.")
+        for cat in g.get("categorias", []):
+            filas_insights.append(["categoria", cat.get("nombre",""), json.dumps(cat, ensure_ascii=False)])
+
+        for dueno in DUENOS_OBJETIVO:
+            if dueno in insights:
+                d = insights[dueno]
+                filas_insights.append(["owner_resumen", dueno, d.get("resumen", "")])
+                filas_insights.append(["owner_problema", dueno, d.get("principal_problema", "")])
+                filas_insights.append(["owner_accion", dueno, d.get("accion_inmediata", "")])
+
+        ws_ins.update(filas_insights)
+        print(f"📊 Insights guardados en 'Insights_Churn'")
+
+    print("\n✅ Análisis completado.")

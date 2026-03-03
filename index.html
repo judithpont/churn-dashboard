@@ -979,7 +979,7 @@ function renderModjoInsights(){
     <div class="chart-bar-row">
       <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</div>
       <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%">${cc[c].total}</div></div>
-      <div class="chart-bar-count">${cc[c].churn>0?`<span style="color:#ef4444">${cc[c].churn}↓</span>`:''}</div>
+      <div class="chart-bar-count">${cc[c].churn>0?`<span style="color:#ef4444">${cc[c].churn}</span>`:''}</div>
     </div>`).join('');
   document.getElementById('insightsModjo').innerHTML=cats.map(c=>{
     const rows=filteredModjo.filter(r=>r.categoria===c),ch=rows.filter(r=>r.esChurn);
@@ -1016,7 +1016,7 @@ function renderModjoInsights(){
       </div>
       <div class="insight-count">${rows.length}</div>
       <div class="insight-sub">${ch.length} churns detectados</div>
-      ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">↑ ${names}${ch.length>3?'…':''}</div>`:''}
+      ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${names}${ch.length>3?'…':''}</div>`:''}
       ${exHTML}
     </div>`;}).join('');
   document.getElementById('conclModjo').innerHTML=modjoConclHTML();

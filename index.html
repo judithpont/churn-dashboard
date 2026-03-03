@@ -992,9 +992,17 @@ function renderModjoInsights(){
     const desc=CAT_DESC[c];
     // Real examples from current filtered data (prefer churn records, fallback to all)
     const sampleRecs=(ch.length?ch:rows).filter(r=>(r.displayText||'').trim().length>20).slice(0,3);
-    const realExamples=sampleRecs.map(r=>{
-      const snippet=(r.displayText||'').substring(0,120).trim();
-      return`<li style="font-size:11px;color:#4b5563;line-height:1.5;padding-left:12px;position:relative"><span style="position:absolute;left:0;color:var(--accent);font-weight:700">·</span><strong>${r.cliente}:</strong> ${snippet}${snippet.length>=120?'…':''}</li>`;
+    const realExamples=sampleRecs.map((r,ri)=>{
+      const full=(r.displayText||'').trim();
+      const preview=full.substring(0,90);
+      const hasMore=full.length>90;
+      const uid='case_'+c.replace(/\s/g,'')+'_'+ri;
+      return`<li style="font-size:11px;color:#4b5563;line-height:1.6;padding:6px 8px;background:#f9fafb;border-radius:6px;cursor:pointer" onclick="toggleCase('${uid}')">
+        <span style="color:var(--accent);font-weight:700;margin-right:4px">·</span>
+        <strong>${r.cliente}:</strong>
+        <span id="${uid}_short"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
+        ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
+      </li>`;
     }).join('');
     const exHTML=desc?`
       <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
@@ -1356,6 +1364,13 @@ function toggleSubChart(id){const el=document.getElementById(id);if(el)el.classL
 // TABLE RENDERS
 // ============================================================
 function toggleXI(id){const el=document.getElementById('xi_'+id);if(el)el.classList.toggle('open');}
+function toggleCase(uid){
+  const s=document.getElementById(uid+'_short'),f=document.getElementById(uid+'_full');
+  if(!s||!f)return;
+  const open=f.style.display!=='none';
+  s.style.display=open?'':'none';
+  f.style.display=open?'none':'';
+}
 
 function renderTablaModjo(){
   document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>{

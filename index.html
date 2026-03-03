@@ -2,447 +2,531 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard de Churn — Revenue Ops</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dashboard de Churn Modjo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    :root{--bg:#f2f5eb;--accent:#85D630;--ad:#6ab520;--text:#1a2e0e;--card:#fff;--border:#e2e8d0;--muted:#7a8a6a;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
-    header{background:var(--card);border-bottom:3px solid var(--accent);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
-    .logo{font-size:22px;font-weight:800;letter-spacing:-1px;}.logo span{color:var(--accent);}
-    .meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.6;}
-    .tabs{background:var(--card);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:2px;}
-    .tab{padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .2s;user-select:none;}
-    .tab.active{color:var(--ad);border-bottom-color:var(--accent);}
-    .tab:hover:not(.active){color:var(--text);}
-    .subtabs{background:var(--bg);padding:10px 32px;display:none;gap:8px;align-items:center;border-bottom:1px solid var(--border);}
-    .subtab{padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--muted);transition:all .2s;}
-    .subtab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-    .fbar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-    .fbar label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
-    .fbar select{padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;background:#fff;color:var(--text);cursor:pointer;}
-    .fbar .sep{width:1px;height:24px;background:var(--border);margin:0 4px;}
-    .pbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;font-weight:500;transition:all .2s;}
-    .pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-    .dsep{color:var(--muted);font-size:12px;}
-    input[type=date]{padding:5px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;background:#fff;color:var(--text);}
-    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 32px 0;}
-    .kpi{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .kpi .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:6px;}
-    .kpi .val{font-size:30px;font-weight:800;}
-    .kpi .sub{font-size:12px;color:var(--muted);margin-top:3px;}
-    .kpi.red .val{color:#E53E3E;}.kpi.amb .val{color:#D97706;}.kpi.grn .val{color:var(--ad);}
-    .content{padding:20px 32px 48px;}
-    .tw{overflow-x:auto;}
-    table{width:100%;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);border-collapse:collapse;}
-    th{background:#2a3a1a;color:#fff;padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
-    td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--bg);vertical-align:middle;}
-    tr.dr:hover td{background:#f8faf2;cursor:pointer;}
-    tr.xr td{padding:0;background:#f5fbee;}
-    .xi{padding:0 20px;display:none;border-left:4px solid var(--accent);}
-    .xi.open{display:block;padding:16px 20px;}
-    .xi .xt{font-weight:700;color:var(--ad);margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
-    .xi .xb{white-space:pre-wrap;overflow-y:auto;background:#fff;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.8;border:1px solid var(--border);}
-    .xbtn{font-size:11px;color:var(--ad);cursor:pointer;font-weight:700;white-space:nowrap;background:none;border:none;padding:0;text-decoration:underline;}
-    .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-    .badge.ch{background:#FFE0E0;color:#CC0000;}.badge.ok{background:#E8F5E0;color:#2a7a00;}
-    .og{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .oc{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:4px solid #ccc;}
-    .oc.br{border-top-color:#E53E3E;}.oc.ba{border-top-color:#D97706;}.oc.bg{border-top-color:var(--accent);}
-    .oname{font-size:16px;font-weight:700;margin-bottom:2px;}
-    .orate{font-size:13px;color:var(--muted);margin-bottom:10px;}
-    .ostats{display:flex;gap:16px;margin-bottom:12px;}
-    .ostat .n{font-size:22px;font-weight:800;}.ostat .l{font-size:11px;color:var(--muted);text-transform:uppercase;}
-    .ostat.red .n{color:#E53E3E;}.ostat.grn .n{color:var(--ad);}
-    .mtag{display:inline-block;background:#eef7e0;color:var(--ad);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px;}
-    .clist{display:flex;flex-wrap:wrap;gap:5px;}
-    .cp{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-    .cp.ch{background:#FFE0E0;color:#CC0000;}.cp.ok{background:#E8F5E0;color:#2a7a00;}
-    .iw{display:flex;flex-direction:column;gap:14px;}
-    .mb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-    .mb-card{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .mb-card.mal{border-top:4px solid #E53E3E;}.mb-card.bien{border-top:4px solid var(--accent);}
-    .mb-card h3{font-size:14px;font-weight:700;margin-bottom:14px;}
-    .mb-item{display:flex;gap:8px;font-size:13px;line-height:1.6;margin-bottom:8px;color:#444;}
-    .mb-item::before{content:"•";font-weight:900;flex-shrink:0;}
-    .mb-card.mal .mb-item::before{color:#E53E3E;}.mb-card.bien .mb-item::before{color:var(--ad);}
-    .mb-stat{font-weight:700;color:var(--text);}
-    .cat-summary{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .cat-summary h3{font-size:14px;font-weight:700;margin-bottom:14px;}
-    .cbrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-    .cblabel{font-size:13px;min-width:180px;}.cbtrack{flex:1;background:#f0f4e8;border-radius:20px;height:10px;overflow:hidden;}
-    .cbfill{height:100%;border-radius:20px;background:var(--accent);transition:width .5s;}
-    .cbcount{font-size:13px;font-weight:700;color:var(--ad);min-width:36px;text-align:right;}
-    .ic{background:var(--card);border-radius:12px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:5px solid var(--accent);}
-    .ic.c1{border-left-color:#E53E3E;}.ic.c2{border-left-color:#DD6B20;}.ic.c3{border-left-color:#D97706;}.ic.c4{border-left-color:#4A90D9;}
-    .ih{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
-    .in{font-size:26px;font-weight:900;min-width:36px;}
-    .ic.c1 .in{color:#E53E3E;}.ic.c2 .in{color:#DD6B20;}.ic.c3 .in{color:#D97706;}.ic.c4 .in{color:#4A90D9;}
-    .it{font-size:16px;font-weight:700;}
-    .ifreq{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
-    .f1{background:#FFE0E0;color:#CC0000;}.f2{background:#FFF0D9;color:#995500;}.f3{background:#FFFBD0;color:#7A5C00;}.f4{background:#F0F0F0;color:#555;}
-    .idyn{font-size:12px;font-weight:700;color:var(--ad);background:#eef7e0;padding:3px 10px;border-radius:20px;}
-    .ib{font-size:14px;line-height:1.75;color:#444;margin-bottom:8px;}
-    .icl{font-size:13px;color:var(--muted);}.icl strong{color:var(--text);}
-    .idyn-clients{margin-top:8px;font-size:12px;color:var(--muted);}.idyn-clients strong{color:#E53E3E;}
-    .alert-box{background:#FFFBEB;border:1px solid #FCD34D;border-radius:12px;padding:20px 24px;}
-    .alert-box h3{font-size:15px;font-weight:700;color:#78350F;margin-bottom:10px;}
-    .alert-box p{font-size:14px;line-height:1.8;color:#5a4400;}
-    .rec{background:var(--card);border-radius:12px;padding:22px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .rec h3{font-size:15px;font-weight:700;margin-bottom:16px;}
-    .rg{margin-bottom:14px;}.rg h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px;}
-    .ri{display:flex;gap:8px;font-size:14px;line-height:1.65;color:#444;margin-bottom:7px;}
-    .ri::before{content:"→";color:var(--ad);font-weight:700;flex-shrink:0;margin-top:1px;}
-    .loading{text-align:center;padding:80px 32px;color:var(--muted);font-size:15px;}
-    @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);}.og{grid-template-columns:1fr 1fr;}.mb-grid{grid-template-columns:1fr;}}
-    @media(max-width:600px){.og{grid-template-columns:1fr;}.fbar,.content,.tabs,header{padding-left:16px;padding-right:16px;}.kpis{padding:16px 16px 0;}}
+    :root {
+      --bg:#f2f5eb; --accent:#85D630; --accent-dark:#6ab820;
+      --card:#ffffff; --text:#1a1a1a; --muted:#6b7280;
+      --border:#e5e7eb; --danger:#ef4444; --warning:#f59e0b; --success:#22c55e;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .header{background:#1a1a1a;color:white;padding:16px 24px;display:flex;align-items:center;gap:12px;}
+    .header-logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#1a1a1a;}
+    .header h1{font-size:18px;font-weight:700;}
+    .header-sub{font-size:12px;color:#9ca3af;margin-left:auto;}
+    .main-tabs{background:white;border-bottom:2px solid var(--border);padding:0 24px;display:flex;}
+    .main-tab{padding:14px 20px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;}
+    .main-tab.active{color:var(--text);border-bottom-color:var(--accent);}
+    .main-tab:hover{color:var(--text);}
+    .sub-tabs{background:var(--bg);padding:12px 24px 0;display:flex;gap:8px;}
+    .sub-tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);background:white;border:1px solid var(--border);border-radius:20px;transition:all .2s;}
+    .sub-tab.active{background:var(--accent);color:#1a1a1a;border-color:var(--accent);}
+    .sub-tab:hover:not(.active){border-color:var(--accent);color:var(--text);}
+    .filter-bar{background:white;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .filter-bar select{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:white;color:var(--text);cursor:pointer;min-width:140px;}
+    .filter-bar select:focus{outline:none;border-color:var(--accent);}
+    .period-btns{display:flex;gap:4px;margin-left:auto;}
+    .period-btn{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:white;color:var(--muted);transition:all .2s;}
+    .period-btn.active{background:var(--accent);color:#1a1a1a;border-color:var(--accent);}
+    .date-inputs{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);}
+    .date-inputs input{padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;}
+    .content{padding:24px;}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    .kpi-card{background:white;border-radius:12px;padding:20px;border:1px solid var(--border);}
+    .kpi-label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+    .kpi-value{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px;}
+    .kpi-sub{font-size:12px;color:var(--muted);}
+    .kpi-churn .kpi-value{color:var(--danger);}
+    .kpi-ok .kpi-value{color:var(--success);}
+    .kpi-rate .kpi-value{color:var(--warning);}
+    .section-title{font-size:16px;font-weight:700;margin-bottom:16px;}
+    .malBien-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+    .malBien-card{background:white;border-radius:12px;padding:20px;border:1px solid var(--border);}
+    .malBien-card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+    .malBien-card ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+    .malBien-card li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px;line-height:1.4;}
+    .bullet{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+    .chart-section{background:white;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:24px;}
+    .chart-bars{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+    .chart-bar-row{display:flex;align-items:center;gap:12px;font-size:13px;}
+    .chart-bar-label{width:170px;flex-shrink:0;display:flex;align-items:center;gap:6px;}
+    .chart-bar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;}
+    .chart-bar-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#1a1a1a;min-width:28px;}
+    .chart-bar-count{width:50px;text-align:right;font-weight:600;color:var(--muted);font-size:12px;}
+    .insights-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    .insight-card{background:white;border-radius:12px;padding:16px;border:1px solid var(--border);}
+    .insight-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .insight-cat{font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px;}
+    .insight-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;}
+    .badge-danger{background:#fee2e2;color:#dc2626;}
+    .badge-warning{background:#fef3c7;color:#d97706;}
+    .badge-ok{background:#dcfce7;color:#16a34a;}
+    .badge-neutral{background:var(--bg);color:var(--muted);}
+    .insight-count{font-size:24px;font-weight:800;margin-bottom:4px;}
+    .insight-sub{font-size:11px;color:var(--muted);}
+    .insight-clients{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5;}
+    /* Info tooltip */
+    .info-wrap{position:relative;display:inline-flex;align-items:center;}
+    .info-btn{width:15px;height:15px;border-radius:50%;background:#e5e7eb;color:var(--muted);font-size:9px;font-weight:700;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+    .info-btn:hover+.tooltip,.info-btn:focus+.tooltip{display:block;}
+    .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;font-size:11px;padding:10px 12px;border-radius:8px;width:240px;z-index:999;line-height:1.6;font-weight:400;pointer-events:none;white-space:normal;}
+    .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1a1a1a;}
+    .tooltip strong{color:var(--accent);display:block;margin-bottom:4px;}
+    /* Owners */
+    .owners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .owner-card{background:white;border-radius:12px;padding:20px;border:2px solid var(--border);}
+    .owner-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+    .owner-meta{font-size:12px;color:var(--muted);margin-bottom:12px;}
+    .owner-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .owner-stat{text-align:center;}
+    .owner-stat-val{font-size:20px;font-weight:800;}
+    .owner-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;}
+    /* Table */
+    .table-wrap{background:white;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{background:var(--bg);padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border);}
+    td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#fafafa;}
+    .churn-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+    .churn-si{background:#fee2e2;color:#dc2626;}
+    .churn-no{background:#dcfce7;color:#16a34a;}
+    .cat-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#e0f2fe;color:#0369a1;}
+    .expand-btn{cursor:pointer;background:none;border:none;font-size:16px;color:var(--muted);padding:0;line-height:1;}
+    .xi{display:none;padding:12px 16px;background:#f9fafb;border-top:1px solid var(--border);font-size:12px;line-height:1.6;color:#374151;}
+    .xi.open{display:block;}
+    .loading{text-align:center;padding:60px;color:var(--muted);}
+    .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    @media(max-width:768px){
+      .kpi-row{grid-template-columns:repeat(2,1fr);}
+      .insights-grid{grid-template-columns:repeat(2,1fr);}
+      .owners-grid{grid-template-columns:1fr;}
+      .malBien-grid{grid-template-columns:1fr;}
+    }
   </style>
 </head>
 <body>
-<header>
-  <div>
-    <div class="logo">plinng<span>.</span></div>
-    <div style="font-size:12px;color:var(--muted);margin-top:2px">Dashboard de Churn — Revenue Ops</div>
-  </div>
-  <div class="meta" id="meta">Cargando...</div>
-</header>
 
-<div class="tabs">
-  <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</div>
-  <div class="tab" data-tab="tabla" onclick="switchTab('tabla')">📋 Tabla</div>
+<div class="header">
+  <div class="header-logo">P</div>
+  <h1>Dashboard de Churn Modjo</h1>
+  <span class="header-sub" id="lastUpdate">Actualizando…</span>
 </div>
 
-<div class="subtabs" id="subtabs">
-  <div class="subtab active" data-sub="insights" onclick="switchSub('insights')">💡 Insights</div>
-  <div class="subtab" data-sub="owners" onclick="switchSub('owners')">👤 Owners</div>
+<div class="main-tabs">
+  <div class="main-tab active" onclick="switchMain('dashboard')">Dashboard</div>
+  <div class="main-tab" onclick="switchMain('tabla')">Tabla</div>
 </div>
 
-<div class="fbar">
-  <label>Owner</label>
-  <select id="f-owner" onchange="applyFilter()"><option value="todos">Todos</option></select>
-  <label>Categoría</label>
-  <select id="f-cat" onchange="applyFilter()"><option value="todas">Todas</option></select>
-  <label>Churn</label>
-  <select id="f-churn" onchange="applyFilter()">
-    <option value="todos">Todos</option>
-    <option value="si">Sí (churn)</option>
+<div class="sub-tabs" id="subTabsRow">
+  <div class="sub-tab active" onclick="switchSub('insights')">Insights</div>
+  <div class="sub-tab" onclick="switchSub('owners')">Owners</div>
+</div>
+
+<div class="filter-bar">
+  <select id="fOwner" onchange="applyFilters()"><option value="">Todos los owners</option></select>
+  <select id="fCat" onchange="applyFilters()"><option value="">Todas las categorías</option></select>
+  <select id="fChurn" onchange="applyFilters()">
+    <option value="">Churn + No churn</option>
+    <option value="si">Solo churn</option>
     <option value="no">Sin churn</option>
   </select>
-  <div class="sep"></div>
-  <label>Período</label>
-  <button class="pbtn" onclick="setPeriod(7,this)">7d</button>
-  <button class="pbtn" onclick="setPeriod(30,this)">30d</button>
-  <button class="pbtn" onclick="setPeriod(90,this)">3 meses</button>
-  <button class="pbtn active" onclick="setPeriod(null,this)">Todo</button>
-  <span class="dsep">Desde</span><input type="date" id="f-desde" onchange="applyFilter()"/>
-  <span class="dsep">Hasta</span><input type="date" id="f-hasta" onchange="applyFilter()"/>
+  <div class="period-btns">
+    <button class="period-btn active" onclick="setPeriod('7d',this)">7d</button>
+    <button class="period-btn" onclick="setPeriod('30d',this)">30d</button>
+    <button class="period-btn" onclick="setPeriod('90d',this)">90d</button>
+    <button class="period-btn" onclick="setPeriod('all',this)">Todo</button>
+  </div>
+  <div class="date-inputs">
+    <input type="date" id="dFrom" onchange="applyFilters()"/>
+    <span>→</span>
+    <input type="date" id="dTo" onchange="applyFilters()"/>
+  </div>
 </div>
 
-<div class="kpis">
-  <div class="kpi"><div class="lbl">Total llamadas</div><div class="val" id="m-total">—</div><div class="sub">únicas registradas</div></div>
-  <div class="kpi red"><div class="lbl">Churn detectado</div><div class="val" id="m-churn">—</div><div class="sub" id="m-cpct"></div></div>
-  <div class="kpi grn"><div class="lbl">Sin churn</div><div class="val" id="m-ok">—</div></div>
-  <div class="kpi amb"><div class="lbl">Tasa de churn</div><div class="val" id="m-rate">—</div><div class="sub">sobre llamadas totales</div></div>
-</div>
+<div class="content">
+  <div id="loadingDiv" class="loading"><div class="spinner"></div><br>Cargando datos…</div>
 
-<div class="content" id="content"><div class="loading">⏳ Cargando datos...</div></div>
+  <div id="viewInsights" style="display:none">
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="malBien-grid" id="malBienGrid"></div>
+    <div class="chart-section">
+      <div class="section-title">Distribución por categoría</div>
+      <div class="chart-bars" id="chartBars"></div>
+    </div>
+    <div class="section-title">Detalle por categoría</div>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+
+  <div id="viewOwners" style="display:none">
+    <div class="kpi-row" id="kpiRowOwners"></div>
+    <div class="section-title">Rendimiento por owner</div>
+    <div class="owners-grid" id="ownersGrid"></div>
+  </div>
+
+  <div id="viewTabla" style="display:none">
+    <div class="table-wrap">
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
+            <th>Categoría</th><th>Churn</th><th>Resumen IA</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv";
-const DUENOS_DISPLAY = ['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
+const SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv';
 
-const CHURN_KW = ['dar de baja','quiero cancelar','quiero darme de baja','me doy de baja','voy a cancelar',
-  'decido cancelar','solicito la baja','no quiero continuar','no quiero seguir','baja del servicio',
-  'cancelo','he cancelado','me voy a dar de baja','quiero la baja','darse de baja'];
+const DUENOS_DISPLAY=['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
 
-const CAT_KW = {
-  'Fallos técnicos':  ['no publica','no sale','no funciona','error','fallo','vinculaci','conecta','lento','carga','instagram','facebook','problema técnico','no se publica'],
-  'Onboarding':       ['no sé cómo','no entiendo','confus','demo','tutorial','aprobaci','flujo','primer','empezar','cómo funciona'],
-  'Sin resultados':   ['no veo result','no genera','sin ventas','no convierte','inversión','retorno','roi','engagement','sin resultado','no tengo cliente','no veo mejora'],
-  'Contenido':        ['contenido','propuesta','genérico','chatgpt','no refleja','no personali','calidad','irrelevante'],
-  'Soporte':          ['no responde','sin respuesta','nadie me atiende','soporte','espera','reclamaci','no me hace caso'],
-  'Facturación':      ['cobro','factura','cargo','precio','no esperaba','sorpresa','reembolso','cobran'],
-  'Limitaciones':     ['linkedin','catalán','catala','archivo','ordenador','limitaci','no puede','no soporta'],
-  'Razones externas': ['crisis','económic','agencia','traslado','tiempo','personal','otro servicio']
+const CAT_KW={
+  'Fallos técnicos':   ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','problema técnico','lento','desconect','sincroniz','plataforma caída'],
+  'Onboarding':        ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular','primer','empezar','setup','inicio','arrancar'],
+  'Sin resultados':    ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica','no vale'],
+  'Contenido':         ['contenido','publicación','publicacion','post','copy','texto','imagen','creativo','calidad','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
+  'Soporte':           ['soporte','respuesta','no contesta','no responden','tarda','espera','atención','atencion','ticket','ayuda','nadie','no atiende'],
+  'Facturación':       ['factura','cobro','precio','pago','cargo','coste','costo','dinero','tarifa','plan','renovación','renovacion','cancelar','baja'],
+  'Limitaciones':      ['limitación','limitacion','no puede','no soporta','no permite','linkedin','red social','idioma','catalán','catalan','móvil','movil','subir','adjuntar','funcionalidad'],
+  'Razones externas':  ['externo','personal','agencia','crisis','económ','econom','trasladar','tiempo','prioridad','presupuesto','otra empresa','competencia']
 };
 
-const BIEN_KW = ['muy bien','perfecto','genial','encantad','contento','contenta','satisfech',
-  'funciona bien','me gusta','excelente','feliz','gracias','va bien','sin problemas','todo bien','bien atendid'];
+const CAT_EXAMPLES={
+  'Fallos técnicos':  '<strong>¿Qué significa?</strong>El cliente tiene un problema técnico que impide usar el servicio.<br>· "Llevo una semana sin que se publiquen mis posts"<br>· "Vinculé Facebook pero sigue sin conectarse"<br>· "La plataforma va muy lenta"',
+  'Onboarding':       '<strong>¿Qué significa?</strong>El cliente no entiende cómo funciona el servicio.<br>· "No sé cómo pedir que cambiéis una publicación"<br>· "¿Cómo funciona el proceso de aprobación?"<br>· "Llevo un mes y no he vinculado mis cuentas"',
+  'Sin resultados':   '<strong>¿Qué significa?</strong>El cliente no ve retorno ni mejora en su negocio.<br>· "Llevo 3 meses y no he conseguido clientes nuevos"<br>· "Mis publicaciones antes tenían más alcance"<br>· "No justifica lo que pago"',
+  'Contenido':        '<strong>¿Qué significa?</strong>Las propuestas no encajan con su negocio o marca.<br>· "Esto parece de ChatGPT, no encaja con mi marca"<br>· "Me mandáis contenido genérico que no refleja mi estilo"<br>· "No capta mi tono ni mi sector"',
+  'Soporte':          '<strong>¿Qué significa?</strong>El cliente no recibe respuesta o atención adecuada.<br>· "Mandé un mensaje hace 5 días y nadie contestó"<br>· "Cada vez hablo con alguien distinto"<br>· "Llevo 20 propuestas pendientes sin feedback"',
+  'Facturación':      '<strong>¿Qué significa?</strong>Sorpresa o conflicto con un cobro.<br>· "Me cobrasteis y pensaba que era una prueba gratuita"<br>· "No sabía que cancelar requería avisar con 20 días"<br>· "Recibí un cargo inesperado"',
+  'Limitaciones':     '<strong>¿Qué significa?</strong>La plataforma no puede hacer algo que el cliente necesita.<br>· "Necesito gestionar LinkedIn y no podéis"<br>· "No puedo subir archivos desde el ordenador"<br>· "Tengo el negocio en catalán y no lo resolvéis"',
+  'Razones externas': '<strong>¿Qué significa?</strong>Se va pero no es culpa del servicio.<br>· "Paso por una crisis económica y recorto gastos"<br>· "He contratado una agencia que lleva toda mi comunicación"<br>· "Me traslado y no tengo tiempo"'
+};
+
+const CHURN_KW=['churn','churna','churned','se va','se fue','cancela','cancelo','canceló','baja','dar de baja','no renueva','rescinde','termina contrato','no continúa','no continua'];
+
+let allRows=[],filteredRows=[],currentMain='dashboard',currentSub='insights',currentPeriod='7d';
+
+function norm(s){return(s||'').toLowerCase().trim().normalize('NFD').replace(/\p{Diacritic}/gu,'');}
+
+function col(row,...names){
+  for(const n of names){
+    for(const k of Object.keys(row)){
+      if(norm(k)===norm(n)&&row[k]!==undefined&&row[k]!=='')return row[k];
+    }
+  }
+  return '';
+}
 
 function canonicalOwner(s){
-  const n=(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').trim();
-  if(n.includes('victor')&&n.includes('ortega'))return'Victor Ortega';
-  if(n.includes('oscar')||n.includes('lopo'))return'Óscar Lopo';
-  if(n.includes('gonzalo')||n.includes('rosales'))return'Gonzalo Rosales';
-  if(n.includes('franco')||n.includes('ferretti'))return'Franco Ferretti';
-  if(n.includes('kamila')||n.includes('jimenez'))return'Kamila Jiménez';
-  if(n.includes('martina')||n.includes('benalcazar'))return'Martina Benalcazar';
-  return'';
-}
-function detCat(t){if(!t)return'Sin resultados';const s=t.toLowerCase();for(const[c,kws]of Object.entries(CAT_KW))if(kws.some(k=>s.includes(k)))return c;return'Sin resultados';}
-function detChurn(t){return t?CHURN_KW.some(k=>t.toLowerCase().includes(k)):false;}
-function detBien(t){return t?BIEN_KW.some(k=>t.toLowerCase().includes(k)):false;}
-function norm(s){return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
-function col(row,opts){for(const k of opts){if(row[k]!==undefined)return row[k]||'';}return'';}
-
-let allRows=[],filtered=[],curTab='dashboard',curSub='insights';
-
-function switchTab(t){
-  curTab=t;
-  document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));
-  document.getElementById('subtabs').style.display=t==='dashboard'?'flex':'none';
-  render();
-}
-function switchSub(s){curSub=s;document.querySelectorAll('.subtab').forEach(e=>e.classList.toggle('active',e.dataset.sub===s));render();}
-function setPeriod(days,btn){
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  if(!days){document.getElementById('f-desde').value='';document.getElementById('f-hasta').value='';}
-  else{const now=new Date(),from=new Date(now-days*86400000);document.getElementById('f-desde').value=from.toISOString().split('T')[0];document.getElementById('f-hasta').value=now.toISOString().split('T')[0];}
-  applyFilter();
-}
-function applyFilter(){
-  const fo=document.getElementById('f-owner').value,fc=document.getElementById('f-cat').value,fch=document.getElementById('f-churn').value;
-  const d=document.getElementById('f-desde').value,h=document.getElementById('f-hasta').value;
-  filtered=allRows.filter(r=>{
-    if(d&&r._f&&r._f<d)return false;if(h&&r._f&&r._f>h)return false;
-    if(fo!=='todos'&&r.owner!==fo)return false;
-    if(fc!=='todas'&&r.cat!==fc)return false;
-    if(fch==='si'&&!r.isChurn)return false;if(fch==='no'&&r.isChurn)return false;
-    return true;
-  });
-  updateKPIs();render();
+  const sn=norm(s||'');
+  const map=[
+    {keys:['victor','ortega'],          name:'Victor Ortega'},
+    {keys:['oscar','lopo'],             name:'Óscar Lopo'},
+    {keys:['gonzalo','rosales'],        name:'Gonzalo Rosales'},
+    {keys:['franco','ferretti'],        name:'Franco Ferretti'},
+    {keys:['kamila','jimenez'],         name:'Kamila Jiménez'},
+    {keys:['martina','benalcazar'],     name:'Martina Benalcazar'}
+  ];
+  for(const e of map){if(e.keys.some(k=>sn.includes(norm(k))))return e.name;}
+  return null;
 }
 
-function cargarDatos(){
-  Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
-    complete:r=>procesarDatos(r.data),
-    error:()=>{document.getElementById('content').innerHTML='<div class="loading">❌ Error cargando datos.</div>';}
-  });
+function detCat(t){
+  const tn=norm(t||'');
+  for(const[cat,kws]of Object.entries(CAT_KW)){
+    if(kws.some(k=>tn.includes(norm(k))))return cat;
+  }
+  return 'Sin resultados';
+}
+
+function detChurn(t){
+  const tn=norm(t||'');
+  return CHURN_KW.some(k=>tn.includes(norm(k)));
+}
+
+function parseDate(s){
+  if(!s)return null;
+  const parts=s.split(/[\/\-\.]/);
+  if(parts.length===3){
+    let[a,b,c]=parts;
+    if(a.length===4)return new Date(+a,+b-1,+c);
+    if(c.length===4)return new Date(+c,+b-1,+a);
+    return new Date(+c+2000,+b-1,+a);
+  }
+  const d=new Date(s);return isNaN(d)?null:d;
 }
 
 function procesarDatos(raw){
-  const seen=new Set();allRows=[];
-  raw.forEach(row=>{
-    const transcript=col(row,['Transcript','transcript','Transcripcion','transcripcion','Contenido','contenido']);
-    const summary=col(row,['Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen','Resumen ejecutivo','Notes','notes','Notas','notas']);
-    const participantes=col(row,['Participantes','participantes','Participants','participants']);
-    const duenoBruto=col(row,['Dueño','dueno','Dueno','Owner','owner','Comercial','comercial','Assigned to','assigned_to']);
-    const fechaRaw=col(row,['Fecha','fecha','Date','date','Actualizado','actualizado','created_at','Fecha llamada']);
-    const nombreBruto=col(row,['Nombre','nombre','Cliente','cliente','Company','company','Empresa','empresa']);
-    const churnCol=col(row,['Churn','churn','Es churn','es_churn','Tipo','tipo','Estado','estado','Resultado']);
+  const rows=[],seen=new Set();
+  for(const r of raw){
+    const duenoBruto=col(r,'Dueño','Dueno','Owner','dueño','dueno','owner');
+    const participantes=col(r,'Participantes','participantes','Participants');
+    const transcript=col(r,'Transcript','transcript','Transcripción','transcripcion');
+    const summary=col(r,'Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen');
+    const fechaStr=col(r,'Fecha','fecha','Date','date');
 
-    // Owner
     let owner=canonicalOwner(duenoBruto);
     if(!owner){
       for(const d of DUENOS_DISPLAY){
-        if(norm(participantes).includes(norm(d))||norm(participantes).includes(norm(d).split(' ')[0]+' '+norm(d).split(' ')[1])){owner=d;break;}
+        if(participantes&&norm(participantes).includes(norm(d))){owner=d;break;}
       }
     }
-    if(!owner)return;
+    if(!owner)continue;
 
-    // Cliente — primera parte de Participantes antes de la coma que no sea el owner
     let cliente='';
     if(participantes){
-      const partes=participantes.split(',')
-        .map(p=>p.replace(/^\[(.+)\]$/,'$1').replace(/:[\s\S]*/,'').trim())
-        .filter(p=>p.length>1&&p.length<80);
-      const ownerFirst=norm(owner).split(' ')[0];
-      cliente=partes.find(p=>!norm(p).includes(norm(owner))&&!norm(p).startsWith(ownerFirst))||'';
+      const parts=participantes.split(',').map(p=>p.replace(/[\[\]]/g,'').trim()).filter(Boolean);
+      for(const part of parts){
+        if(!canonicalOwner(part)){cliente=part;break;}
+      }
     }
-    if(!cliente)cliente=nombreBruto.trim();
-    if(!cliente||norm(cliente)===norm(owner))return;
+    if(!cliente)cliente='Desconocido';
 
-    // Fecha
-    let fechaStr='';
-    if(fechaRaw){const d=new Date(fechaRaw);if(!isNaN(d))fechaStr=d.toISOString().split('T')[0];}
-
-    // Churn
-    let isChurn=false;
-    if(churnCol){const cv=churnCol.toLowerCase();isChurn=['sí','si','yes','churn','true','1','cancelado','baja'].some(v=>cv.includes(v));}
-    else isChurn=detChurn(transcript||summary);
-
-    const cat=detCat(transcript||summary||nombreBruto);
-    const esBien=detBien(transcript||summary);
+    const combined=(transcript||'')+' '+(summary||'');
+    const categoria=detCat(combined);
+    const esChurn=detChurn(combined);
+    const fecha=parseDate(fechaStr);
+    const displayText=summary||transcript||'';
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
-    if(seen.has(key)||!norm(cliente))return;
+    if(seen.has(key))continue;
     seen.add(key);
+    rows.push({owner,cliente,categoria,esChurn,fecha,fechaStr,displayText});
+  }
+  return rows;
+}
 
-    // Resumen completo sin truncar
-    const displayText=(summary&&summary.trim().length>5)?summary.trim():(transcript||'').trim()||'Sin resumen disponible.';
-
-    allRows.push({cliente,owner,cat,fechaStr,_f:fechaStr,isChurn,esBien,displayText});
+function applyFilters(){
+  const fOwner=document.getElementById('fOwner').value;
+  const fCat=document.getElementById('fCat').value;
+  const fChurn=document.getElementById('fChurn').value;
+  const dFrom=document.getElementById('dFrom').value?new Date(document.getElementById('dFrom').value):null;
+  const dTo=document.getElementById('dTo').value?new Date(document.getElementById('dTo').value):null;
+  let periodFrom=null;
+  const now=new Date();
+  if(currentPeriod==='7d'){periodFrom=new Date(now);periodFrom.setDate(now.getDate()-7);}
+  else if(currentPeriod==='30d'){periodFrom=new Date(now);periodFrom.setDate(now.getDate()-30);}
+  else if(currentPeriod==='90d'){periodFrom=new Date(now);periodFrom.setDate(now.getDate()-90);}
+  filteredRows=allRows.filter(r=>{
+    if(fOwner&&r.owner!==fOwner)return false;
+    if(fCat&&r.categoria!==fCat)return false;
+    if(fChurn==='si'&&!r.esChurn)return false;
+    if(fChurn==='no'&&r.esChurn)return false;
+    if(r.fecha){
+      if(periodFrom&&r.fecha<periodFrom)return false;
+      if(dFrom&&r.fecha<dFrom)return false;
+      if(dTo){const dt=new Date(dTo);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}
+    }
+    return true;
   });
-
-  const os=document.getElementById('f-owner');
-  DUENOS_DISPLAY.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;os.appendChild(o);});
-  const cs=document.getElementById('f-cat');
-  Object.keys(CAT_KW).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});
-
-  filtered=[...allRows];
-  document.getElementById('meta').innerHTML=`Actualizado: ${new Date().toLocaleString('es-ES')}<br>${allRows.length.toLocaleString()} llamadas cargadas`;
-  updateKPIs();render();
+  render();
 }
 
-function updateKPIs(){
-  const t=filtered.length,ch=filtered.filter(r=>r.isChurn).length,ok=t-ch,rt=t?Math.round(ch/t*100):0;
-  document.getElementById('m-total').textContent=t.toLocaleString('es-ES');
-  document.getElementById('m-churn').textContent=ch.toLocaleString('es-ES');
-  document.getElementById('m-ok').textContent=ok.toLocaleString('es-ES');
-  document.getElementById('m-rate').textContent=rt+'%';
-  document.getElementById('m-cpct').textContent=t?rt+'% del total':'';
+function setPeriod(p,btn){
+  currentPeriod=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
 }
 
-function render(){
-  if(curTab==='dashboard'){curSub==='insights'?renderInsights():renderOwners();}
-  else renderTabla();
+function renderKPI(id){
+  const total=filteredRows.length;
+  const churns=filteredRows.filter(r=>r.esChurn).length;
+  const ok=total-churns;
+  const rate=total?Math.round(churns/total*100):0;
+  document.getElementById(id).innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total llamadas</div><div class="kpi-value">${total}</div><div class="kpi-sub">en el período</div></div>
+    <div class="kpi-card kpi-churn"><div class="kpi-label">Churn detectado</div><div class="kpi-value">${churns}</div><div class="kpi-sub">llamadas con churn</div></div>
+    <div class="kpi-card kpi-ok"><div class="kpi-label">Sin churn</div><div class="kpi-value">${ok}</div><div class="kpi-sub">llamadas OK</div></div>
+    <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${rate}%</div><div class="kpi-sub">del total</div></div>`;
 }
 
-function toggleDetail(id){
-  const el=document.getElementById('d-'+id);if(!el)return;
-  el.classList.toggle('open');
-  const btn=document.getElementById('b-'+id);
-  if(btn)btn.textContent=el.classList.contains('open')?'▲ Cerrar':'▼ Ver resumen';
+function dynBadge(c,t){
+  if(!t)return'<span class="insight-badge badge-neutral">Sin datos</span>';
+  const r=c/t;
+  if(r>=0.5)return'<span class="insight-badge badge-danger">Alto riesgo</span>';
+  if(r>=0.25)return'<span class="insight-badge badge-warning">Moderado</span>';
+  if(r>0)return'<span class="insight-badge badge-ok">Bajo riesgo</span>';
+  return'<span class="insight-badge badge-neutral">Sin churn</span>';
 }
 
-function buildRows(rows){
-  return rows.map((r,i)=>{
-    const uid=r._uid||i;
-    const hasS=r.displayText&&r.displayText.trim().length>5;
-    const safe=(r.displayText||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return `<tr class="dr" onclick="${hasS?`toggleDetail('${uid}')`:``}">
-        <td>${r.owner||'—'}</td><td>${r.fechaStr||'—'}</td>
-        <td><strong>${r.cliente||'—'}</strong></td><td>${r.cat}</td>
-        <td>${r.isChurn?'<span class="badge ch">Churn</span>':'<span class="badge ok">OK</span>'}</td>
-        <td>${hasS?`<button class="xbtn" id="b-${uid}" onclick="event.stopPropagation();toggleDetail('${uid}')">▼ Ver resumen</button>`:'—'}</td>
-      </tr>
-      <tr class="xr"><td colspan="6"><div class="xi" id="d-${uid}">
-        <div class="xt">📋 ${r.cliente||''} · ${r.fechaStr||''} · ${r.owner||''}</div>
-        <div class="xb">${safe}</div>
-      </div></td></tr>`;
-  }).join('');
+function dynClients(rows){
+  const names=[...new Set(rows.filter(r=>r.esChurn).map(r=>r.cliente))].slice(0,3);
+  if(!names.length)return'';
+  return`<div class="insight-clients">↑ Churns: ${names.join(', ')}${rows.filter(r=>r.esChurn).length>3?'…':''}</div>`;
 }
 
-function renderTabla(){
-  const rows=filtered.slice(0,500).map((r,i)=>({...r,_uid:'t'+i}));
-  document.getElementById('content').innerHTML=`
-    <div class="tw"><table>
-      <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Churn</th><th>Resumen</th></tr></thead>
-      <tbody>${buildRows(rows)}</tbody>
-    </table></div>
-    ${filtered.length>500?`<p style="text-align:center;padding:14px;color:var(--muted);font-size:13px">Mostrando 500 de ${filtered.length.toLocaleString()} registros</p>`:''}`;
-}
-
-function renderOwners(){
-  const od={};DUENOS_DISPLAY.forEach(d=>{od[d]={total:0,churns:0,cats:{},clients:[]};});
-  filtered.forEach(r=>{
-    if(!r.owner||!od[r.owner])return;
-    const o=od[r.owner];o.total++;if(r.isChurn)o.churns++;
-    if(r.cat)o.cats[r.cat]=(o.cats[r.cat]||0)+1;
-    o.clients.push(r);
-  });
-  const cards=DUENOS_DISPLAY.map(name=>{
-    const o=od[name];const rate=o.total?Math.round(o.churns/o.total*100):0;
-    const bc=rate>=50?'br':rate>=25?'ba':'bg';
-    const topCat=Object.entries(o.cats).sort((a,b)=>b[1]-a[1])[0];
-    const pills=o.clients.sort((a,b)=>(b.isChurn?1:0)-(a.isChurn?1:0)).slice(0,10)
-      .map(c=>`<span class="cp ${c.isChurn?'ch':'ok'}">${c.isChurn?'✕':'✓'} ${c.cliente||'—'}</span>`).join('');
-    return `<div class="oc ${bc}">
-      <div class="oname">${name}</div><div class="orate">${rate}% churn · ${o.total} llamadas</div>
-      <div class="ostats">
-        <div class="ostat red"><div class="n">${o.churns}</div><div class="l">Churns</div></div>
-        <div class="ostat grn"><div class="n">${o.total-o.churns}</div><div class="l">OK</div></div>
-      </div>
-      ${topCat?`<div class="mtag">⚡ ${topCat[0]}</div>`:''}
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Clientes</div>
-      <div class="clist">${pills||'<span style="color:var(--muted);font-size:12px">Sin datos</span>'}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('content').innerHTML=`<div class="og">${cards}</div>`;
+function infoBtn(cat){
+  const ex=CAT_EXAMPLES[cat]||'';
+  return`<span class="info-wrap"><button class="info-btn" tabindex="0">?</button><span class="tooltip">${ex}</span></span>`;
 }
 
 function renderInsights(){
-  const total=filtered.length||1;
-  const churns=filtered.filter(r=>r.isChurn);
-  const noChurns=filtered.filter(r=>!r.isChurn);
-  const counts={};filtered.forEach(r=>{counts[r.cat]=(counts[r.cat]||0)+1;});
-  const maxN=Math.max(...Object.values(counts),1);
-  const barRows=Object.keys(CAT_KW).map(cat=>{
-    const n=counts[cat]||0,pct=Math.round(n/total*100),bw=Math.round(n/maxN*100);
-    return `<div class="cbrow"><div class="cblabel">${cat}</div><div class="cbtrack"><div class="cbfill" style="width:${bw}%"></div></div><div class="cbcount">${n}<span style="font-size:10px;color:var(--muted);font-weight:400"> ${pct}%</span></div></div>`;
+  const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
+  const cc={};
+  cats.forEach(c=>{cc[c]={total:0,churn:0};});
+  filteredRows.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
+
+  const sorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].churn-cc[a].churn);
+  const mal=sorted.slice(0,3);
+  const bien=sorted.filter(c=>cc[c].churn===0).slice(0,3);
+
+  document.getElementById('malBienGrid').innerHTML=`
+    <div class="malBien-card">
+      <h3><span style="font-size:18px">⚠️</span> Lo que estamos haciendo mal</h3>
+      <ul>${mal.length?mal.map(c=>`<li><span class="bullet" style="background:#ef4444"></span>${c}: ${cc[c].churn} churns de ${cc[c].total} llamadas</li>`).join(''):'<li><span class="bullet" style="background:#ef4444"></span>Sin datos suficientes</li>'}</ul>
+    </div>
+    <div class="malBien-card">
+      <h3><span style="font-size:18px">✅</span> Lo que estamos haciendo bien</h3>
+      <ul>${bien.length?bien.map(c=>`<li><span class="bullet" style="background:#22c55e"></span>${c}: ${cc[c].total} llamadas sin churn</li>`).join(''):'<li><span class="bullet" style="background:#22c55e"></span>Sin churns detectados</li>'}</ul>
+    </div>`;
+
+  const maxC=Math.max(...cats.map(c=>cc[c].total),1);
+  document.getElementById('chartBars').innerHTML=cats.filter(c=>cc[c].total>0).map(c=>`
+    <div class="chart-bar-row">
+      <div class="chart-bar-label">${infoBtn(c)}<span>${c}</span></div>
+      <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,5)}%">${cc[c].total}</div></div>
+      <div class="chart-bar-count">${cc[c].churn>0?'<span style="color:#ef4444">'+cc[c].churn+' ↓</span>':''}</div>
+    </div>`).join('');
+
+  document.getElementById('insightsGrid').innerHTML=cats.map(c=>{
+    const rows=filteredRows.filter(r=>r.categoria===c);
+    const ch=rows.filter(r=>r.esChurn);
+    return`
+      <div class="insight-card">
+        <div class="insight-card-header">
+          <span class="insight-cat">${infoBtn(c)}<span>${c}</span></span>
+          ${dynBadge(ch.length,rows.length)}
+        </div>
+        <div class="insight-count">${rows.length}</div>
+        <div class="insight-sub">${ch.length} churn${ch.length!==1?'s':''}</div>
+        ${dynClients(rows)}
+      </div>`;
   }).join('');
-
-  const churnCats={};churns.forEach(r=>{churnCats[r.cat]=(churnCats[r.cat]||0)+1;});
-  const topMal=Object.entries(churnCats).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const malItems=topMal.length?topMal.map(([cat,n])=>{
-    const cls=[...new Set(churns.filter(r=>r.cat===cat).map(r=>r.cliente).filter(Boolean))].slice(0,4).join(', ');
-    return `<div class="mb-item"><div><span class="mb-stat">${cat}</span> — ${n} llamadas${cls?`<br><span style="font-size:12px;color:#999">${cls}</span>`:''}</div></div>`;
-  }).join(''):`<div class="mb-item">Sin datos en este período.</div>`;
-
-  const bienRows=noChurns.filter(r=>r.esBien);
-  const bienCats={};bienRows.forEach(r=>{if(r.owner)bienCats[r.owner]=(bienCats[r.owner]||0)+1;});
-  const topBien=Object.entries(bienCats).sort((a,b)=>b[1]-a[1]);
-  const bienPct=noChurns.length?Math.round(bienRows.length/noChurns.length*100):0;
-  const bienItems=[
-    `<div class="mb-item"><span class="mb-stat">${bienRows.length} llamadas</span> con señales positivas (${bienPct}% de no-churn)</div>`,
-    ...topBien.slice(0,4).map(([o,n])=>`<div class="mb-item"><span class="mb-stat">${o}</span> — ${n} clientes satisfechos</div>`),
-    bienRows.length===0?`<div class="mb-item">Sin señales positivas detectadas.</div>`:''
-  ].join('');
-
-  function dynBadge(cat){return counts[cat]?`<span class="idyn">${counts[cat]} llamadas</span>`:'';}
-  function dynClients(cat){
-    const cls=[...new Set(filtered.filter(r=>r.cat===cat&&r.isChurn).map(r=>r.cliente).filter(Boolean))].slice(0,6);
-    return cls.length?`<div class="idyn-clients">En churn: <strong>${cls.join(', ')}</strong></div>`:'';
-  }
-
-  document.getElementById('content').innerHTML=`<div class="iw">
-    <div class="mb-grid">
-      <div class="mb-card mal"><h3>🔴 Lo que estamos haciendo mal</h3>${malItems}</div>
-      <div class="mb-card bien"><h3>🟢 Lo que estamos haciendo bien</h3>${bienItems}</div>
-    </div>
-    <div class="cat-summary"><h3>📊 Llamadas por categoría — ${filtered.length.toLocaleString()} registros</h3>${barRows}</div>
-    <div class="ic c1"><div class="ih"><div class="in">1</div><div class="it">Fallos técnicos recurrentes</div><span class="ifreq f1">⚠️ Muy alta frecuencia</span>${dynBadge('Fallos técnicos')}</div>
-      <p class="ib">Publicaciones que no salen a tiempo, vinculación fallida con Instagram/Facebook, errores en pagos, carga lenta y cuentas no conectadas.</p>
-      <div class="icl"><strong>Conocidos:</strong> Karina, Enrique, Patricia, María, Leticia, Isabel, Yolanda, Heidy.</div>${dynClients('Fallos técnicos')}</div>
-    <div class="ic c2"><div class="ih"><div class="in">2</div><div class="it">Onboarding deficiente / confusión de uso</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Onboarding')}</div>
-      <p class="ib">Clientes que llevan semanas sin entender la plataforma. No saben solicitar cambios ni el flujo de aprobación. La demo reactiva indica que el onboarding inicial no es suficiente.</p>
-      <div class="icl"><strong>Conocidos:</strong> Isabel, Ángel, Yolanda, Joaquim, María (odontopediatría).</div>${dynClients('Onboarding')}</div>
-    <div class="ic c2"><div class="ih"><div class="in">3</div><div class="it">Sin resultados</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Sin resultados')}</div>
-      <p class="ib">Clientes que no ven ventas, leads ni engagement y no justifican la inversión, o llamadas sin motivo de churn claro detectado.</p>
-      <div class="icl"><strong>Conocidos:</strong> Ángel, Solventana, Virginia, Isabel, Samuel, María, Laia.</div>${dynClients('Sin resultados')}</div>
-    <div class="ic c2"><div class="ih"><div class="in">4</div><div class="it">Calidad y relevancia del contenido</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Contenido')}</div>
-      <p class="ib">Propuestas genéricas sin personalización. Clientes nicho sienten que la IA no captura su sector.</p>
-      <div class="icl"><strong>Conocidos:</strong> Ángel, Aikari, María, Yolanda, Enrique, Laia.</div>${dynClients('Contenido')}</div>
-    <div class="ic c2"><div class="ih"><div class="in">5</div><div class="it">Comunicación y soporte deficiente</div><span class="ifreq f2">Alta frecuencia</span>${dynBadge('Soporte')}</div>
-      <p class="ib">Solicitudes que no se registran, respuestas lentas, múltiples interlocutores sin continuidad.</p>
-      <div class="icl"><strong>Conocidos:</strong> Karina, Samuel, José, María, Fran, Heidy, Enrique.</div>${dynClients('Soporte')}</div>
-    <div class="ic c3"><div class="ih"><div class="in">6</div><div class="it">Sorpresas en facturación</div><span class="ifreq f3">Frecuencia media</span>${dynBadge('Facturación')}</div>
-      <p class="ib">Cobros inesperados, falta de transparencia en el plan y política de cancelación (20 días de aviso).</p>
-      <div class="icl"><strong>Conocidos:</strong> Miryam, Patricia, Heidy, Fran, Karina.</div>${dynClients('Facturación')}</div>
-    <div class="ic c3"><div class="ih"><div class="in">7</div><div class="it">Limitaciones del producto</div><span class="ifreq f3">Frecuencia media</span>${dynBadge('Limitaciones')}</div>
-      <p class="ib">Sin gestión de LinkedIn, sin subida de archivos desde ordenador, problemas con el catalán.</p>
-      <div class="icl"><strong>Conocidos:</strong> Leticia, María, Laia.</div>${dynClients('Limitaciones')}</div>
-    <div class="ic c4"><div class="ih"><div class="in">8</div><div class="it">Razones externas</div><span class="ifreq f4">Frecuencia baja</span>${dynBadge('Razones externas')}</div>
-      <p class="ib">Crisis económica, cambio a otra agencia, traslado o cambios vitales. No relacionadas con el servicio.</p>${dynClients('Razones externas')}</div>
-    <div class="alert-box"><h3>⚠️ Patrón crítico</h3>
-      <p>Ciclo claro: <strong>Fallo técnico → intento de contacto → sin respuesta → frustración → propuestas bloqueadas → cancelación.</strong><br><br>Los churns no son instantáneos — las señales aparecen semanas antes y las llamadas de rescate llegan demasiado tarde.</p></div>
-    <div class="rec"><h3>✅ Recomendaciones</h3>
-      <div class="rg"><h4>Corto plazo (0–30 días)</h4>
-        <div class="ri">Alerta temprana: sin propuestas aprobadas en +10 días, cuentas sin vincular, sin actividad en 7 días.</div>
-        <div class="ri">Onboarding obligatorio en los primeros 3 días. Evitaría ~40% de los churns.</div>
-        <div class="ri">Proceso de cancelación claro y documentado.</div></div>
-      <div class="rg"><h4>Medio plazo (30–90 días)</h4>
-        <div class="ri">Feedback estructurado por propuesta dentro de la plataforma.</div>
-        <div class="ri">Quality Check mensual: cuentas vinculadas, propuestas sin resolver, alineación con brief.</div>
-        <div class="ri">Email de aviso 5–7 días antes del cobro con resumen del mes.</div></div>
-      <div class="rg"><h4>Estratégico</h4>
-        <div class="ri">Alinear expectativas desde la venta: el servicio entrega presencia digital, no ventas directas.</div></div>
-    </div>
-  </div>`;
 }
 
-document.getElementById('subtabs').style.display='flex';
-cargarDatos();
+function renderOwners(){
+  renderKPI('kpiRowOwners');
+  document.getElementById('ownersGrid').innerHTML=DUENOS_DISPLAY.map(owner=>{
+    const rows=filteredRows.filter(r=>r.owner===owner);
+    const churns=rows.filter(r=>r.esChurn).length;
+    const rate=rows.length?Math.round(churns/rows.length*100):0;
+    const bc=rate>=50?'#ef4444':rate>=25?'#f59e0b':'#22c55e';
+    const topCats={};
+    rows.forEach(r=>{topCats[r.categoria]=(topCats[r.categoria]||0)+1;});
+    const topCat=Object.entries(topCats).sort((a,b)=>b[1]-a[1])[0];
+    return`
+      <div class="owner-card" style="border-color:${bc}">
+        <div class="owner-name">${owner}</div>
+        <div class="owner-meta">${topCat?'Top: '+topCat[0]:'Sin datos'}</div>
+        <div class="owner-stats">
+          <div class="owner-stat"><div class="owner-stat-val">${rows.length}</div><div class="owner-stat-lbl">Llamadas</div></div>
+          <div class="owner-stat"><div class="owner-stat-val" style="color:#ef4444">${churns}</div><div class="owner-stat-lbl">Churns</div></div>
+          <div class="owner-stat"><div class="owner-stat-val" style="color:${bc}">${rate}%</div><div class="owner-stat-lbl">Tasa</div></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleDetail(id){
+  const el=document.getElementById('xi_'+id);
+  if(el)el.classList.toggle('open');
+}
+
+function buildRows(rows){
+  return rows.map((r,i)=>`
+    <tr>
+      <td><button class="expand-btn" onclick="toggleDetail(${i})">▸</button></td>
+      <td>${r.fechaStr||'–'}</td>
+      <td>${r.cliente}</td>
+      <td>${r.owner}</td>
+      <td><span class="cat-badge">${r.categoria}</span></td>
+      <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${r.displayText&&r.displayText.length>80?'…':''}</td>
+    </tr>
+    <tr><td colspan="7"><div class="xi" id="xi_${i}">${r.displayText||'Sin resumen disponible'}</div></td></tr>`).join('');
+}
+
+function renderTabla(){
+  document.getElementById('tableBody').innerHTML=buildRows(filteredRows);
+}
+
+function render(){
+  if(currentMain==='dashboard'){
+    document.getElementById('subTabsRow').style.display='flex';
+    if(currentSub==='insights'){
+      document.getElementById('viewInsights').style.display='block';
+      document.getElementById('viewOwners').style.display='none';
+      document.getElementById('viewTabla').style.display='none';
+      renderKPI('kpiRow');
+      renderInsights();
+    } else {
+      document.getElementById('viewInsights').style.display='none';
+      document.getElementById('viewOwners').style.display='block';
+      document.getElementById('viewTabla').style.display='none';
+      renderOwners();
+    }
+  } else {
+    document.getElementById('subTabsRow').style.display='none';
+    document.getElementById('viewInsights').style.display='none';
+    document.getElementById('viewOwners').style.display='none';
+    document.getElementById('viewTabla').style.display='block';
+    renderTabla();
+  }
+}
+
+function switchMain(tab){
+  currentMain=tab;
+  document.querySelectorAll('.main-tab').forEach((t,i)=>t.classList.toggle('active',['dashboard','tabla'][i]===tab));
+  render();
+}
+
+function switchSub(tab){
+  currentSub=tab;
+  document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',['insights','owners'][i]===tab));
+  render();
+}
+
+function initFilters(){
+  document.getElementById('fOwner').innerHTML='<option value="">Todos los owners</option>'+DUENOS_DISPLAY.map(d=>`<option value="${d}">${d}</option>`).join('');
+  const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
+  document.getElementById('fCat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+async function loadData(){
+  try{
+    Papa.parse(SHEET_URL,{
+      download:true,header:true,skipEmptyLines:true,
+      complete:function(results){
+        allRows=procesarDatos(results.data);
+        const dates=allRows.filter(r=>r.fecha).map(r=>r.fecha);
+        if(dates.length){
+          const maxDate=new Date(Math.max(...dates));
+          document.getElementById('lastUpdate').textContent='Última actualización: '+maxDate.toLocaleDateString('es-ES');
+        } else {
+          document.getElementById('lastUpdate').textContent=allRows.length+' registros cargados';
+        }
+        document.getElementById('loadingDiv').style.display='none';
+        initFilters();
+        applyFilters();
+      },
+      error:function(err){
+        document.getElementById('loadingDiv').innerHTML='<p style="color:#ef4444">Error cargando datos: '+err.message+'</p>';
+      }
+    });
+  }catch(e){
+    document.getElementById('loadingDiv').innerHTML='<p style="color:#ef4444">Error: '+e.message+'</p>';
+  }
+}
+
+window.addEventListener('load',loadData);
 </script>
 </body>
 </html>

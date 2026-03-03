@@ -38,11 +38,6 @@
     .kpi-ok .kpi-value{color:var(--success);}
     .kpi-rate .kpi-value{color:var(--warning);}
     .section-title{font-size:16px;font-weight:700;margin-bottom:16px;}
-    .malBien-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
-    .malBien-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);}
-    .malBien-card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-    .malBien-card ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
-    .malBien-card li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px;line-height:1.4;}
     .bullet{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
     .chart-section{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:24px;}
     .chart-bars{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
@@ -139,10 +134,10 @@
     .loading{text-align:center;padding:60px;color:var(--muted);}
     .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}.insights-grid{grid-template-columns:1fr 1fr;}.owners-grid{grid-template-columns:1fr;}.malBien-grid{grid-template-columns:1fr;}}
-    @media print{.header,.main-tabs,.sub-tabs,.filter-bar,.print-btn{display:none!important;}.content{padding:0!important;}body{background:#fff!important;}div[style*="display:none"]{display:none!important;}}
-    .print-btn{padding:7px 14px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;}
-    .print-btn:hover{background:#374151;}
+    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}.insights-grid{grid-template-columns:1fr 1fr;}.owners-grid{grid-template-columns:1fr;}}
+    .refresh-btn{padding:7px 14px;background:var(--accent);color:#1a1a1a;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+    .refresh-btn:hover{opacity:.85;}
+    .refresh-btn:disabled{opacity:.5;cursor:not-allowed;}
   </style>
 </head>
 <body>
@@ -154,7 +149,7 @@
   <div class="logo">P</div>
   <h1>Dashboard de Churn</h1>
   <span class="header-sub" id="lastUpdate">Actualizando…</span>
-  <button class="print-btn" onclick="window.print()">🖨️ Imprimir</button>
+  <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄 Actualizar</button>
 </div>
 
 <div class="main-tabs">
@@ -216,8 +211,8 @@
   <div id="loadingDiv" class="loading"><div class="spinner"></div><br>Cargando datos…</div>
 
   <div id="viewModjoInsights" style="display:none">
+    <div id="execSummaryModjo"></div>
     <div class="kpi-row" id="kpiRowModjo"></div>
-    <div class="malBien-grid" id="malBienModjo"></div>
     <div class="chart-section">
       <div class="section-title">Distribución por categoría</div>
       <div class="chart-bars" id="chartModjo"></div>
@@ -238,7 +233,7 @@
     <div class="table-wrap">
       <table><thead><tr>
         <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-        <th>Categoría</th><th>Churn</th><th>Resumen IA</th>
+        <th>Categoría</th><th>Churn</th><th>Client Type</th><th>Resumen IA</th>
       </tr></thead><tbody id="tbodyModjo"></tbody></table>
     </div>
   </div>
@@ -282,15 +277,107 @@
 // ============================================================
 const SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv';
 const DUENOS=['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
+const HS_CLIENT_TYPE={"enid cajilima": "Active Client", "ana isabel gordon suarez": "Active Client", "mm fisioterapia y readaptacion, s.l.": "Active Client", "joaquina alcaraz lopez": "Active Client", "miguel fernando orrego fleitas": "Active Client", "jasmina omaria santana ramos": "Active Client", "virginia gimenez": "Active Client", "horacio gonzalez": "Active Client", "sherpa comunicacion ls": "Active Client", "yurena buades juan": "Active Client", "sandra patricia arias lopez": "Active Client", "german": "Active Client", "maria petkova": "Active Client", "xavier puigtio guinart": "Active Client", "aida carolina maria vega romeo": "Active Client", "ivana": "Active Client", "maria del pilar toledo pita": "Active Client", "marta pantoja gomez": "Active Client", "elisabet": "Active Client", "lifetech avant slu": "Active Client", "nadine martinez": "Active Client", "eva cantos": "Active Client", "natura esencials products": "Active Client", "neurofisio cantabria": "Active Client", "nathalia colman areco": "Active Client", "luciana cavaletto": "Active Client", "alicia": "Active Client", "natura esencials": "Active Client", "maria dolores padilla padilla": "Active Client", "ali calixto malosetti morales": "Active Client", "maria asuncion gomez arrizabalaba": "Active Client", "luzi": "Active Client", "veronica valentin": "Active Client", "tamara moreno rodenas": "Active Client", "luis": "Active Client", "north coast adventure": "Active Client", "lescenari actividades,sl": "Active Client", "gema navarro": "Active Client", "fitness gasteiz": "Active Client", "cardamomo obrador artesanal scp": "Active Client", "ivan martin rosado": "Active Client", "beatriz penalba": "Active Client", "savic & coffee sl": "Active Client", "yisen xia": "Active Client", "virginia martin pantoja": "Active Client", "carolina castillo": "Active Client", "susana feenamdez": "Active Client", "nayibis maria garcia glen": "Active Client", "jorgina forrellat": "Active Client", "jose ignacio cerro fernandez": "Active Client", "estela ruiz": "Active Client", "roberto garcia": "Active Client", "alejandro pelaez rodriguez": "Churn", "bhuman shop": "Active Client", "sandra castro": "Active Client", "rita prieto vega": "Active Client", "patricia paula rodriguez montano": "Active Client", "asociacion kyodai kick boxing badalona": "Active Client", "alex andreo": "Active Client", "maria eugenia riera gaya": "Active Client", "pili martin": "Active Client", "arianna andrisano": "Active Client", "raquel viana quero": "Active Client", "maria silvanir soares batista": "Active Client", "ana belen olivares": "Active Client", "annelisys cortina cortina": "Active Client", "maria real garcia": "Active Client", "maria de la vega gil marcos": "Active Client", "sara leiva fernandez": "Churn", "mary sillero": "Churn", "noelia yepes talavera": "Active Client", "lidia linares garcia": "Active Client", "ana gonzalez serrano": "Active Client", "veronica arranz jimenez": "Active Client", "lorena riesa": "Active Client", "bego": "Active Client", "luz moreno": "Active Client", "eratel comunicaciones sl": "Active Client", "andrea garcia sancho": "Churn", "marilo guerrero mira": "Active Client", "eddy pecho": "Churn", "johanna leouzon": "Active Client", "germania edith vasquez loyola": "Active Client", "lina constanza samboni joven": "Active Client", "carmelo sabina": "No client", "steffany raquel": "Active Client", "maimuna balde jawo": "Active Client", "asiain high performance, s.l.": "Active Client", "cristina": "Active Client", "marian sanchez gasco": "Active Client", "albert el lakkis carrio": "Active Client", "mercedes suarez riologos": "Active Client", "dasomil difusion s.l": "Active Client", "dahiana riba dominguez": "Churn", "gisela irazoqui": "Active Client", "juan manuel amati": "Active Client", "antonio moraga guerrero": "Active Client", "carlaota blanch": "Active Client", "geobtk zerbitzuak sl - lau bru": "Active Client", "patricia": "Active Client", "asador pollo riko": "Active Client", "sandra vanessa garcia alonso": "Active Client", "ramses cortes": "Active Client", "idalia huguet suarez": "Active Client", "maria cardoner ferrer": "Active Client", "isabel alvarez": "Active Client", "bineta diallo": "Active Client", "maryna lytsya": "Active Client", "sl asis atar reaco": "Active Client", "andrea": "Active Client", "beas mundo animals": "Active Client", "jorge flores jurado": "Churn", "printpubli events sl": "Active Client", "lidia belen": "Active Client", "irene lazaro garcia": "Churn", "antonio ortega ocana": "Active Client", "raul airam": "Active Client", "lubelux sl": "Active Client", "montoro i vidal sl": "Churn", "francisco gonzalez": "Active Client", "richard chocolat factory": "Active Client", "cristina afan de ribera": "Active Client", "carmelo": "Active Client", "jorge": "Active Client", "david latorre": "Active Client", "jose antonio restrepo astorda": "Churn", "ionut ionut": "Active Client", "merina santoro": "Active Client", "maria tubio atomy": "Active Client", "alicia martinez sanz": "Active Client", "sebastian panes castellano": "Active Client", "belen": "Active Client", "padygo digital sl": "Active Client", "guilherme henrique": "Active Client", "celso": "Churn", "leticia": "Active Client", "fristmas sl": "Active Client", "gallego clean group 2022 sl": "Active Client", "hugo carrizo gil 3": "Active Client", "hugo carrizo gil 2": "Active Client", "pedro de nogueira": "Active Client", "gemma ekame": "Active Client", "ines": "Active Client", "yago": "Active Client", "carlos torres": "Active Client", "rosa cutrona beltran": "Active Client", "joaquin batista delgado": "Active Client", "giangi solo pizza sl": "Churn", "ana roig": "Active Client", "hugo carrizo gil": "Active Client", "ricard trias soler": "Active Client", "jesus zafra": "Active Client", "te plante": "Active Client", "fernando": "Active Client", "manuel roman camacho": "Active Client", "yanosik tores": "Churn", "caser": "Active Client", "geobtk zerbitzuak sl - amalua": "Active Client", "francisco burgos rubiales": "Active Client", "maria ester lagaron sesma": "Active Client", "alejandra rotunno": "Active Client", "yonaire materano": "Churn", "marcelino navarro horcajada": "Active Client", "almudena martin garcia": "Active Client", "lelly": "Active Client", "vicente javier alcon garcia": "Active Client", "gloria insaurralde garcia": "Active Client", "virginia penalver de la fuente": "Churn", "lizeth": "Active Client", "carolina narro gonzalez": "Active Client", "enrique franco lopez": "Active Client", "lucia diaz munoz": "Active Client", "elizabeth andrea luduena": "Active Client", "mayra alexandra guaman guachamin": "Churn", "jemaa": "Active Client", "kelly coromoto escobar torres": "Active Client", "ismael gutierrez": "Active Client", "laura cristina": "Active Client", "minervy": "Active Client", "raquel balsalobre moral": "Churn", "jose maria santos": "Churn", "manuel": "Active Client", "angela": "Active Client", "sergio salesa cucurella": "Active Client", "creonaile ramos noesi": "Active Client", "jorge verdasco novalvos": "Churn", "in cruises": "Active Client", "tomas parra aymerich": "Active Client", "eduardo marquez": "Active Client", "ston agona sl": "Active Client", "albert martinez": "Churn", "micaela rudelli": "Churn", "anja coric cubrovic": "Active Client", "vicente": "Active Client", "pedro banegas": "Active Client", "javier": "Active Client", "jorge dannyel renteria": "Active Client", "juan fernandez barrul": "Churn", "ederson silva": "Churn", "eduard bantula": "Active Client", "adriana aguilar moreira": "Churn", "jupa home s.l": "Active Client", "alejandro moyano vilardell": "Churn", "patricia rubia": "Active Client", "natalia del amo de toro": "Active Client", "jeffer castillo": "Active Client", "eva maria garcia maguregi": "Churn", "ana vilanoba": "Churn", "caza el candil, estj": "Active Client", "marcos villar": "Active Client", "maria jose": "Active Client", "karla chopen": "Churn", "nela nela": "Active Client", "alicia jimenez alarcon": "Active Client", "luis miguel dieguez": "Active Client", "leandra ferreira": "Active Client", "maria moya": "Active Client", "yuly": "Active Client", "tania amado": "Active Client", "inversiones budha xxi sl": "Churn", "sultana benasuly sabah": "Active Client", "ella zea": "Active Client", "brilliant holidays sl": "Active Client", "sara cecilia gorostiaga cruz": "Active Client", "andrea franco": "Churn", "fran medina": "Active Client", "alejandro corbacho": "Active Client", "juliana cruz": "Active Client", "gisela grana ruarte": "Active Client", "yousra el bouzrati aoudair": "Active Client", "juan carlos ramirez": "Active Client", "manuela palmero mercado": "Active Client", "maria teresa pontes gonzalez": "Active Client", "juan manuel hermosilla avellaneda": "Active Client", "alejandro cova": "Active Client", "associacio la xixa teatre": "Active Client", "brujula grupo c&g sl.": "Active Client", "roxi golindano": "Active Client", "sofia deniz": "Churn", "rebeca murillo saseta": "Active Client", "monica oblitas vega": "Active Client", "cris ayats": "Churn", "juan garcia": "Active Client", "alba luz quiroz henao": "Active Client", "francisco javier montiel martin": "Active Client", "inmaculada maldonado pinto": "Churn", "shampoo sensational": "Churn", "anna gallego chinchilla": "Active Client", "naileth duque": "Active Client", "mireia cruz maetinez": "Churn", "mario alejandro sosa ponce": "Active Client", "aidee zamorano": "Churn", "bruno brum": "Active Client", "joan casas": "Active Client", "esther davo moreno": "Active Client", "oriol torrents": "Active Client", "rodriguez - puime gomez": "Active Client", "pilar ivorra": "Active Client", "fatima benitez pelaez": "Active Client", "alina usik": "Active Client", "claudia cristina caceres montano": "Churn", "maria. bahamonde condoy": "Active Client", "juanma morales": "Active Client", "manuel lopez": "Active Client", "patricia campos": "Active Client", "raquel rodriguez marray": "Churn", "peixos blanca y santi sl": "Active Client", "monica aguilar": "Active Client", "julia ester lombardo garcete": "Active Client", "zihara arrasate zelaia": "Active Client", "aracelly velez arenas velez": "Active Client", "daniel portilla": "Active Client", "carmen fernandez": "Churn", "pedro dominguez": "Active Client", "siury chi gallardo": "Active Client", "ana jimenez": "Active Client", "fundacion vizcaina aguirre": "Churn", "alberto aguado escudero": "Active Client", "david zayas": "Active Client", "ines varona": "Active Client", "luis rodriguez baltasar": "Churn", "manu bejarano": "Active Client", "jose luis rodriguez gomez": "Churn", "tania munoz": "Active Client", "leticia romero": "Churn", "wanda scholz": "Active Client", "dali cervera": "Active Client", "tani cavero": "Active Client", "bea huertas": "Active Client", "josep palleja monne": "Active Client", "ana isabel miaranda": "Active Client", "maria perez arche": "Active Client", "begona guadalajara": "Active Client", "david gonzalez": "Active Client", "raul santaella lozano": "Churn", "yolanda fernandez gil": "Churn", "orenella polidori": "Active Client", "maria de salort amengual": "Active Client", "maria trinidad morales jose": "Active Client", "elisa martinez": "Active Client", "mercedes ruiz rios": "Churn", "patricia fernandez": "Active Client", "asuncion acosta pereira": "Active Client", "yovanna guerrero amaya": "Active Client", "chemboy wiracocha galdos y leys": "Active Client", "alex ubeda romero": "Active Client", "joaquim gallen": "Active Client", "susana cueto": "Active Client", "jose manuel fernandez gutierrez": "Churn", "jero garcia": "Churn", "solventana .": "Active Client", "patricia nunez de aysa": "Active Client", "espacio nutriboti espj": "Active Client", "mario fernandez": "Churn", "ana gonzalez fernandez": "Churn", "eliseo bueno corzan": "Active Client", "flavia costa": "Active Client", "pablo cascon lifona": "Active Client", "esther renedo martinez": "Churn", "maria de los angeles jones tari": "Active Client", "katherine seferlis": "Churn", "josefina rubio": "Active Client", "maria del mar cervilla burgos": "Active Client", "fabio garcia": "Active Client", "miguel areses": "Active Client", "marisol gonzalez pineiro": "Churn", "maria jesus": "Churn", "miryam venegas": "Churn", "carmen giraldez": "Active Client", "adrian marian iftichi": "Active Client", "karina cuadros martinez": "Active Client", "marcelo calero": "Churn", "estefania diaz": "Active Client", "viviana castano": "Churn", "dala wine sl": "Active Client", "beatriz rodriguez gil": "Active Client", "joel moreno fernandez": "Active Client", "maria jesus jaco ferreira": "Active Client", "alexandre dominguez ortiz": "Active Client", "alaitz santiago": "Active Client", "milagros herrera": "Churn", "maria hontanares dominguez najera": "Active Client", "chiara accorsi": "Churn", "maria jose carrion martinez": "Churn", "ronald stein": "Active Client", "ino garcia": "Active Client", "ldley sucess": "Churn", "alicia martin lopez": "Active Client", "ana fernandez fageol": "Churn", "miriam fernandez ucelay": "Churn", "belen gonzalez garcia": "Churn", "ferrule sl": "Active Client", "angel alonso campos": "Active Client", "jesus diaz sanchez-aranzueque": "Active Client", "natalia sora": "Active Client", "liliana cardenas": "Active Client", "benito codina": "Churn", "rafik sidki": "Active Client", "tenerife key holder": "Active Client", "alejandra ortegon": "Churn", "antonia frigo": "Churn", "corporacion nzca gestion y servicios sl": "Active Client", "borja rodriguez": "Active Client", "yanira rojas salazar": "Churn", "rosa marisol silvera poma": "Active Client", "karetta maluca": "Churn", "albert planas altes 2": "Active Client", "bailando danza slu": "Churn", "paula fabregat valls": "Active Client", "sara gil escrig": "Churn", "liying tang": "Active Client", "jasmin von gunther": "Active Client", "frankfurt 9 food company s.l": "Active Client", "maria suarez": "Churn", "ana maria garrido godoy": "Churn", "alejandra cruz garcia": "Active Client", "mariadolores pereztrujillo": "Active Client", "diego jose vilchez pairazaman": "Churn", "david romero chamorro": "Active Client", "gregorio ismael antequera gines": "Active Client", "nadezhda venelinova yalnazova": "Active Client", "alquilando eventos": "Active Client", "jorge enrique bajanchij romero": "Active Client", "vitor leonardo lopes cavasin": "Active Client", "elizabeth valenzuela": "Active Client", "ctn12 servicios s.l.": "Active Client", "ines hernandez bernabeu": "Active Client", "marco davelouis": "Churn", "acometidas desagua sl": "Churn", "claria": "Churn", "oliver": "Churn", "isabel jubert montaperto": "Active Client", "casa fina": "Churn", "roberto cruz dominguez": "Active Client", "noelia rodriguez otero": "Active Client", "mudanzas willy": "Active Client", "juan manuel nadal parra": "Churn", "nerea andres velasco": "Active Client", "maryoryegleed escritora": "Active Client", "jesus fernandez": "Active Client", "jesus martinez hernandez": "Active Client", "carmen turrero arribas": "Active Client", "tania ortega lirio": "Active Client", "segurplaner correduria de seguros sl": "Active Client", "fiorella alva": "Active Client", "patricia rodriguez": "Churn", "elvira latorre velazquez de castro": "Active Client", "ability room s.l.": "Active Client", "antonio otin liesa": "Churn", "lemonburg": "Churn", "vicente_faubel": "Active Client", "milagros caraballon": "Churn", "rosana lumbreras pastor": "Active Client", "boj arq&bim": "Churn", "monica guirao polo": "Churn", "guelin/wellin": "Active Client", "tamara berlanas": "Churn", "isaias israel garcia ortiz": "Active Client", "merche vazquez pt": "Churn", "rpchamba": "Active Client", "maria elena cubero ollero": "Churn", "malabrasa": "Churn", "origenconfort": "Churn", "club deportivo mungia": "Active Client", "m&s encuadernacion": "Churn", "pop pinatas y manualidades perdonalizadas": "Churn", "linbeauty": "Churn", "jordana signor piaia": "Active Client", "angelica maria molano nieto": "Active Client", "actitud coaching": "Active Client", "catherina van hanxleden": "Active Client", "carolina soria": "Churn", "loyse consultoria integral de residuos, s.l.": "Active Client", "instituto espanol para laeducacion y la formacion": "Active Client", "m&ccerrajeros": "Active Client", "tapiceria madrid": "Active Client", "devocar sl": "Active Client", "maria jesus yanez": "Churn", "mushin studio": "Churn", "anna roig llabata": "Churn", "elena pascual perez": "Active Client", "montajes de estructuras metalicas": "Active Client", "cristina garcia diaz": "No client", "adriana de icaza": "Churn", "petit pas": "Active Client", "il forno de maria": "Active Client", "revela estudio fotografico sl": "Churn", "ayala extranjeria": "Churn", "juan carlos garvayo medina": "Active Client", "jenny catherine cecilia mendoza parrales": "Churn", "amina lkarem el khadiri": "Active Client", "world record luxury": "Churn", "momentum accesorios s.l.": "Active Client", "carolina vasquez": "Churn", "maria hernandez miras": "Active Client", "official world record": "Churn", "jose salvador rodrigo lazaro": "Active Client", "alejandro calvo": "Churn", "floristeria kandas": "Active Client", "dolce investment sl": "Active Client", "alternativa ardales": "Churn", "bellanova": "Churn", "josep balltori": "Churn", "noemi hernando": "Active Client", "gloria esther rodriguez quintana": "Active Client", "gabriel": "Active Client", "angelica duran": "Churn", "proyeccion futura inmobiliaria sl": "Active Client", "carlos casado": "Active Client", "david abarca orellana": "Churn", "maria soledad estrems membrado": "Churn", "fredy ibarguen mosquera": "Churn", "grupo empresarial cvs 360 sl": "Active Client", "litamar dental sl": "Active Client", "ventura pareja martinez": "Active Client", "juan carlos ruiz caballero": "Churn", "paloma fuentes exposito": "Active Client", "irina ponthe": "Active Client", "claudia cristina ledesma": "Churn", "marta madre martinez": "Active Client", "aristaff sl": "Active Client", "paola podesta white": "Churn", "maria antonietta bazzoni": "Churn", "elena ghita": "Active Client", "marta almazan sepulveda": "Active Client", "maria rosa servera morales": "Churn", "societat catalana cardiologica slp": "Churn", "desiree diaz mallo": "Active Client", "meriam cajulao borromeo": "Active Client", "timothy ingarfield": "Churn", "jose teodoro sancho casademunt": "Active Client", "maria jose ramirez": "Active Client", "sergio verges balague": "Churn", "ibetjo 604 sl": "Active Client", "andres sebastian castano buitrago": "Active Client", "juliana muniz amorin": "Active Client", "alberto ibai reinoso prusilla": "Churn", "rosa maria carbonell umbon": "Active Client", "i3 legal": "Active Client", "maria carmen varela giraldez": "Churn", "susana ayuso valverde": "Churn", "maria dolores torres peidro": "Active Client", "jorge luis duenas bejerano": "Active Client", "mohamed abdesselem mami": "Active Client", "webtegui sl": "Churn", "jeronima vicens burguera": "Active Client", "lara isabel cabrera flores": "Churn", "comercio y distribucion free farma europea sl": "Active Client", "ermelinda mero madrid": "Active Client", "tomas azuaga gonzalez": "Churn", "marianna salanitro": "Churn", "federico alvaro de castro durand": "Active Client", "maria isabel mocholi granados": "Active Client", "luis anselmo gahete rodriguez": "Churn", "raquel franco lozano": "Active Client", "cristina cunill lopez": "Active Client", "puente & badell investments, s.l": "Active Client", "anna karolina ferras da silva": "Active Client", "diana v hablamos por ti sl": "Active Client", "jorge miguel gomes da silva": "Churn", "adolfo marcelo bulo morgan": "Active Client", "ana belen noales asensio": "Active Client", "cesar emilio paredes escobar": "Active Client", "trivellini hair group slp": "Churn", "lorenzo albaladejo martinez": "Active Client", "tribeca coto sl": "Active Client", "nil bria navas": "Active Client", "francisco javier reyes gutierrez": "Active Client", "xavi ramirez claveria": "Churn", "luis manuel vasquez cernadas": "Active Client", "pagoda garden sl": "Active Client", "jose reinaldo suarez zambrano": "Active Client", "cristina garcia del castillo hungria": "Active Client", "eleonora bianchi": "Active Client", "eva guerrero valero": "Churn", "davide rigoni": "Churn", "angela estefania gomes salgueiro de la vega": "Churn", "thais chaves almeida": "Churn", "patrick marcelo quinupia": "Active Client", "pedro jose sicilia ramirez": "Active Client", "yamile andrea monsalve rodriguez": "Churn", "olena travina linchuk": "Active Client", "jaione damian ruiz de gordoa": "Churn", "e.ditor consulting s.l.": "Active Client", "logiestpel sl": "Churn", "silvia valls marti": "Churn", "maria isabel fernandez salcedo": "Active Client", "alberto lopez garcia": "Active Client", "meddevice outsourcing, s.l": "Active Client", "claudia soriano jost": "Active Client", "delkyss aida mora sanchez": "Churn", "gretter ybarra perez": "Churn", "susana vegas mendia": "Active Client", "alfonso ferrer serrano": "Active Client", "nicole valeria ventura gonzales": "Churn", "elias fernando diaz sarmiento": "Active Client", "sebastian ocampo leon": "Churn", "juan manuel salido zapater": "Active Client", "roberto vazquez sanchez": "Churn", "sebastian alfonso losa bonillo": "Active Client", "otvs buho sl": "Active Client", "nora entrena caballero": "Churn", "rosa maria munoz garcia": "Churn", "alejandro sanchez gomez": "Churn", "mariela cura rodriguez": "Active Client", "deborah olavarria palleja": "Active Client", "maticplus,sl": "Active Client", "cristina romero ortiz": "Churn", "yolanda hernandez florencio": "Active Client", "jesus hinojosa sebastianes": "Active Client", "francisco espinosa manguan": "Active Client", "eliane da silva morais preto": "Active Client", "elena huarte isasi": "Active Client", "georgios rigopoulos": "Churn", "alberto garcia lopez": "Active Client", "piensos alazana s.l.": "Active Client", "oscar moreso hernandez": "Churn", "hilario hernandez molero": "Active Client", "yaniel garay gomez": "Churn", "veronica uroz blanco": "Active Client", "sergio esau villeda ramos": "Churn", "blanca varela martinez": "Active Client", "leticia mora sanchez": "Churn", "oleksandr chan-min": "Active Client", "anuar bezzeghoud achour talet": "Churn", "angelines conde fernandez": "Churn", "maria jose porto ferreras": "Churn", "monica gonzalez - sicilia ibarrola": "Active Client", "nestor adrian serron machado": "Active Client", "chahinez selloum": "Active Client", "bruno donizeti studio": "Churn", "tres tombs solucions, s.l.": "Active Client", "sara yuste alvarez": "Active Client", "ana carolos gomez": "Churn", "maria jesus goni otxandorena": "Active Client", "artistic digital print slu": "Active Client", "torrecilla diseno y programacion 3d s.l.": "Churn", "clases particulares ciencias": "Active Client", "neus lafuente capo": "Active Client", "servei insular de vending sl": "Active Client", "javier alvarez arroyo": "Active Client", "animal flowers": "Active Client", "angel vicos fernandez": "Active Client", "victor hugo perez galmes": "Churn", "daniel fernando pouso": "Active Client", "amanda cerda tello": "Churn", "juan jose hernandez sanchez": "Active Client", "inaki garcia tinoco": "Churn", "daniela lucia dagostino": "Active Client", "raquel maria lopez balleteros": "Active Client", "brotes": "Active Client", "luis mendez fernandez": "Active Client", "alejandro sanchez aguion": "Active Client", "monica mora royo": "Active Client", "jordi munoz nogal": "Active Client", "daniel de la callle sanchez": "Active Client", "arla 2022 asesoria sociedad de responsabilidad limitada profesional": "Active Client", "leni leonor uchuari pereira": "Active Client", "gordon mccabe": "Active Client", "helena isabel guido mendez": "Active Client", "juan jose martinez garcia": "Churn", "leopoldo angue segura allepuz": "Active Client", "samuel macias cobos": "Active Client", "ricardo santos barbero": "Active Client", "rafael giampiro molinaro bruni": "Active Client", "sara ivana vejar rojas": "Churn", "jose ramon bautista fernandez": "Active Client", "jose antonio gutierrez carmona": "Active Client", "leire eldua azcarate": "Active Client", "gian piero cano coccaro": "Active Client", "jose adonis roman sanchez": "Churn", "david de cubas garcia": "Active Client", "elena vidal": "Active Client", "pedro sanchez suarez": "Active Client", "laia prat torres": "Active Client", "javier hernando martin": "Active Client", "joxean perez parmo": "Active Client", "paolo floccari": "Churn", "francisco navarro mateos": "Churn", "sara jimenez campos": "Active Client", "enric puyalto rosell": "Churn", "conrado martinez martinez": "Active Client", "tomas suarez hyttinen": "Churn", "jose francisco gonzalez arellano": "Churn", "macarena bergareche comunicacion s.l.": "Active Client", "johnsen xu ruan": "Active Client", "sheila gomis pina": "Active Client", "victor manuel allende higuera": "Active Client", "santiago patricio machado bernardi": "Active Client", "oscar santiago ramundo castellucci": "Churn", "jhonny jose arteaga perez": "Active Client", "paula nutrianimal": "Churn", "pedro antonio albaladejo aniorte": "Active Client", "concepcion ortiz esteve": "Active Client", "judit camara algaba": "Active Client", "jose enrique moraleda serrano": "Churn", "francisco rivera rufete": "Active Client", "jesus perez palmer": "Active Client", "clara alba herranz mochales": "Active Client", "juan david franco suarez": "Active Client", "angela reboredo de diego": "Active Client", "ivan guerrero jaen": "Active Client", "francisco javier martinez martinez": "Active Client", "nuria font sabala": "Active Client", "valeria confessore lemos": "Active Client", "ruben munoz mancha": "Churn", "maria azahar pozo herrera": "Active Client", "irene gordillo bosque": "Active Client", "sergio zamora zamora": "Churn", "julia-mareike dorothea gross": "Active Client", "sandra guirado guber": "Active Client", "maria edith rojas rojas": "Active Client", "eloy": "Active Client", "miguel angel paxtor alcaide": "Active Client", "jose antonio rueda burgos": "Active Client", "irene munoz diez": "Active Client", "carlos mora gimenez": "Active Client", "alberto fava": "Churn", "esteban perez saiz": "Active Client", "lucio diodono giraldo caro": "Active Client", "monica dulce bebe slu": "Active Client", "kaleb de paiva soares": "Active Client", "humberto jose sojo berroteran": "Churn", "comercial serrano banos s.l.": "Active Client", "makian tecnicas sl.": "Active Client", "rocio rita gomez garcia": "Churn", "yourspace tenerife s.l.u.": "Churn", "airam psicoterapia": "Active Client", "dolores raquel rosales del pino": "Churn", "maria aurora sanabria perez": "Active Client", "nicola jane eaton": "Active Client", "ana perojo trueba": "Active Client", "rafael munoz leon": "Active Client", "mireia antonijuan steegmann": "Active Client", "itziar figueirido vazquez": "Active Client", "clara de vehi torra (camping la siesta de palafrugell)": "Active Client", "katherine cardona giraldo": "Active Client", "jyd servicios de limpieza cb": "Active Client", "lana jan skulmoski": "Active Client", "ignacio jauregui gonzalez-guija": "Churn", "aleksandar todorov savov": "Active Client", "jose miguel vicente plaza": "Active Client", "leopoldo juan munoz de baena pellon": "Active Client", "alberto pallares perez": "Active Client", "veronica benitez ruiz": "Active Client", "luis ernesto bedoya prellezo": "Active Client", "laureno manuel luna rodriguez": "Active Client", "angela lopez perez": "Active Client", "moto lab madrid": "Active Client", "carlos rico andres": "Churn", "roberto saez garcia": "Active Client", "javier latorre corredor de seguros": "Active Client", "peter varinsky": "Active Client", "rui jose amaral sequeira": "Active Client", "lorena gamella munoz": "Churn", "veronica guil garcia": "Active Client", "karine ballester sanchis": "Active Client", "laura anton torre": "Active Client", "aris constantino mesropian mariotti": "Active Client", "mateo alejandro guaman salazar": "Active Client", "instituto isomae": "Active Client", "pablo oubina": "Active Client", "rene beltran mateos": "Churn", "echedey garcia silva": "Active Client", "olkay": "Active Client", "jenny apolonia guerrero chavez": "Active Client", "gerard quinones penas": "Active Client", "marcia oliveira de moura": "Active Client", "mercedes cimadevilla": "Churn", "gfc tu hipoteca s.l.": "Active Client", "marta herrerias hernanz": "Active Client", "maria teresa lozano santander": "Active Client", "mª teresa guillemat ruiz": "Active Client", "ndoumbe alimentacion africana": "Active Client", "francisco javier alvarez rueda": "Active Client", "ruben nuez nuez": "Churn", "matias rodriguez figueroa": "Active Client", "juan godoy atalaya": "Churn", "carolina perea martinez": "Active Client", "ana maria subirana garcia": "Churn", "angela carrascoso tobias": "Active Client", "janet castro milan": "Active Client", "laura carasusan barcelona": "Active Client", "juan manuel pamos soto": "Churn", "bassen nwelati artillo": "Active Client", "ines febrer bowen": "Active Client", "veronica silvana wertmuller perez": "Active Client", "sara bayona roig": "Churn", "olga marin palancar": "Churn", "alba herrera rodriguez": "Active Client", "heidy nacira lugo alberto": "Active Client", "natalia robaina diaz": "Active Client", "lorena navarro prieto": "Churn", "alvaro izquierdo contreras": "Active Client", "carmen vazquez guerrerro": "Churn", "mercedes boronat pique": "Churn", "alberto jose moncada del prado": "Active Client", "francisco jose portela pastoriza": "Active Client", "maria": "Active Client", "amalia nazar herrera": "Active Client", "eva garcia vazquez": "Active Client", "maria rocio gomez bermudez": "Churn", "olga perez iglesias": "Active Client", "mats wilhelm emblad": "Active Client", "christopher shaffer gorostiaga": "Churn", "francisco javier montenegro galindo": "Active Client", "dn angelica preciado nails academy": "Active Client", "antonio faraon chaul mayllen": "Active Client", "take care your body fit, sl": "Churn", "nancy cortes munoz": "Active Client", "katarzyna elzbieta borowska": "Active Client", "aravalle equestrian center": "Churn", "estudio fusion": "Active Client", "in life projects sl": "Active Client", "maria rosa oliveras camps": "Active Client", "ruben encina taibo": "Churn", "armifid canarias sl": "Active Client", "sinequanon words s.l": "Churn", "asc": "Active Client", "yolanda ortiz palacios": "Churn", "jose reig niubo": "Active Client", "enric mir teixidor": "Active Client", "netcat serveis sl": "Active Client", "maria jose ortiz palacios": "Churn", "julver servicios de limpieza, s.l.u.": "Active Client", "veronica doval exposito": "Active Client", "ana francisca carmona martinez": "Churn", "mario luis gonzalez diaz": "Active Client", "solar earth innovacion y tecnologia ses, s.l.": "Active Client", "inneris": "Active Client", "jctangil": "Active Client", "susana abad franco": "Churn", "jose manuel hernandez galera": "Churn", "ruben augusto barbosa": "Churn", "sandra carmona martinez": "Active Client", "laura marrero garcia": "Active Client", "proexel 2000 sl": "Active Client", "fernando bartolome diez": "Active Client"};
+function getClientType(name){
+  if(!name)return'';
+  const n=norm(name);
+  if(HS_CLIENT_TYPE[n])return HS_CLIENT_TYPE[n];
+  // Try partial match
+  for(const[k,v]of Object.entries(HS_CLIENT_TYPE)){if(n.length>3&&(n.includes(k)||k.includes(n)))return v;}
+  return'';
+}
 const CAT_KW={
+  'Facturación':      ['factura','cobro','precio','pago','cargo','coste','dinero','tarifa','plan','renovación','renovacion','cancelar','baja','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado'],
   'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz'],
   'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular','primer','empezar','setup'],
   'Sin resultados':   ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica'],
   'Contenido':        ['contenido','publicación','publicacion','post','copy','imagen','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
   'Soporte':          ['soporte','respuesta','no contesta','no responden','tarda','atención','atencion','ayuda','nadie','no atiende'],
-  'Facturación':      ['factura','cobro','precio','pago','cargo','coste','dinero','tarifa','plan','renovación','cancelar','baja'],
   'Limitaciones':     ['limitación','limitacion','no puede','no soporta','no permite','linkedin','idioma','catalán','catalan','móvil','movil','subir','adjuntar'],
   'Razones externas': ['externo','personal','agencia','crisis','económ','econom','trasladar','tiempo','prioridad','presupuesto','otra empresa']
+};
+
+// Detailed descriptions for Modjo insight cards
+const CAT_DESC={
+  'Fallos técnicos': {
+    porque: 'La plataforma falla antes de que el cliente haya recibido valor real. El problema más crítico es la vinculación de redes sociales: si Instagram o Facebook no se conectan en los primeros días, el cliente pierde confianza de forma irreversible.',
+    ejemplos: [
+      'Karina lleva semanas con las publicaciones sin publicarse — la vinculación con Instagram sigue fallando sin solución',
+      'Enrique: el sistema de pagos lanzó un error inesperado que generó una reclamación inmediata',
+      'Yolanda: publicaciones programadas que no aparecen en su perfil durante días sin explicación',
+      'Isabel: cuenta vinculada incorrectamente — nunca llegó a publicarse ningún contenido'
+    ],
+    accion: 'Checklist de vinculación en primeras 48h. Alertas automáticas si no hay publicaciones en 72h.'
+  },
+  'Onboarding': {
+    porque: 'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación de contenido, por lo que el cliente no sabe qué hacer ni a quién acudir.',
+    ejemplos: [
+      'Isabel: lleva meses en la plataforma y todavía no sabe cómo solicitar un cambio en una publicación',
+      'Ángel: pregunta cómo funciona el proceso de aprobación después de varias semanas de alta',
+      'Joaquim: no ha vinculado sus cuentas correctamente — nadie le avisó de que era necesario',
+      'María (odontopediatría): no entiende qué incluye el plan ni cómo comunicarse con el equipo'
+    ],
+    accion: 'Vídeo de onboarding de 3 min. Llamada de bienvenida obligatoria en los primeros 7 días.'
+  },
+  'Sin resultados': {
+    porque: 'El cliente esperaba resultados tangibles (ventas, leads, seguidores) en un plazo corto y no los ha visto. En muchos casos la expectativa fue creada en ventas sin matizarse adecuadamente.',
+    ejemplos: [
+      'Ángel: lleva meses sin ver conversión en ventas, que era su expectativa inicial al contratar',
+      'Solventana: sus publicaciones manuales generaban más tráfico que las de la plataforma',
+      'Samuel: ha enviado más de 20 propuestas de contenido sin ver mejora en su negocio',
+      'Virginia: no percibe diferencia desde que usa el servicio vs. antes de contratarlo'
+    ],
+    accion: 'Comunicar métricas de alcance y consistencia desde el mes 1. Establecer expectativas realistas en ventas.'
+  },
+  'Contenido': {
+    porque: 'El contenido generado es genérico y no refleja la identidad ni el sector del cliente. Los negocios de nicho sienten que la IA no captura su voz, su cliente objetivo ni su propuesta de valor.',
+    ejemplos: [
+      'Yolanda: publicaciones completamente irrelevantes para su marca y sector',
+      'Laia: el contenido no respeta el tono ni el idioma (catalán) de su negocio',
+      'Aikari: un negocio muy específico de galletas personalizadas — el contenido parece de otra empresa',
+      'Enrique: lleva semanas pidiendo cambios en el estilo sin que se reflejen en las propuestas'
+    ],
+    accion: 'Reforzar el brief inicial. Revisión humana obligatoria del primer mes de contenido.'
+  },
+  'Soporte': {
+    porque: 'El cliente no recibe respuesta o la recibe tarde y de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
+    ejemplos: [
+      'Samuel: más de 20 propuestas enviadas sin recibir ningún feedback del equipo',
+      'José: múltiples reclamaciones sin respuesta — cancela de forma agresiva tras semanas de silencio',
+      'Karina: ha pedido la baja varias veces sin recibir una respuesta clara sobre el proceso',
+      'Fran: cada vez que llama habla con una persona diferente que no conoce su caso'
+    ],
+    accion: 'SLA de 24h para respuestas. Asignación de un interlocutor fijo por cliente.'
+  },
+  'Facturación': {
+    porque: 'El cliente se siente sorprendido o engañado por un cobro. Puede ser por falta de transparencia en la política de cancelación (20 días de preaviso), por errores en el cargo, o por malentendidos sobre la prueba gratuita.',
+    ejemplos: [
+      'Miryam: cancela principalmente por un cobro inesperado — no sabía que el servicio era recurrente',
+      'Patricia: se siente engañada porque pensaba que la prueba gratuita no tenía compromiso posterior',
+      'Heidy: recibió un cargo después de pedir la baja — generó una reclamación formal',
+      'Karina: no entiende por qué le siguen cobrando si ya pidió la baja hace semanas'
+    ],
+    accion: 'Clarificar la política de cancelación en el alta. Confirmación de baja por email en 24h.'
+  },
+  'Limitaciones': {
+    porque: 'La plataforma no soporta algo que el cliente necesita específicamente: LinkedIn, idiomas distintos del castellano, carga de archivos desde ordenador, o gestión multi-cuenta.',
+    ejemplos: [
+      'Leticia: necesita gestionar LinkedIn y la plataforma no lo permite — limitación explícita confirmada',
+      'Laia: lleva semanas esperando soporte en catalán sin solución',
+      'María (cancelación): necesita subir archivos desde el ordenador y solo funciona desde móvil',
+      'Cliente sin nombre: necesita gestionar múltiples cuentas y la plataforma no lo soporta'
+    ],
+    accion: 'Comunicar limitaciones del producto ANTES de vender. Roadmap público de mejoras.'
+  },
+  'Razones externas': {
+    porque: 'El cliente se va por motivos que no están relacionados con el servicio: crisis económica, contratación de agencia externa, cierre del negocio o cambio de situación personal.',
+    ejemplos: [
+      'Cliente que cierra su negocio por insolvencia — no atribuible al servicio',
+      'Cliente que decide contratar una agencia local con gestión más personalizada',
+      'Recorte de presupuesto por crisis sectorial — el marketing digital es lo primero que elimina'
+    ],
+    accion: 'Estos churns no son prevenibles, pero pueden anticiparse con señales de riesgo (morosidad, inactividad).'
+  }
 };
 
 // Tooltip content for Modjo categories
@@ -611,13 +698,14 @@ function hsConclHTML(){
   const reasonRecs={};
   filteredHS.forEach(r=>{
     const k=r.churn_reason||'Sin motivo registrado';
-    if(!reasonRecs[k])reasonRecs[k]=0;
-    reasonRecs[k]++;
+    if(!reasonRecs[k])reasonRecs[k]=[];
+    reasonRecs[k].push(r);
   });
   const wr=filteredHS.filter(r=>r.churn_reason).length;
-  const sorted=Object.entries(reasonRecs).filter(([k])=>k!=='Sin motivo registrado').sort((a,b)=>b[1]-a[1]);
-  const sinMotivo=(reasonRecs['Sin motivo registrado']||0);
-  const itemsHTML=sorted.map(([k,v])=>{
+  const sorted=Object.entries(reasonRecs).filter(([k])=>k!=='Sin motivo registrado').sort((a,b)=>b[1].length-a[1].length);
+  const sinMotivo=(reasonRecs['Sin motivo registrado']||[]).length;
+  const itemsHTML=sorted.map(([k,recs])=>{
+    const v=recs.length;
     const info=HS_REASON[k];
     const label=info?info.es:k;
     const pct=Math.round(v/t*100);
@@ -626,10 +714,19 @@ function hsConclHTML(){
     const subCounts=buildSubCounts(k).slice(0,3);
     const subsHTML=subCounts.length?`<div class="subslist">${subCounts.map(([s,n])=>`<span class="sub-pill pill-blue">${s} <strong>${n}</strong></span>`).join('')}</div>`:'';
     const desc=info?info.desc:'';
+    // Real customer notes / voice from churn_reason_note field
+    const notes=recs.map(r=>r.note||r.conclusion||'').filter(n=>n&&n.trim().length>10);
+    const uniqueNotes=[...new Set(notes)].slice(0,3);
+    const notesHTML=uniqueNotes.length?`
+      <div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">💬 Voz del cliente — notas reales</div>
+        ${uniqueNotes.map(n=>`<div style="font-size:12px;color:#374151;font-style:italic;line-height:1.6;margin-bottom:6px;padding:6px 10px;background:#f9fafb;border-left:3px solid var(--accent);border-radius:0 6px 6px 0">"${n.length>180?n.slice(0,180)+'…':n}"</div>`).join('')}
+      </div>`:'';
     return`<div class="concl-item">
       <h3><span class="concl-freq ${freqClass}">${v} casos — ${pct}%  · Frecuencia ${freqLabel}</span> ${label}</h3>
       ${desc?`<p>${desc}</p>`:''}
       ${subsHTML}
+      ${notesHTML}
     </div>`;
   }).join('');
   return`<div class="concl-section">
@@ -638,7 +735,7 @@ function hsConclHTML(){
       <span class="concl-toggle">▶</span>
     </div>
     <div class="concl-body">
-      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Análisis sobre <strong>${t} churns</strong> con <strong>${wr} motivos registrados</strong> (${Math.round(wr/t*100)}% documentación). Fuente: campo <em>Churn Reason SaaS</em> + sub-motivos de HubSpot CRM.</p>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Análisis sobre <strong>${t} churns</strong> con <strong>${wr} motivos registrados</strong> (${Math.round(wr/t*100)}% documentación). Fuente: campo <em>Churn Reason SaaS</em> + sub-motivos + notas de HubSpot CRM.</p>
       ${itemsHTML}
       ${sinMotivo>0?`<div class="concl-item" style="background:#fef9f0;border-radius:8px;padding:12px;">
         <h3>⚠️ ${sinMotivo} churns sin motivo registrado (${Math.round(sinMotivo/t*100)}%)</h3>
@@ -657,6 +754,43 @@ function toggleConcl(h){const b=h.nextElementSibling,t=h.querySelector('.concl-t
 // ============================================================
 // MODJO RENDER
 // ============================================================
+// ============================================================
+// MODJO EXECUTIVE SUMMARY
+// ============================================================
+function renderModjoExecSummary(){
+  const t=filteredModjo.length;
+  if(!t){document.getElementById('execSummaryModjo').innerHTML='';return;}
+  const c=filteredModjo.filter(r=>r.esChurn).length;
+  const rate=t?Math.round(c/t*100):0;
+  // Top category by churn
+  const cc={};
+  Object.keys(CAT_KW).forEach(k=>{cc[k]={total:0,churn:0};});
+  filteredModjo.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
+  const sorted=Object.keys(CAT_KW).filter(k=>cc[k].churn>0).sort((a,b)=>cc[b].churn-cc[a].churn);
+  const top3=sorted.slice(0,3);
+  const top3pct=top3.reduce((s,k)=>s+cc[k].churn,0);
+  const top3pctOfChurn=c?Math.round(top3pct/c*100):0;
+  const top3Labels=top3.map(k=>`<strong>${k}</strong> (${cc[k].churn})`).join(', ');
+  // Most affected owners
+  const ownerChurn={};
+  filteredModjo.filter(r=>r.esChurn&&r.owner).forEach(r=>{ownerChurn[r.owner]=(ownerChurn[r.owner]||0)+1;});
+  const topOwner=Object.entries(ownerChurn).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('execSummaryModjo').innerHTML=`
+  <div style="background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);border-radius:12px;padding:20px 24px;margin-bottom:24px;color:#fff">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#85D630;font-weight:700;margin-bottom:8px">Executive Summary — Llamadas Modjo</div>
+    <div style="font-size:15px;line-height:1.7;margin-bottom:12px">
+      Se analizaron <strong style="color:#fff">${t} llamadas</strong> en el período, de las cuales <strong style="color:#ef4444">${c} son churns</strong> — una tasa del <strong style="color:#f59e0b">${rate}%</strong>.
+      ${top3.length?`Las 3 categorías con más churns representan el <strong style="color:#85D630">${top3pctOfChurn}%</strong> del churn total: ${top3Labels}.`:''}
+      ${topOwner?`El owner con más churns en el período es <strong style="color:#fff">${topOwner[0]}</strong> (${topOwner[1]} churns).`:''}
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;margin-top:4px">
+      <div><div style="font-size:11px;color:#9ca3af">Prioridad 1</div><div style="font-size:13px;color:#fff;font-weight:600">${top3[0]?`Reducir churns en categoría ${top3[0]}`:'Revisar categorías principales'}</div></div>
+      <div><div style="font-size:11px;color:#9ca3af">Prioridad 2</div><div style="font-size:13px;color:#fff;font-weight:600">Documentar 100% de llamadas de churn</div></div>
+      <div><div style="font-size:11px;color:#9ca3af">Prioridad 3</div><div style="font-size:13px;color:#fff;font-weight:600">Compartir insights con equipo de ventas y producto</div></div>
+    </div>
+  </div>`;
+}
+
 function renderModjoKPI(id){
   const t=filteredModjo.length,c=filteredModjo.filter(r=>r.esChurn).length;
   document.getElementById(id).innerHTML=`
@@ -670,14 +804,6 @@ function renderModjoInsights(){
   const cc={};cats.forEach(c=>{cc[c]={total:0,churn:0};});
   filteredModjo.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
   const sorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].churn-cc[a].churn);
-  const mal=sorted.slice(0,3),bien=sorted.filter(c=>cc[c].churn===0).slice(0,3);
-  document.getElementById('malBienModjo').innerHTML=`
-    <div class="malBien-card"><h3>⚠️ Lo que estamos haciendo mal</h3><ul>
-      ${mal.length?mal.map(c=>`<li><span class="bullet" style="background:#ef4444"></span>${c}: ${cc[c].churn} churns de ${cc[c].total} llamadas</li>`).join(''):'<li>Sin datos suficientes</li>'}
-    </ul></div>
-    <div class="malBien-card"><h3>✅ Lo que estamos haciendo bien</h3><ul>
-      ${bien.length?bien.map(c=>`<li><span class="bullet" style="background:#22c55e"></span>${c}: ${cc[c].total} llamadas sin churn</li>`).join(''):'<li>Sin churns detectados</li>'}
-    </ul></div>`;
   const maxC=Math.max(...cats.map(c=>cc[c].total),1);
   document.getElementById('chartModjo').innerHTML=cats.filter(c=>cc[c].total>0).map(c=>`
     <div class="chart-bar-row">
@@ -688,6 +814,15 @@ function renderModjoInsights(){
   document.getElementById('insightsModjo').innerHTML=cats.map(c=>{
     const rows=filteredModjo.filter(r=>r.categoria===c),ch=rows.filter(r=>r.esChurn);
     const names=[...new Set(ch.map(r=>r.cliente))].slice(0,3).join(', ');
+    const desc=CAT_DESC[c];
+    const exHTML=desc?`
+      <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">¿Por qué ocurre?</div>
+        <p style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:8px">${desc.porque}</p>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Ejemplos reales</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">${desc.ejemplos.map(e=>`<li style="font-size:11px;color:#4b5563;line-height:1.5;padding-left:12px;position:relative"><span style="position:absolute;left:0;color:var(--accent);font-weight:700">·</span>${e}</li>`).join('')}</ul>
+        <div style="margin-top:8px;background:#f0fdf4;border-radius:6px;padding:6px 8px;font-size:11px;color:#15803d"><strong>Acción:</strong> ${desc.accion}</div>
+      </div>`:''
     return`<div class="insight-card">
       <div class="insight-card-header">
         <span class="insight-cat">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</span>
@@ -696,6 +831,7 @@ function renderModjoInsights(){
       <div class="insight-count">${rows.length}</div>
       <div class="insight-sub">${ch.length} churns detectados</div>
       ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">↑ ${names}${ch.length>3?'…':''}</div>`:''}
+      ${exHTML}
     </div>`;}).join('');
   document.getElementById('conclModjo').innerHTML=modjoConclHTML();
 }
@@ -1045,9 +1181,10 @@ function renderTablaModjo(){
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria}</span></td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
+      <td>${(()=>{const ct=getClientType(r.cliente);const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};return ct?`<span class="churn-badge" style="${colors[ct]||'background:#e0f2fe;color:#0369a1'}">${ct}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>';})()}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
     </tr>
-    <tr><td colspan="7"><div class="xi" id="xi_m${i}">${r.displayText||'Sin resumen'}</div></td></tr>`).join('');
+    <tr><td colspan="8"><div class="xi" id="xi_m${i}">${r.displayText||'Sin resumen'}</div></td></tr>`).join('');
 }
 
 function renderTablaHS(){
@@ -1083,7 +1220,7 @@ function render(){
   if(currentMain==='modjo'){
     document.getElementById('filterModjo').style.display='flex';
     document.getElementById('subTabsRow').style.display='flex';
-    if(currentSub==='insights'){document.getElementById('viewModjoInsights').style.display='block';renderModjoKPI('kpiRowModjo');renderModjoInsights();}
+    if(currentSub==='insights'){document.getElementById('viewModjoInsights').style.display='block';renderModjoExecSummary();renderModjoKPI('kpiRowModjo');renderModjoInsights();}
     else{document.getElementById('viewModjoOwners').style.display='block';renderModjoOwners();}
   }else if(currentMain==='tabla-modjo'){
     document.getElementById('filterModjo').style.display='flex';
@@ -1126,6 +1263,25 @@ function initFilters(){
   document.getElementById('fHSReason').innerHTML='<option value="">Todos los motivos</option>'+reasons.map(r=>{const i=HS_REASON[r];return`<option value="${r}">${i?i.es:r}</option>`;}).join('');
   const hsOwners=[...new Set(HS_DATA.map(r=>r.owner).filter(Boolean))].sort();
   document.getElementById('fHSOwner').innerHTML='<option value="">Todos los owners</option>'+hsOwners.map(o=>`<option value="${o}">${o}</option>`).join('');
+}
+
+function refreshData(){
+  const btn=document.getElementById('refreshBtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Actualizando…';}
+  document.getElementById('lastUpdate').textContent='Actualizando…';
+  Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
+    complete:function(res){
+      allModjo=procesarModjo(res.data);filteredModjo=allModjo;
+      const dates=allModjo.filter(r=>r.fecha).map(r=>r.fecha);
+      if(dates.length){const mx=new Date(Math.max(...dates));document.getElementById('lastUpdate').textContent='Modjo: '+mx.toLocaleDateString('es-ES')+' · HubSpot: '+HS_DATA.length+' registros';}
+      render();
+      if(btn){btn.disabled=false;btn.innerHTML='🔄 Actualizar';}
+    },
+    error:function(){
+      document.getElementById('lastUpdate').textContent='Error al actualizar';
+      if(btn){btn.disabled=false;btn.innerHTML='🔄 Actualizar';}
+    }
+  });
 }
 
 window.addEventListener('load',function(){

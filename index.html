@@ -1,528 +1,940 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Churn Dashboard — Revenue Ops</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e;}
-    header{background:#1a1a2e;color:white;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;}
-    header h1{font-size:20px;font-weight:700;}
-    header span{font-size:12px;opacity:.6;}
-    .filter-bar{background:white;padding:12px 32px;border-bottom:1px solid #e0e0e0;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-    .filter-bar label{font-size:12px;font-weight:600;color:#666;}
-    .filter-bar select,.filter-bar input{padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:white;}
-    .period-btn{padding:6px 12px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-weight:600;background:white;cursor:pointer;color:#555;}
-    .period-btn.active{background:#1a1a2e;color:white;border-color:#1a1a2e;}
-    .filter-sep{width:1px;height:28px;background:#e0e0e0;margin:0 4px;}
-    .tabs{background:white;border-bottom:2px solid #e0e0e0;padding:0 32px;display:flex;}
-    .tab{padding:14px 20px;font-size:14px;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
-    .tab.active{color:#1a1a2e;border-bottom-color:#1a1a2e;}
-    .tab-pane{display:none;}
-    .tab-pane.active{display:block;}
-    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:24px 32px 0;}
-    .metric{background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .metric .lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
-    .metric .val{font-size:32px;font-weight:700;}
-    .metric .sub{font-size:12px;color:#aaa;margin-top:4px;}
-    .metric.red .val{color:#FF4B4B;}
-    .metric.orange .val{color:#FFA500;}
-    .metric.green .val{color:#00CC96;}
-    .charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px 32px 0;}
-    .chart-card{background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .chart-card h3{font-size:14px;font-weight:600;margin-bottom:14px;color:#333;}
-    .chart-card.full{grid-column:1/-1;}
-    .table-section{padding:20px 32px 32px;}
-    .table-section h3{font-size:14px;font-weight:600;margin-bottom:12px;color:#333;}
-    .table-wrap{overflow-x:auto;}
-    table{width:100%;background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);border-collapse:collapse;min-width:1000px;}
-    th{background:#1a1a2e;color:white;padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
-    td{padding:10px 14px;font-size:12px;border-bottom:1px solid #f0f0f0;vertical-align:top;}
-    tr:last-child td{border-bottom:none;}
-    tr:hover td{background:#f8f9ff;}
-    .td-resumen{max-width:260px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
-    .td-resumen.expanded{white-space:normal;overflow:visible;text-overflow:clip;max-width:340px;}
-    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-    .badge.sí,.badge.si{background:#FFE0E0;color:#CC0000;}
-    .badge.riesgo{background:#FFF3E0;color:#CC7700;}
-    .badge.no{background:#E0FFE0;color:#007700;}
-    .badge.alto{background:#FFE0E0;color:#CC0000;}
-    .badge.medio{background:#FFF3E0;color:#CC7700;}
-    .badge.bajo{background:#E0FFE0;color:#007700;}
-    .hs-reason{font-size:11px;color:#555;font-style:italic;}
-    .insights{padding:24px 32px 40px;}
-    .insight-block{background:white;border-radius:12px;padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px;}
-    .insight-block.red{border-left:4px solid #FF4B4B;}
-    .insight-block.dark{border-left:4px solid #1a1a2e;}
-    .insight-block.orange{border-left:4px solid #FFA500;}
-    .insight-block.green{border-left:4px solid #00CC96;}
-    .insight-block h3{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px;}
-    .insight-block p{font-size:13px;line-height:1.8;color:#444;}
-    .alert-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px;}
-    .alert-card{background:#fff8f8;border:1px solid #ffd0d0;border-radius:10px;padding:16px;}
-    .alert-card .a-num{font-size:28px;font-weight:700;color:#FF4B4B;}
-    .alert-card .a-label{font-size:12px;color:#888;margin-top:2px;}
-    .alert-card .a-note{font-size:12px;color:#666;margin-top:8px;line-height:1.5;}
-    .reason-bars{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
-    .rbar{display:flex;align-items:center;gap:10px;}
-    .rbar-label{font-size:12px;color:#444;width:220px;flex-shrink:0;}
-    .rbar-track{flex:1;background:#f0f0f0;border-radius:4px;height:18px;overflow:hidden;}
-    .rbar-fill{height:100%;background:#1a1a2e;border-radius:4px;display:flex;align-items:center;padding-left:8px;}
-    .rbar-fill span{font-size:11px;color:white;font-weight:600;}
-    .rbar-count{font-size:12px;color:#888;width:30px;text-align:right;}
-    .pattern-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;}
-    .step{background:#f8f9ff;border-radius:8px;padding:14px;border-left:3px solid #1a1a2e;}
-    .step .s-num{font-size:20px;font-weight:700;color:#1a1a2e;opacity:.3;}
-    .step .s-title{font-size:13px;font-weight:600;margin-top:2px;}
-    .step .s-desc{font-size:12px;color:#666;margin-top:4px;line-height:1.5;}
-    .recom-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
-    .recom-col h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;color:#888;}
-    .recom-item{background:#f8f9ff;border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px;line-height:1.6;color:#333;border-left:3px solid #e0e0e0;}
-    .recom-col.c1 .recom-item{border-left-color:#FF4B4B;}
-    .recom-col.c2 .recom-item{border-left-color:#FFA500;}
-    .recom-col.c3 .recom-item{border-left-color:#00CC96;}
-    .urgentes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:12px;}
-    .urgente-card{background:white;border:1px solid #ffe0e0;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(255,75,75,.08);}
-    .u-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
-    .u-nombre{font-size:16px;font-weight:700;color:#1a1a2e;flex:1;line-height:1.3;}
-    .u-owner-badge{background:#1a1a2e;color:white;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;}
-    .u-fecha{font-size:11px;color:#aaa;white-space:nowrap;margin-top:2px;}
-    .u-cat-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
-    .u-cat-badge{background:#FFE0E0;color:#CC0000;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;}
-    .u-hs-badge{background:#e8e8ff;color:#3333cc;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;}
-    .u-cat-desc{font-size:12px;color:#666;line-height:1.4;padding-top:2px;}
-    .u-signal{font-size:12px;color:#555;background:#fff8e0;border-left:3px solid #FFA500;padding:8px 10px;border-radius:4px;margin-bottom:8px;line-height:1.5;font-style:italic;}
-    .u-action{font-size:12px;color:#1a7a1a;background:#f0fff0;border-radius:6px;padding:7px 10px;line-height:1.5;}
-    .u-resumen-full{font-size:12px;color:#555;margin-top:10px;display:none;line-height:1.6;border-top:1px solid #f0f0f0;padding-top:10px;}
-    .u-toggle{font-size:11px;color:#888;margin-top:8px;cursor:pointer;text-decoration:underline;}
-    .owner-section{padding:24px 32px 40px;}
-    .owner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:16px;}
-    .owner-card{background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-    .owner-card h4{font-size:14px;font-weight:700;margin-bottom:12px;color:#1a1a2e;}
-    .owner-stat{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px;}
-    .owner-stat:last-child{border-bottom:none;}
-    .owner-stat .os-label{color:#666;}
-    .owner-stat .os-val{font-weight:700;}
-    .loading{text-align:center;padding:80px;color:#888;font-size:16px;}
-    footer{text-align:center;padding:20px;color:#aaa;font-size:12px;}
-    @media(max-width:768px){
-      .metrics{grid-template-columns:repeat(2,1fr);}
-      .charts{grid-template-columns:1fr;}
-      .alert-cards,.pattern-steps,.recom-cols{grid-template-columns:1fr;}
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard Churn · Revenue Ops</title>
+<style>
+  :root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--accent:#6c63ff;--accent2:#ff6584;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--text:#e2e8f0;--muted:#64748b;--pill-bg:#252837;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:14px;min-height:100vh;}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  /* ── HEADER ── */
+  .header{background:linear-gradient(135deg,#1a1d27 0%,#12141e 100%);border-bottom:1px solid var(--border);padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .header h1{font-size:20px;font-weight:700;letter-spacing:-0.3px;}
+  .header h1 span{color:var(--accent);}
+  .header-meta{color:var(--muted);font-size:12px;}
+
+  /* ── STATS ── */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;padding:20px 28px 0;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+  .stat-value{font-size:28px;font-weight:700;line-height:1;}
+  .stat-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+  .v-churn{color:var(--red);}
+  .v-safe{color:var(--green);}
+  .v-total{color:var(--accent);}
+
+  /* ── FILTERS ── */
+  .filters{display:flex;gap:10px;padding:16px 28px;flex-wrap:wrap;align-items:center;}
+  .filters select,.filters input{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 12px;font-size:13px;outline:none;cursor:pointer;}
+  .filters select:focus,.filters input:focus{border-color:var(--accent);}
+  .filters input{min-width:200px;}
+  .filter-label{font-size:12px;color:var(--muted);}
+  .btn-clear{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:7px 14px;font-size:12px;cursor:pointer;transition:all .2s;}
+  .btn-clear:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ── TABS ── */
+  .tabs{display:flex;gap:0;padding:0 28px;border-bottom:1px solid var(--border);margin-top:4px;}
+  .tab{padding:11px 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:6px;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-badge{background:var(--pill-bg);border-radius:10px;padding:1px 7px;font-size:11px;}
+  .tab.active .tab-badge{background:var(--accent);color:#fff;}
+
+  /* ── CONTENT ── */
+  .content{padding:20px 28px;}
+
+  /* ── TABLE ── */
+  .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;}
+  thead th{background:#13151f;padding:11px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+  tbody tr{border-top:1px solid var(--border);transition:background .15s;}
+  tbody tr:hover{background:#1e2130;}
+  td{padding:10px 14px;font-size:13px;vertical-align:middle;}
+  td.fecha{color:var(--muted);font-size:12px;white-space:nowrap;}
+  td.cliente{font-weight:500;max-width:200px;}
+  td.dueno{color:var(--muted);}
+  td.motivo{color:var(--muted);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* badges */
+  .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .badge-churn{background:#ef44441a;color:var(--red);border:1px solid #ef444430;}
+  .badge-safe{background:#22c55e1a;color:var(--green);border:1px solid #22c55e30;}
+  .badge-cat{background:var(--pill-bg);color:#a5b4fc;border:1px solid #6c63ff30;font-weight:500;}
+  .badge-cat.c0{color:#f472b6;border-color:#f472b630;background:#f472b61a;}
+  .badge-cat.c1{color:#fb923c;border-color:#fb923c30;background:#fb923c1a;}
+  .badge-cat.c2{color:#34d399;border-color:#34d39930;background:#34d3991a;}
+  .badge-cat.c3{color:#60a5fa;border-color:#60a5fa30;background:#60a5fa1a;}
+  .badge-cat.c4{color:#a78bfa;border-color:#a78bfa30;background:#a78bfa1a;}
+  .badge-cat.c5{color:#f59e0b;border-color:#f59e0b30;background:#f59e0b1a;}
+  .badge-cat.c6{color:#94a3b8;border-color:#94a3b830;background:#94a3b81a;}
+
+  /* transcript toggle */
+  .btn-tr{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:3px 8px;font-size:11px;cursor:pointer;transition:all .2s;}
+  .btn-tr:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ── URGENTES CARDS ── */
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color .2s;}
+  .card:hover{border-color:#6c63ff50;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px;}
+  .card-name{font-weight:600;font-size:15px;}
+  .card-date{font-size:11px;color:var(--muted);margin-top:2px;}
+  .card-owner{font-size:12px;color:var(--muted);margin-top:2px;}
+  .card-cat{margin:10px 0 6px;}
+  .card-reason{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+  .card-hs-reason{font-size:12px;color:#f59e0b;margin-bottom:8px;}
+
+  /* transcript panel */
+  .tr-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px;}
+  .tr-toggle{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;margin-bottom:8px;}
+  .tr-toggle:hover{text-decoration:underline;}
+  .tr-body{display:none;background:#13151f;border-radius:8px;padding:12px;font-size:12px;line-height:1.7;color:var(--muted);max-height:280px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
+  .tr-body.open{display:block;}
+
+  /* ── INSIGHTS ── */
+  .insights-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:28px;}
+  .ins-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .ins-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .ins-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+  .ins-rank{display:flex;flex-direction:column;gap:6px;}
+  .ins-bar-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;}
+  .ins-bar-label{font-size:12px;color:var(--text);}
+  .ins-bar-count{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right;}
+  .ins-bar-bg{grid-column:1/-1;height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:-4px;}
+  .ins-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s;}
+  .ins-bar-fill.c0{background:#f472b6;}
+  .ins-bar-fill.c1{background:#fb923c;}
+  .ins-bar-fill.c2{background:#34d399;}
+  .ins-bar-fill.c3{background:#60a5fa;}
+  .ins-bar-fill.c4{background:#a78bfa;}
+  .ins-bar-fill.c5{background:#f59e0b;}
+
+  /* deep drill */
+  .deep-section{margin-bottom:28px;}
+  .deep-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .deep-title .num{background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
+  .deep-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .deep-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .deep-card-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+  .deep-card-count{font-size:11px;color:var(--muted);margin-bottom:12px;}
+  .sub-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .sub-label{font-size:12px;color:var(--muted);}
+  .sub-count{font-size:12px;font-weight:600;color:var(--text);}
+  .sub-bar-bg{height:3px;background:var(--border);border-radius:3px;margin-top:2px;margin-bottom:4px;}
+  .sub-bar-fill{height:100%;border-radius:3px;}
+
+  /* empty */
+  .empty{padding:60px 20px;text-align:center;color:var(--muted);}
+  .empty svg{margin-bottom:12px;opacity:.3;}
+
+  /* spinner */
+  .spinner{display:flex;align-items:center;justify-content:center;padding:60px;gap:12px;color:var(--muted);}
+  .spin{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* responsive */
+  @media(max-width:640px){.header{padding:14px 16px;}.content,.filters,.stats{padding-left:16px;padding-right:16px;}.tabs{padding:0 16px;}}
+</style>
 </head>
 <body>
-<header>
-  <h1>📊 Churn Dashboard — Revenue Ops</h1>
-  <span id="ult-actualizacion">Cargando...</span>
-</header>
 
-<div class="filter-bar">
-  <div style="display:flex;gap:6px;">
-    <button class="period-btn active" onclick="setPeriod('all',this)">Todo</button>
-    <button class="period-btn" onclick="setPeriod(7,this)">7 días</button>
-    <button class="period-btn" onclick="setPeriod(30,this)">30 días</button>
-    <button class="period-btn" onclick="setPeriod(90,this)">3 meses</button>
+<div class="header">
+  <div>
+    <h1>Revenue Ops · <span>Churn Dashboard</span></h1>
+    <div class="header-meta" id="lastUpdate">Cargando datos...</div>
   </div>
-  <div class="filter-sep"></div>
-  <label>Desde</label><input type="date" id="f-desde" oninput="aplicarFiltros()">
-  <label>Hasta</label><input type="date" id="f-hasta" oninput="aplicarFiltros()">
-  <div class="filter-sep"></div>
-  <label>Owner</label>
-  <select id="f-owner" onchange="aplicarFiltros()"><option value="">Todos</option></select>
-  <label>Riesgo</label>
-  <select id="f-riesgo" onchange="aplicarFiltros()">
-    <option value="">Todos</option>
-    <option value="alto">Alto</option>
-    <option value="medio">Medio</option>
-    <option value="bajo">Bajo</option>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <div style="font-size:12px;color:var(--muted);">Fuente: Modjo + HubSpot</div>
+    <button onclick="loadData()" style="background:var(--accent);border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-weight:500;">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="stats" id="statsRow">
+  <div class="stat"><div class="stat-label">Total llamadas</div><div class="stat-value v-total" id="s-total">—</div><div class="stat-sub">deduplicadas</div></div>
+  <div class="stat"><div class="stat-label">Churn confirmado</div><div class="stat-value v-churn" id="s-churn">—</div><div class="stat-sub">en HubSpot</div></div>
+  <div class="stat"><div class="stat-label">Sin churn</div><div class="stat-value v-safe" id="s-safe">—</div></div>
+  <div class="stat"><div class="stat-label">Tasa de churn</div><div class="stat-value" id="s-rate" style="color:var(--yellow)">—</div></div>
+  <div class="stat"><div class="stat-label">Cat. detectadas</div><div class="stat-value" id="s-cats" style="color:#a5b4fc">—</div><div class="stat-sub">desde transcript</div></div>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Filtros:</span>
+  <select id="f-dueno" onchange="applyFilters()">
+    <option value="">Todos los dueños</option>
+    <option>Victor Ortega</option>
+    <option>Óscar Lopo</option>
+    <option>Martina Benalcazar</option>
+    <option>Kamila Jiménez</option>
+    <option>Gonzalo Rosales</option>
+    <option>Franco Ferretti</option>
   </select>
-  <label>Churn</label>
-  <select id="f-churn" onchange="aplicarFiltros()">
-    <option value="">Todos</option>
-    <option value="sí">Sí (confirmado)</option>
-    <option value="riesgo">Riesgo</option>
-    <option value="no">No</option>
+  <select id="f-churn" onchange="applyFilters()">
+    <option value="">Churn: todos</option>
+    <option value="si">Churn: sí</option>
+    <option value="no">Churn: no</option>
   </select>
-  <label>Motivo HS</label>
-  <select id="f-motivohs" onchange="aplicarFiltros()"><option value="">Todos</option></select>
+  <select id="f-cat" onchange="applyFilters()">
+    <option value="">Todas las categorías</option>
+  </select>
+  <input id="f-search" type="text" placeholder="Buscar cliente..." oninput="applyFilters()"/>
+  <button class="btn-clear" onclick="clearFilters()">✕ Limpiar</button>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
-  <div class="tab" onclick="showTab('insights',this)">🧠 Insights</div>
-  <div class="tab" onclick="showTab('porowner',this)">👥 Por Owner</div>
+  <div class="tab active" onclick="switchTab('tabla',this)">📋 Tabla <span class="tab-badge" id="tb-count">0</span></div>
+  <div class="tab" onclick="switchTab('urgentes',this)">🔴 Churns <span class="tab-badge" id="tb-churn">0</span></div>
+  <div class="tab" onclick="switchTab('insights',this)">📊 Insights</div>
 </div>
 
-<!-- DASHBOARD -->
-<div class="tab-pane active" id="tab-dashboard">
-  <div id="kpis" class="metrics"><div class="loading">⏳ Cargando...</div></div>
-  <div class="charts">
-    <div class="chart-card">
-      <h3>🔍 Categorías de churn (desde transcripts)</h3>
-      <canvas id="chart-cats"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>🎯 Distribución de Riesgo</h3>
-      <canvas id="chart-riesgo"></canvas>
-    </div>
-    <div class="chart-card full">
-      <h3>🔗 Motivos HubSpot (fallback categorías inciertas)</h3>
-      <canvas id="chart-hs-reasons"></canvas>
-    </div>
-  </div>
-  <div class="table-section">
-    <h3 id="table-title">📋 Todas las llamadas</h3>
+<div class="content">
+  <!-- TABLA -->
+  <div id="tab-tabla">
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Owner</th><th>Fecha</th><th>Cliente (Participantes)</th>
-            <th>Estado</th><th>Categoría (transcript)</th><th>Motivo HubSpot</th>
-            <th>Fecha baja HS</th><th>Riesgo</th><th>Resumen IA</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Dueño</th>
+            <th>Categoría</th>
+            <th>Motivo HS</th>
+            <th>Churn</th>
+            <th>Transcript</th>
           </tr>
         </thead>
-        <tbody id="tabla-body"></tbody>
+        <tbody id="tbody"></tbody>
       </table>
     </div>
-  </div>
-</div>
-
-<!-- INSIGHTS -->
-<div class="tab-pane" id="tab-insights">
-  <div class="insights" id="insights-content">
-    <div class="loading">⏳ Cargando análisis...</div>
-  </div>
-</div>
-
-<!-- POR OWNER -->
-<div class="tab-pane" id="tab-porowner">
-  <div class="owner-section">
-    <div class="chart-card" style="margin-bottom:20px;">
-      <h3>👥 Churn y Riesgo por Owner</h3>
-      <canvas id="chart-owner" style="max-height:320px;"></canvas>
+    <div id="tab-empty" class="empty" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <div>No se encontraron registros con los filtros aplicados</div>
     </div>
-    <div class="owner-grid" id="owner-cards"></div>
   </div>
-</div>
 
-<footer>🔄 Actualizado diariamente · Análisis con Claude AI sobre transcripts de Modjo · HubSpot como fallback</footer>
+  <!-- URGENTES -->
+  <div id="tab-urgentes" style="display:none">
+    <div class="cards-grid" id="cards-grid"></div>
+    <div id="cards-empty" class="empty" style="display:none">No hay churns confirmados con estos filtros</div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div id="tab-insights" style="display:none">
+    <div id="insights-content"></div>
+  </div>
+
+  <div class="spinner" id="spinner"><div class="spin"></div><span>Cargando datos de Modjo...</span></div>
+</div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
+// ── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=0&single=true&output=csv";
+
 const DUENOS = ["Victor Ortega","Óscar Lopo","Martina Benalcazar","Kamila Jiménez","Gonzalo Rosales","Franco Ferretti"];
 
-// ── HUBSPOT CHURNS (268 companies — fallback para matching) ───
+// ── HUBSPOT CHURNS ───────────────────────────────────────────────────────────
 const HS_CHURNS=[{n:"sara leiva fernandez",r:"Error en la venta",f:""},{n:"mary sillero",r:"Problemas CX / Plataforma",f:""},{n:"andrea garcia sancho",r:"No ve impacto en su negocio",f:"2026-02-07"},{n:"eddy pecho",r:"Cierre de venta forzado",f:""},{n:"dahiana riba dominguez",r:"Cierre de venta forzado",f:""},{n:"jorge flores jurado",r:"Cierre de venta forzado",f:""},{n:"irene lazaro garcia",r:"Promesa no realista",f:""},{n:"montoro i vidal sl",r:"Problemas de calidad",f:"2026-02-23"},{n:"jorge",r:"Soporte deficiente",f:""},{n:"jose antonio restrepo astorda",r:"Onboarding fallido",f:""},{n:"celso",r:"Problemas CX / Plataforma",f:""},{n:"giangi solo pizza sl",r:"Error en la venta",f:""},{n:"yanosik tores",r:"Cierre de venta forzado",f:""},{n:"yonaire materano",r:"Negocio cerrado",f:"2026-02-08"},{n:"virginia penalver de la fuente",r:"Error en la venta",f:"2026-02-06"},{n:"mayra alexandra guaman guachamin",r:"Promesa no realista",f:"2026-01-28"},{n:"raquel balsalobre moral",r:"Onboarding fallido",f:""},{n:"jose maria santos",r:"Error en la venta",f:""},{n:"jorge verdasco novalvos",r:"Cierre de venta forzado",f:"2026-02-04"},{n:"albert martinez",r:"Negocio cerrado",f:""},{n:"micaela rudelli",r:"Problemas CX / Plataforma",f:"2026-02-06"},{n:"juan fernandez barrul",r:"Problemas CX / Plataforma",f:""},{n:"ederson silva",r:"Cierre de venta forzado",f:""},{n:"adriana aguilar moreira",r:"Fuera del alcance del plan",f:""},{n:"alejandro moyano vilardell",r:"Cierre de venta forzado",f:""},{n:"eva maria garcia maguregi",r:"Problemas CX / Plataforma",f:""},{n:"ana vilanoba",r:"Problemas de calidad",f:""},{n:"karla chopen",r:"Error en la venta",f:"2026-02-18"},{n:"inversiones budha xxi sl",r:"Problemas de calidad",f:"2026-02-11"},{n:"andrea franco",r:"Cierre de venta forzado",f:""},{n:"cris ayats",r:"Problemas CX / Plataforma",f:""},{n:"inmaculada maldonado pinto",r:"Problemas de calidad",f:""},{n:"shampoo sensational",r:"Soporte deficiente",f:""},{n:"mireia cruz maetinez",r:"Problemas CX / Plataforma",f:"2026-02-11"},{n:"aidee zamorano",r:"Problemas de calidad",f:"2026-01-08"},{n:"claudia cristina caceres montano",r:"Onboarding fallido",f:""},{n:"raquel rodriguez marray",r:"Precio no justificado",f:"2026-02-06"},{n:"fundacion vizcaina aguirre",r:"No ve impacto en su negocio",f:"2026-01-12"},{n:"luis rodriguez baltasar",r:"Precio no justificado",f:""},{n:"jose luis rodriguez gomez",r:"Error en la venta",f:""},{n:"leticia romero",r:"",f:""},{n:"raul santaella lozano",r:"Onboarding fallido",f:"2026-01-07"},{n:"yolanda fernandez gil",r:"Problemas CX / Plataforma",f:"2026-01-21"},{n:"mercedes ruiz rios",r:"Negocio cerrado",f:"2026-01-26"},{n:"jose manuel fernandez gutierrez",r:"Negocio cerrado",f:"2026-01-20"},{n:"jero garcia",r:"No ve impacto en su negocio",f:""},{n:"mario fernandez",r:"Problemas CX / Plataforma",f:""},{n:"ana gonzalez fernandez",r:"Problemas de calidad",f:""},{n:"esther renedo martinez",r:"Problemas CX / Plataforma",f:""},{n:"katherine seferlis",r:"Problemas de calidad",f:"2025-01-19"},{n:"marisol gonzalez pineiro",r:"Cierre de venta forzado",f:"2025-12-27"},{n:"maria jesus",r:"Problemas CX / Plataforma",f:"2026-01-12"},{n:"miryam venegas",r:"Promesa no realista",f:""},{n:"marcelo calero",r:"No ve impacto en su negocio",f:"2025-12-17"},{n:"viviana castano",r:"Promesa no realista",f:"2026-01-02"},{n:"milagros herrera",r:"Error en la venta",f:"2025-12-15"},{n:"chiara accorsi",r:"Problemas de calidad",f:""},{n:"maria jose carrion martinez",r:"Error en la venta",f:"2026-01-23"},{n:"ldley sucess",r:"Cierre de venta forzado",f:"2025-12-17"},{n:"ana fernandez fageol",r:"Error en la venta",f:""},{n:"miriam fernandez ucelay",r:"Promesa no realista",f:"2026-01-07"},{n:"belen gonzalez garcia",r:"Problemas de calidad",f:"2026-01-16"},{n:"benito codina",r:"",f:""},{n:"alejandra ortegon",r:"",f:""},{n:"antonia frigo",r:"",f:"2026-01-21"},{n:"yanira rojas salazar",r:"Problemas de calidad",f:""},{n:"karetta maluca",r:"Problemas de calidad",f:"2025-12-17"},{n:"bailando danza slu",r:"No ve impacto en su negocio",f:""},{n:"sara gil escrig",r:"Problemas de calidad",f:"2025-12-16"},{n:"maria suarez",r:"Cierre de venta forzado",f:""},{n:"ana maria garrido godoy",r:"Cierre de venta forzado",f:""},{n:"diego jose vilchez pairazaman",r:"Negocio cerrado",f:"2026-02-16"},{n:"marco davelouis",r:"Error en la venta",f:"2025-12-10"},{n:"acometidas desagua sl",r:"Error en la venta",f:""},{n:"claria",r:"Problemas de calidad",f:"2025-10-31"},{n:"oliver",r:"Onboarding fallido",f:""},{n:"casa fina",r:"Precio no justificado",f:""},{n:"juan manuel nadal parra",r:"Onboarding fallido",f:"2025-12-17"},{n:"patricia rodriguez",r:"Cierre de venta forzado",f:"2025-12-08"},{n:"antonio otin liesa",r:"Cierre de venta forzado",f:""},{n:"lemonburg",r:"",f:"2026-01-06"},{n:"milagros caraballon",r:"Cierre de venta forzado",f:""},{n:"boj arq&bim",r:"Soporte deficiente",f:"2025-11-28"},{n:"monica guirao polo",r:"",f:""},{n:"tamara berlanas",r:"Negocio cerrado",f:"2026-01-02"},{n:"merche vazquez pt",r:"No ve impacto en su negocio",f:"2026-01-05"},{n:"maria elena cubero ollero",r:"",f:"2025-11-28"},{n:"malabrasa",r:"",f:"2025-09-29"},{n:"origenconfort",r:"No ve impacto en su negocio",f:""},{n:"m&s encuadernacion",r:"Problemas de calidad",f:""},{n:"pop pinatas y manualidades perdonalizadas",r:"",f:"2025-11-28"},{n:"linbeauty",r:"No ve impacto en su negocio",f:"2025-11-28"},{n:"carolina soria",r:"Soporte deficiente",f:"2025-11-28"},{n:"maria jesus yanez",r:"",f:"2025-11-28"},{n:"mushin studio",r:"",f:"2025-11-28"},{n:"anna roig llabata",r:"Cierre de venta forzado",f:""},{n:"adriana de icaza",r:"Problemas de calidad",f:"2026-01-12"},{n:"revela estudio fotografico sl",r:"Promesa no realista",f:""},{n:"ayala extranjeria",r:"",f:"2025-11-26"},{n:"jenny catherine cecilia mendoza parrales",r:"",f:"2025-11-28"},{n:"world record luxury",r:"",f:"2025-11-28"},{n:"carolina vasquez",r:"",f:"2025-06-12"},{n:"official world record",r:"",f:"2025-11-28"},{n:"alejandro calvo",r:"Promesa no realista",f:"2026-02-12"},{n:"alternativa ardales",r:"Negocio cerrado",f:""},{n:"bellanova",r:"",f:"2025-11-28"},{n:"josep balltori",r:"",f:"2025-11-28"},{n:"angelica duran",r:"",f:"2025-11-26"},{n:"david abarca orellana",r:"Error en la venta",f:"2025-11-10"},{n:"maria soledad estrems membrado",r:"No ve impacto en su negocio",f:""},{n:"fredy ibarguen mosquera",r:"",f:"2025-11-26"},{n:"juan carlos ruiz caballero",r:"No ve impacto en su negocio",f:"2026-01-22"},{n:"claudia cristina ledesma",r:"Negocio cerrado",f:"2025-11-28"},{n:"paola podesta white",r:"",f:"2025-11-28"},{n:"maria antonietta bazzoni",r:"",f:"2025-11-28"},{n:"maria rosa servera morales",r:"",f:"2025-11-28"},{n:"societat catalana cardiologica slp",r:"",f:"2025-11-28"},{n:"timothy ingarfield",r:"Fuera del alcance del plan",f:""},{n:"sergio verges balague",r:"",f:"2025-11-26"},{n:"alberto ibai reinoso prusilla",r:"Cierre de venta forzado",f:"2025-12-29"},{n:"maria carmen varela giraldez",r:"No ve impacto en su negocio",f:""},{n:"susana ayuso valverde",r:"Problemas de calidad",f:""},{n:"webtegui sl",r:"Cierre de venta forzado",f:"2025-12-18"},{n:"lara isabel cabrera flores",r:"",f:""},{n:"tomas azuaga gonzalez",r:"",f:""},{n:"marianna salanitro",r:"No ve impacto en su negocio",f:"2025-12-19"},{n:"luis anselmo gahete rodriguez",r:"Promesa no realista",f:"2025-12-19"},{n:"jorge miguel gomes da silva",r:"Negocio cerrado",f:"2025-12-17"},{n:"trivellini hair group slp",r:"No ve impacto en su negocio",f:""},{n:"xavi ramirez claveria",r:"Negocio cerrado",f:"2026-02-01"},{n:"eva guerrero valero",r:"",f:"2025-12-27"},{n:"davide rigoni",r:"Problemas de calidad",f:"2026-01-20"},{n:"angela estefania gomes salgueiro de la vega",r:"",f:"2025-11-28"},{n:"thais chaves almeida",r:"Soporte deficiente",f:"2026-01-07"},{n:"yamile andrea monsalve rodriguez",r:"Problemas de calidad",f:""},{n:"jaione damian ruiz de gordoa",r:"Error en la venta",f:""},{n:"logiestpel sl",r:"Problemas de calidad",f:"2025-12-25"},{n:"silvia valls marti",r:"Promesa no realista",f:"2025-12-13"},{n:"delkyss aida mora sanchez",r:"Precio no justificado",f:"2025-12-02"},{n:"gretter ybarra perez",r:"Problemas de calidad",f:"2026-01-14"},{n:"nicole valeria ventura gonzales",r:"Promesa no realista",f:""},{n:"sebastian ocampo leon",r:"",f:"2025-11-28"},{n:"roberto vazquez sanchez",r:"Error en la venta",f:""},{n:"nora entrena caballero",r:"Fuera del alcance del plan",f:""},{n:"rosa maria munoz garcia",r:"Negocio cerrado",f:""},{n:"alejandro sanchez gomez",r:"Promesa no realista",f:""},{n:"cristina romero ortiz",r:"Negocio cerrado",f:"2026-01-12"},{n:"georgios rigopoulos",r:"",f:"2025-11-28"},{n:"oscar moreso hernandez",r:"Error en la venta",f:""},{n:"yaniel garay gomez",r:"Cierre de venta forzado",f:"2026-02-26"},{n:"sergio esau villeda ramos",r:"No ve impacto en su negocio",f:""},{n:"leticia mora sanchez",r:"",f:"2025-11-28"},{n:"anuar bezzeghoud achour talet",r:"No ve impacto en su negocio",f:"2026-01-01"},{n:"angelines conde fernandez",r:"Problemas CX / Plataforma",f:""},{n:"maria jose porto ferreras",r:"Problemas CX / Plataforma",f:"2026-03-01"},{n:"bruno donizeti studio",r:"",f:""},{n:"ana carolos gomez",r:"Cierre de venta forzado",f:""},{n:"torrecilla diseno y programacion 3d s.l.",r:"Problemas CX / Plataforma",f:""},{n:"victor hugo perez galmes",r:"Cierre de venta forzado",f:"2025-12-15"},{n:"amanda cerda tello",r:"",f:"2025-11-28"},{n:"inaki garcia tinoco",r:"Cierre de venta forzado",f:""},{n:"juan jose martinez garcia",r:"Soporte deficiente",f:"2025-12-15"},{n:"sara ivana vejar rojas",r:"Problemas de calidad",f:"2026-02-19"},{n:"jose adonis roman sanchez",r:"Soporte deficiente",f:""},{n:"paolo floccari",r:"Problemas de calidad",f:""},{n:"francisco navarro mateos",r:"Error en la venta",f:"2025-12-18"},{n:"enric puyalto rosell",r:"",f:"2025-11-28"},{n:"jose francisco gonzalez arellano",r:"Fuera del alcance del plan",f:"2025-10-31"},{n:"oscar santiago ramundo castellucci",r:"",f:"2025-11-28"},{n:"paula nutrianimal",r:"Fuera del alcance del plan",f:"2026-02-23"},{n:"jose enrique moraleda serrano",r:"Cierre de venta forzado",f:"2026-01-01"},{n:"ruben munoz mancha",r:"Negocio cerrado",f:""},{n:"sergio zamora zamora",r:"Negocio cerrado",f:""},{n:"alberto fava",r:"",f:"2025-11-26"},{n:"humberto jose sojo berroteran",r:"",f:"2025-11-28"},{n:"rocio rita gomez garcia",r:"Soporte deficiente",f:"2025-11-28"},{n:"yourspace tenerife s.l.u.",r:"Problemas CX / Plataforma",f:"2025-01-19"},{n:"dolores raquel rosales del pino",r:"",f:"2025-11-28"},{n:"ignacio jauregui gonzalez-guija",r:"Error en la venta",f:""},{n:"carlos rico andres",r:"",f:"2025-11-28"},{n:"javier latorre corredor de seguros",r:"",f:""},{n:"lorena gamella munoz",r:"",f:"2025-11-28"},{n:"rene beltran mateos",r:"",f:"2025-11-28"},{n:"mercedes cimadevilla",r:"Precio no justificado",f:"2025-12-30"},{n:"ruben nuez nuez",r:"",f:"2025-11-26"},{n:"juan godoy atalaya",r:"",f:"2025-11-28"},{n:"ana maria subirana garcia",r:"",f:"2025-11-28"},{n:"juan manuel pamos soto",r:"",f:"2025-11-28"},{n:"sara bayona roig",r:"",f:"2025-11-28"},{n:"olga marin palancar",r:"Precio no justificado",f:""},{n:"lorena navarro prieto",r:"",f:"2025-11-28"},{n:"carmen vazquez guerrerro",r:"Onboarding fallido",f:"2025-12-23"},{n:"mercedes boronat pique",r:"",f:"2025-11-28"},{n:"maria rocio gomez bermudez",r:"Promesa no realista",f:""},{n:"christopher shaffer gorostiaga",r:"",f:"2025-11-28"},{n:"take care your body fit, sl",r:"Error en la venta",f:""},{n:"aravalle equestrian center",r:"",f:""},{n:"ruben encina taibo",r:"Problemas de calidad",f:"2026-01-08"},{n:"sinequanon words s.l",r:"",f:"2025-11-28"},{n:"yolanda ortiz palacios",r:"",f:"2025-11-28"},{n:"maria jose ortiz palacios",r:"",f:"2025-11-28"},{n:"ana francisca carmona martinez",r:"Error en la venta",f:"2026-01-10"},{n:"susana abad franco",r:"",f:"2025-11-28"},{n:"jose manuel hernandez galera",r:"",f:"2025-11-28"},{n:"ruben augusto barbosa",r:"",f:"2025-11-28"},{n:"carmen baquedano bellot",r:"",f:""},{n:"lorena toral callizo",r:"",f:"2025-11-26"},{n:"esther rodriguez gil",r:"",f:"2025-11-26"},{n:"german daniel berges",r:"",f:"2025-11-28"},{n:"carmen laura lopez perez",r:"Fuera del alcance del plan",f:""},{n:"roberto estanislao perez",r:"",f:"2025-11-28"},{n:"eos traductores interpretes & congresos",r:"No ve impacto en su negocio",f:""},{n:"soltayclothing",r:"Fuera del alcance del plan",f:"2025-12-22"},{n:"sandra o'kelly iranzo",r:"",f:"2025-11-28"},{n:"iberia compositech manufacturing",r:"",f:"2025-11-28"},{n:"renata santos music",r:"",f:"2025-11-28"},{n:"alberto alamo diaz",r:"",f:"2025-11-28"},{n:"raquel maria rodriguez medina",r:"",f:"2025-11-28"},{n:"sandra rodriguez zambrana",r:"Cierre de venta forzado",f:""},{n:"david vaquero rodriguez",r:"Soporte deficiente",f:"2025-11-28"},{n:"construcciones y rehabilitaciones rodriguez de pilas sl",r:"",f:"2025-05-23"},{n:"astrocornucopia. sl",r:"Problemas CX / Plataforma",f:""},{n:"elisa portillo royo",r:"",f:"2025-11-28"},{n:"jose francisco rivelles carrillo",r:"",f:"2025-11-28"},{n:"guillermo federico corrales jajam",r:"",f:"2025-11-28"},{n:"maria lidia domingo ortega",r:"",f:"2025-11-28"},{n:"hector checa aparicio",r:"Error en la venta",f:"2025-11-28"},{n:"varatrazzo s.l.u",r:"",f:"2025-11-28"},{n:"davide barone",r:"",f:"2025-11-28"},{n:"dsf core service sl",r:"",f:"2025-09-16"},{n:"javier hernandez fernandez",r:"No ve impacto en su negocio",f:""},{n:"victor manuel moratalla felix",r:"",f:"2025-11-26"},{n:"tarot del amor con buenas videntes - certeras y economicas",r:"Error en la venta",f:""},{n:"pilates personal",r:"Fuera del alcance del plan",f:""},{n:"maria dolores sanchez guillen",r:"",f:"2025-11-28"},{n:"el mirador de guejar sierra",r:"",f:"2025-11-28"},{n:"la carpa produccions",r:"",f:""},{n:"pensamiento duran perez",r:"",f:"2025-11-28"},{n:"sonia mohedano coyo",r:"",f:"2025-11-28"},{n:"yunia de la caridad sanchez montoya",r:"",f:""},{n:"nsb",r:"Problemas CX / Plataforma",f:""},{n:"carla galmes munar",r:"",f:""},{n:"raquel ballesta sanchez",r:"Soporte deficiente",f:""},{n:"agrae solutions sl",r:"",f:"2025-11-28"},{n:"la finka - agroturismo la finka",r:"Error en la venta",f:"2025-12-02"},{n:"carola mocellini",r:"Negocio cerrado",f:"2026-02-05"},{n:"dorina crudu cioara",r:"Soporte deficiente",f:""},{n:"maria de los angeles fernandez andaluz",r:"Soporte deficiente",f:"2025-11-28"},{n:"tramitacion de expropiaciones slu",r:"",f:"2025-11-28"},{n:"discotecas madrid",r:"",f:"2025-11-28"},{n:"x3 padel stages madrid",r:"",f:"2025-11-28"},{n:"liseth karibay penaloza rojas",r:"",f:"2025-11-28"},{n:"jorge manuel castano castro",r:"",f:"2025-11-28"},{n:"rosa nadal gilabert",r:"",f:"2025-11-28"},{n:"maria jesus villasclaras loma",r:"Soporte deficiente",f:"2025-11-28"},{n:"ana magdaleno sierra",r:"",f:"2025-11-28"},{n:"raquel verge ibernon",r:"",f:"2025-11-28"},{n:"carina pereyra davila",r:"Soporte deficiente",f:"2025-11-28"},{n:"maria del carmen marin calleja",r:"",f:"2025-11-28"},{n:"rizoma cooperativa - facebook lead",r:"",f:"2025-11-28"},{n:"framugos78 export & import s.l.",r:"",f:"2025-11-28"},{n:"angel soriano sola",r:"Soporte deficiente",f:"2025-11-28"},{n:"equipamientos comerciales y proyectos climent s.l.u",r:"Problemas CX / Plataforma",f:"2025-01-12"},{n:"maria de los angeles martin martin",r:"",f:"2025-11-28"},{n:"alonso onsurbe castillo",r:"",f:"2025-11-28"},{n:"pilar esteban belmonte",r:"",f:"2025-11-26"},{n:"francisco jose sanchez garcia",r:"",f:"2025-11-28"},{n:"mabeq 2014 s.l",r:"",f:"2025-11-28"}];
 
-// ── CATEGORY DESCRIPTIONS & ACTIONS ──────────────────────────
-const CAT_DESC = {
-  "Fallos técnicos":           "El cliente reporta errores, fallos o mal funcionamiento de la plataforma.",
-  "Onboarding deficiente":     "El cliente no recibió la formación o acompañamiento necesario al inicio.",
-  "Expectativas no cumplidas": "Lo prometido en ventas no coincide con la realidad del producto.",
-  "Precio / ROI bajo":         "El cliente no percibe retorno suficiente para justificar el costo.",
-  "Soporte deficiente":        "El cliente no recibió respuesta oportuna del equipo de soporte.",
-  "Competencia":               "El cliente menciona alternativas o está evaluando la competencia.",
-  "Cierre de negocio":         "El cliente está cerrando o ha cerrado su negocio.",
-  "Sin categoría":             "No se identificó una categoría clara en el transcript."
-};
-const CAT_ACCION = {
-  "Fallos técnicos":           "💡 Escalar a producto con prioridad. Ofrecer compensación o extensión de contrato.",
-  "Onboarding deficiente":     "💡 Asignar sesión 1:1 de onboarding urgente con Customer Success.",
-  "Expectativas no cumplidas": "💡 Revisar alineación con ventas. Implementar proceso de handoff mejorado.",
-  "Precio / ROI bajo":         "💡 Presentar casos de éxito similares. Evaluar ajuste de plan o descuento.",
-  "Soporte deficiente":        "💡 Revisar SLA del ticket. Escalado interno y seguimiento personal del caso.",
-  "Competencia":               "💡 Identificar diferenciadores clave. Solicitar comparativa directa al cliente.",
-  "Cierre de negocio":         "💡 Documentar para análisis. Evaluar si hay señales previas detectables.",
-  "Sin categoría":             "💡 Revisar manualmente el transcript para identificar el motivo real."
+// ── CATEGORÍAS CON KEYWORDS DESDE TRANSCRIPT ──────────────────────────────
+const CAT_KW = {
+  "Fallos técnicos": [
+    "no funciona","fallo","error","bug","no carga","no se publica","publicacion","publicar",
+    "problema tecnico","lento","tarda","carga","no responde","pantalla","crash","caida",
+    "integracion","wordpress","instagram","facebook","linkedin","sincronizar","sincroniza",
+    "no puedo acceder","acceso","contrasena","password","login","no entra","falla el sistema",
+    "no abre","se cuelga","se queda","no actualiza","calendario","agendamiento","widget",
+    "chatbot","ia","inteligencia artificial","automatizacion","no conecta","api","webhook",
+    "exportar","importar","archivo","descarga","subida","imagen","video","no sube"
+  ],
+  "Onboarding deficiente": [
+    "onboarding","no sabe usar","no entiende","no aprendi","nadie me explico","nadie me enseno",
+    "no me ayudaron","no hay soporte","no hay ayuda","no hay tutoriales","perdido","perdida",
+    "no se como","como se hace","primera vez","empezar","comenzar","inicio","configurar",
+    "configuracion","setup","no configure","no pude configurar","sin configurar","sin activar",
+    "sin perfil","sin contenido","sin publicaciones","vacio","en blanco","no arranco",
+    "no empezo","primer mes","primeras semanas","no ha habido","no hubo formacion","capacitacion"
+  ],
+  "No ve valor / ROI": [
+    "no sirve","no vale","no funciona para mi","no veo resultados","sin resultados",
+    "no vendo","no llegan clientes","no hay clientes","no hay ventas","no genera","no capta",
+    "no me trae","no me llega","muy caro","demasiado caro","no merece la pena","no compensa",
+    "precio alto","precio elevado","no justifico","no justifica","no rentable","rentabilidad",
+    "roi","retorno","inversion","no recupero","no recupera","para que sirve","para que quiero",
+    "mejor sin esto","sin impacto","impacto nulo","pocos leads","pocos clientes","apenas"
+  ],
+  "Precio": [
+    "muy caro","demasiado caro","precio","coste","costo","no puedo pagar","no me lo puedo permitir",
+    "reducir precio","descuento","oferta","mas barato","alternativa mas barata","otro precio",
+    "presupuesto","ajuste economico","economia","factura","cobro","cobran mucho","subida de precio",
+    "sube el precio","han subido","incremento","no entra en mi presupuesto","ajuste de precio",
+    "precio incorrecto","mal cobrado","cobro incorrecto"
+  ],
+  "Soporte deficiente": [
+    "soporte","atencion al cliente","no responden","no contestan","sin respuesta","tardo mucho",
+    "tardaron","dias esperando","semanas esperando","ticket","incidencia","no resuelven",
+    "nadie me llama","nadie me atiende","mal servicio","pesimo servicio","muy mal trato",
+    "grosero","mala atencion","me ignoraron","no me ayudaron","me dejaron solo","abandonado",
+    "no hay soporte","soporte inexistente","soporte malo","soporte lento","muy tarde"
+  ],
+  "Negocio cerrado": [
+    "cerro el negocio","cerramos","cierro","cierre del negocio","ya no tenemos negocio",
+    "quiebre","quiebra","insolvencia","fui a la quiebra","me quede sin negocio","negocio muerto",
+    "ya no existe","dejamos de operar","paramos actividad","suspendimos","liquidamos",
+    "vendimos el negocio","vendio el negocio","traspaso","ya no soy dueno","cambio de dueno"
+  ],
+  "Expectativas no cumplidas": [
+    "no era lo que esperaba","me prometieron","prometio","promesa incumplida","lo vendieron como",
+    "me dijeron que","engano","enganaron","publicidad enganosa","no es lo que me dijeron",
+    "diferente a lo prometido","no es lo que pague","esperaba mas","esperaba otra cosa",
+    "decepciona","decepcion","no cumplio","no cumplieron","no es lo que busco"
+  ]
 };
 
-// ── UTILITIES ─────────────────────────────────────────────────
-function norm(s){if(!s)return"";return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s&]/g," ").replace(/\s+/g," ").trim();}
+// ── SUB-CATEGORÍAS PARA DRILL-DOWN ────────────────────────────────────────
+const SUB_KW = {
+  "Fallos técnicos": {
+    "Publicaciones / Posts": ["publicacion","publicar","post","no se publica","no publica","publicaciones","contenido no sale","no aparece el post"],
+    "Acceso / Login": ["no puedo entrar","no accedo","contrasena","password","login","acceder","no me deja entrar","no entra","acceso denegado"],
+    "Lentitud / Carga": ["lento","tarda","carga lenta","lentitud","tarda mucho","muy lento","no carga","carga mal"],
+    "Integraciones": ["integracion","wordpress","instagram","facebook","linkedin","conectar","sincronizar","no conecta","api","webhook"],
+    "Calendario / Agenda": ["calendario","agendamiento","cita","reserva","agenda","no agenda","no cita"],
+    "Errores generales": ["error","fallo","bug","no funciona","falla","crash","se cuelga","se queda","pantalla"]
+  },
+  "Onboarding deficiente": {
+    "Sin formación inicial": ["nadie me explico","nadie me enseno","sin formacion","no hubo capacitacion","no hay tutoriales","no me enseñaron"],
+    "No sabe usar la plataforma": ["no sabe usar","no entiende","no se como","como se hace","perdido","perdida","confuso"],
+    "Sin configuración inicial": ["sin configurar","sin activar","sin perfil","no configure","no pude configurar","setup","no arranco"],
+    "No arrancó en el primer mes": ["primer mes","primeras semanas","no ha habido","no empezo","no arranco","sin publicaciones","vacio"]
+  },
+  "No ve valor / ROI": {
+    "Sin clientes / leads": ["no llegan clientes","no hay clientes","pocos leads","no capta","no me trae clientes","sin leads"],
+    "Sin ventas": ["no vendo","no hay ventas","no genera ventas","no vende","sin ventas","cero ventas"],
+    "Precio no justificado": ["muy caro","no merece la pena","no compensa","no justifico","roi","retorno","no rentable"],
+    "No ven diferencia": ["sin impacto","impacto nulo","para que sirve","mejor sin esto","no sirve","lo mismo sin esto"]
+  },
+  "Precio": {
+    "Precio muy elevado": ["muy caro","demasiado caro","precio alto","precio elevado","no me lo puedo permitir"],
+    "Pide descuento": ["descuento","oferta","mas barato","reducir precio","ajuste de precio","mejor precio"],
+    "Cobro incorrecto": ["cobro incorrecto","mal cobrado","precio incorrecto","cobran mas","cobran mal","factura mal"],
+    "Subida de precio": ["subida de precio","sube el precio","han subido","incremento","precio subio"]
+  },
+  "Soporte deficiente": {
+    "Sin respuesta": ["sin respuesta","no responden","no contestan","nadie responde","me ignoraron"],
+    "Demora excesiva": ["tardaron","dias esperando","semanas esperando","mucho tiempo","tardo mucho","lleva dias","lleva semanas"],
+    "Tickets sin resolver": ["ticket","incidencia","reclamacion","sin resolver","no resolvieron","problema sin solucionar"],
+    "Mala atención": ["mal trato","grosero","mala atencion","pesimo servicio","muy mal","me dejaron","abandonado"]
+  },
+  "Negocio cerrado": {
+    "Cierre definitivo": ["cerro el negocio","cerramos","cierro","cierre del negocio","ya no existe","dejamos de operar"],
+    "Quiebra / Insolvencia": ["quiebre","quiebra","insolvencia","fui a la quiebra","liquidamos"],
+    "Cambio de propietario": ["vendimos","vendio","traspaso","cambio de dueno","ya no soy dueno"]
+  },
+  "Expectativas no cumplidas": {
+    "Promesa de ventas": ["me prometieron ventas","me dijeron que venderia","prometio clientes","prometio resultados"],
+    "Funcionalidades no disponibles": ["no tiene lo que dijeron","no es lo que prometieron","funcionalidad falta","no existe esa opcion"],
+    "Expectativas de precio": ["me dijeron que era mas barato","prometieron precio","precio diferente","coste distinto"]
+  }
+};
 
-function matchHS(cliente){
-  if(!cliente)return null;
-  const cn=norm(cliente);
-  if(!cn||cn.length<3)return null;
-  let m=HS_CHURNS.find(c=>c.n===cn);if(m)return m;
-  m=HS_CHURNS.find(c=>c.n.includes(cn)||cn.includes(c.n));if(m)return m;
-  const cw=cn.split(" ").filter(w=>w.length>3);
-  if(cw.length>=2)m=HS_CHURNS.find(c=>{const hw=c.n.split(" ").filter(w=>w.length>3);return cw.filter(w=>hw.includes(w)).length>=2;});
-  return m||null;
+const CAT_COLORS = {
+  "Fallos técnicos":0,"Onboarding deficiente":1,"No ve valor / ROI":2,
+  "Precio":3,"Soporte deficiente":4,"Negocio cerrado":5,"Expectativas no cumplidas":6
+};
+const SUB_COLORS = ["#f472b6","#fb923c","#34d399","#60a5fa","#a78bfa","#f59e0b","#94a3b8"];
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function norm(s){
+  if(!s) return "";
+  return s.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9\s]/g," ")
+    .replace(/\s+/g," ").trim();
 }
 
 function extraerCliente(participantes, dueno){
-  const partes=String(participantes||"").split(/[,;]+/).map(s=>s.trim()).filter(Boolean);
-  if(!partes.length)return participantes||"";
-  if(partes.length===1)return partes[0];
-  const dp=norm(dueno||"").split(" ").filter(p=>p.length>2);
-  const cl=partes.filter(p=>!dp.some(d=>norm(p).includes(d)));
-  return cl[0]||partes[0]||"";
+  if(!participantes) return "";
+  const parts = participantes.split(/[,;|]+/).map(p=>p.trim()).filter(Boolean);
+  if(parts.length === 0) return "";
+  if(parts.length === 1) return parts[0];
+  const duNorm = norm(dueno||"");
+  const filtered = parts.filter(p=>{
+    const pn = norm(p);
+    if(!duNorm) return true;
+    const duWords = duNorm.split(" ").filter(w=>w.length>2);
+    return !duWords.some(w=>pn.includes(w));
+  });
+  return filtered.length > 0 ? filtered[0] : parts[0];
 }
 
-function parseDate(str){
-  if(!str)return null;
-  if(/^\d{4}-\d{2}-\d{2}/.test(str))return new Date(str.substring(0,10));
-  const p=str.split(/[\/\-]/);
-  if(p.length===3){if(p[0].length===4)return new Date(str.substring(0,10));return new Date(`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`);}
+function hsMatch(clienteNorm){
+  // 1. exact
+  for(const h of HS_CHURNS){
+    if(h.n === clienteNorm) return h;
+  }
+  // 2. substring (both ways)
+  for(const h of HS_CHURNS){
+    if(h.n && (clienteNorm.includes(h.n) || h.n.includes(clienteNorm))) return h;
+  }
+  // 3. 2+ word overlap (>3 chars)
+  const cWords = clienteNorm.split(" ").filter(w=>w.length>3);
+  if(cWords.length >= 2){
+    for(const h of HS_CHURNS){
+      const hWords = (h.n||"").split(" ").filter(w=>w.length>3);
+      const common = cWords.filter(w=>hWords.includes(w));
+      if(common.length >= 2) return h;
+    }
+  }
   return null;
 }
-function fmtDate(str){const d=parseDate(str);if(!d||isNaN(d))return str||"—";return d.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"});}
 
-// ── STATE ─────────────────────────────────────────────────────
-let processed=[],filtered=[],chartObjs={};
-
-// ── LOAD DATA ─────────────────────────────────────────────────
-function cargarDatos(){
-  Papa.parse(SHEET_URL,{
-    download:true,header:true,skipEmptyLines:true,
-    complete:function(r){procesarDatos(r.data);inicializar();},
-    error:function(){document.getElementById("kpis").innerHTML='<div class="loading">❌ Error cargando el Sheet.</div>';}
-  });
-}
-
-function procesarDatos(rows){
-  processed=rows.filter(r=>{
-    const d=r["Dueño"]||r["Dueno"]||r["Owner"]||"";
-    return DUENOS.some(dn=>d.toLowerCase().includes(dn.toLowerCase().split(" ")[0]));
-  }).map(r=>{
-    const dueno        = r["Dueño"]||r["Dueno"]||r["Owner"]||"";
-    const participantes= r["Participantes"]||r["Participante"]||"";
-    const cliente      = extraerCliente(participantes, dueno);
-    const resumen      = r["Resumen IA"]||r["Resumen"]||"";
-    const fecha        = r["Fecha"]||"";
-    const churnSheet   = (r["Churn detectado"]||r["churn"]||"").toLowerCase();
-    const catSheet     = r["Categoría"]||r["Categoria"]||r["Categoría de churn"]||"Sin categoría";
-    const riesgoSheet  = (r["Nivel de riesgo"]||r["riesgo"]||"").toLowerCase();
-    const motivoHS_sh  = r["Motivo HubSpot"]||"";
-    const fechaBaja_sh = r["Fecha baja HS"]||"";
-
-    // HubSpot matching desde los 268 churns embebidos
-    const hsMatch   = matchHS(cliente);
-    const motivoHS  = motivoHS_sh || (hsMatch ? hsMatch.r : "");
-    const fechaBaja = fechaBaja_sh || (hsMatch ? hsMatch.f : "");
-
-    // Churn: primero lo que dice el sheet (analyze.py ya lo calculó), luego HubSpot
-    let churn = churnSheet||"no";
-    if(hsMatch && churn==="no") churn="sí";
-
-    const riesgo = churn==="sí" ? "alto" : churn==="riesgo" ? "medio" : (riesgoSheet||"bajo");
-    const cat    = catSheet||"Sin categoría";
-
-    return {dueno,participantes,cliente,resumen,fecha,churn,riesgo,cat,motivoHS,fechaBaja};
-  });
-}
-
-function inicializar(){
-  // Owner filter
-  const sel=document.getElementById("f-owner");
-  DUENOS.forEach(d=>{const o=document.createElement("option");o.value=d;o.textContent=d;sel.appendChild(o);});
-  // Motivo HS filter
-  const motivosHS=[...new Set(processed.map(r=>r.motivoHS).filter(Boolean))].sort();
-  const selHS=document.getElementById("f-motivohs");
-  motivosHS.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;selHS.appendChild(o);});
-  // Last update
-  const fechas=processed.map(r=>parseDate(r.fecha)).filter(Boolean).sort((a,b)=>b-a);
-  if(fechas.length)document.getElementById("ult-actualizacion").textContent="Última llamada: "+fechas[0].toLocaleDateString("es-ES");
-  aplicarFiltros();
-}
-
-// ── FILTERS ───────────────────────────────────────────────────
-function setPeriod(days,btn){
-  document.querySelectorAll(".period-btn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  if(days==="all"){document.getElementById("f-desde").value="";document.getElementById("f-hasta").value="";}
-  else{
-    const h=new Date(),d=new Date();d.setDate(d.getDate()-days);
-    document.getElementById("f-hasta").value=h.toISOString().split("T")[0];
-    document.getElementById("f-desde").value=d.toISOString().split("T")[0];
+function detCat(text){
+  if(!text || text.length < 10) return null;
+  const t = norm(text);
+  const scores = {};
+  for(const [cat, kws] of Object.entries(CAT_KW)){
+    let score = 0;
+    for(const kw of kws){
+      if(t.includes(norm(kw))) score++;
+    }
+    if(score > 0) scores[cat] = score;
   }
-  aplicarFiltros();
+  if(Object.keys(scores).length === 0) return null;
+  return Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
 }
 
-function aplicarFiltros(){
-  const owner=document.getElementById("f-owner").value;
-  const riesgoF=document.getElementById("f-riesgo").value;
-  const churnF=document.getElementById("f-churn").value;
-  const motivoHSF=document.getElementById("f-motivohs").value;
-  const desde=document.getElementById("f-desde").value?new Date(document.getElementById("f-desde").value):null;
-  const hasta=document.getElementById("f-hasta").value?new Date(document.getElementById("f-hasta").value+"T23:59:59"):null;
-  filtered=processed.filter(r=>{
-    if(owner&&r.dueno!==owner)return false;
-    if(riesgoF&&r.riesgo!==riesgoF)return false;
-    if(churnF&&r.churn!==churnF)return false;
-    if(motivoHSF&&r.motivoHS!==motivoHSF)return false;
-    if(desde||hasta){const fd=parseDate(r.fecha);if(!fd||isNaN(fd))return false;if(desde&&fd<desde)return false;if(hasta&&fd>hasta)return false;}
+function detSubCat(text, cat){
+  if(!text || !cat || !SUB_KW[cat]) return {};
+  const t = norm(text);
+  const result = {};
+  for(const [sub, kws] of Object.entries(SUB_KW[cat])){
+    let count = 0;
+    for(const kw of kws){
+      if(t.includes(norm(kw))) count++;
+    }
+    if(count > 0) result[sub] = count;
+  }
+  return result;
+}
+
+// ── CSV PARSER ────────────────────────────────────────────────────────────
+function parseCSV(text){
+  const lines = text.split(/\r?\n/);
+  if(lines.length < 2) return [];
+  const hdr = parseCSVLine(lines[0]);
+  const rows = [];
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const vals = parseCSVLine(lines[i]);
+    const obj = {};
+    hdr.forEach((h,j)=>{ obj[h.trim()] = (vals[j]||"").trim(); });
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function parseCSVLine(line){
+  const result=[]; let cur=""; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){ if(inQ && line[i+1]==='"'){cur+='"';i++;}else{inQ=!inQ;} }
+    else if(c===','&&!inQ){ result.push(cur); cur=""; }
+    else cur+=c;
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── ESTADO GLOBAL ─────────────────────────────────────────────────────────
+let allRows = [];
+let filtered = [];
+let activeTab = "tabla";
+
+// ── DEDUPLICAR ────────────────────────────────────────────────────────────
+function deduplicar(rows){
+  const seen = new Map();
+  const result = [];
+  for(const r of rows){
+    const key = norm(r.cliente) + "|" + r.fecha;
+    if(!seen.has(key)){
+      seen.set(key, true);
+      result.push(r);
+    } else {
+      // si la fila existente tiene menos transcript, reemplazar
+      // (ya guardamos primero; solo reemplazamos si este tiene más contenido)
+    }
+  }
+  return result;
+}
+
+// ── PROCESAR CSV ──────────────────────────────────────────────────────────
+function procesarDatos(raw){
+  const rows = [];
+  for(const r of raw){
+    // ── Detectar columnas ──
+    const dueno = r["Dueño"]||r["Dueno"]||r["Owner"]||r["dueno"]||r["dueño"]||"";
+    const participantes = r["Participantes"]||r["participantes"]||r["Participants"]||"";
+    const fecha = r["Fecha"]||r["fecha"]||r["Date"]||r["date"]||"";
+    const transcript = r["transcript"]||r["Transcript"]||r["Transcripción"]||r["Transcripcion"]||"";
+    const resumen = r["Resumen"]||r["resumen"]||r["Nombre"]||r["nombre"]||"";
+
+    // ── Filtrar por dueños objetivo ──
+    const duNorm = norm(dueno);
+    const esDueno = DUENOS.some(d=>norm(d).split(" ").some(w=>w.length>3&&duNorm.includes(w)));
+    if(!esDueno && dueno) continue;
+
+    // ── Extraer cliente ──
+    const clienteRaw = extraerCliente(participantes, dueno) || resumen || participantes;
+    if(!clienteRaw || clienteRaw.length < 2) continue;
+    const cliente = clienteRaw.trim();
+    const clienteNorm = norm(cliente);
+
+    // ── Churn via HubSpot ──
+    const hs = hsMatch(clienteNorm);
+    const esChurn = !!hs;
+    const hsReason = hs ? hs.r : "";
+
+    // ── Categoría SIEMPRE desde transcript, HS como fallback ──
+    let cat = detCat(transcript);
+    if(!cat && transcript.length < 10){
+      // intenta con resumen si no hay transcript
+      cat = detCat(resumen);
+    }
+    if(!cat && hsReason){
+      // fallback a HubSpot reason
+      cat = mapHsReason(hsReason);
+    }
+    if(!cat) cat = "Sin categoría";
+
+    rows.push({
+      fecha: fechaCorta(fecha),
+      fechaRaw: fecha,
+      cliente,
+      clienteNorm,
+      dueno,
+      transcript,
+      cat,
+      esChurn,
+      hsReason
+    });
+  }
+
+  // Ordenar por fecha desc
+  rows.sort((a,b)=>{
+    const da = new Date(a.fechaRaw||"1900"), db = new Date(b.fechaRaw||"1900");
+    return db-da;
+  });
+
+  return deduplicar(rows);
+}
+
+function mapHsReason(r){
+  if(!r) return null;
+  const m = {
+    "Problemas CX / Plataforma":"Fallos técnicos",
+    "Onboarding fallido":"Onboarding deficiente",
+    "No ve impacto en su negocio":"No ve valor / ROI",
+    "Precio no justificado":"Precio",
+    "Soporte deficiente":"Soporte deficiente",
+    "Negocio cerrado":"Negocio cerrado",
+    "Promesa no realista":"Expectativas no cumplidas",
+    "Error en la venta":"Expectativas no cumplidas",
+    "Cierre de venta forzado":"Expectativas no cumplidas",
+    "Fuera del alcance del plan":"Expectativas no cumplidas",
+    "Problemas de calidad":"Fallos técnicos"
+  };
+  return m[r]||null;
+}
+
+function fechaCorta(f){
+  if(!f) return "";
+  const d = new Date(f);
+  if(isNaN(d)) return f.substring(0,10);
+  return d.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────────────────
+async function loadData(){
+  document.getElementById("spinner").style.display="flex";
+  hideAll();
+  try {
+    const resp = await fetch(SHEET_URL + "&t=" + Date.now());
+    const text = await resp.text();
+    const raw = parseCSV(text);
+    allRows = procesarDatos(raw);
+    document.getElementById("lastUpdate").textContent =
+      "Última actualización: " + new Date().toLocaleString("es-ES") +
+      " · " + allRows.length + " registros únicos";
+    poblarFiltroCategoria();
+    applyFilters();
+  } catch(e){
+    document.getElementById("lastUpdate").textContent = "Error al cargar: " + e.message;
+    console.error(e);
+  } finally {
+    document.getElementById("spinner").style.display="none";
+  }
+}
+
+function hideAll(){
+  ["tab-tabla","tab-urgentes","tab-insights"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+}
+
+function poblarFiltroCategoria(){
+  const cats = [...new Set(allRows.map(r=>r.cat))].sort();
+  const sel = document.getElementById("f-cat");
+  sel.innerHTML = '<option value="">Todas las categorías</option>';
+  cats.forEach(c=>{
+    const o = document.createElement("option");
+    o.value = c; o.textContent = c;
+    sel.appendChild(o);
+  });
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────
+function applyFilters(){
+  const dueno = document.getElementById("f-dueno").value;
+  const churn = document.getElementById("f-churn").value;
+  const cat = document.getElementById("f-cat").value;
+  const search = norm(document.getElementById("f-search").value);
+
+  filtered = allRows.filter(r=>{
+    if(dueno && !r.dueno.includes(dueno)) return false;
+    if(churn === "si" && !r.esChurn) return false;
+    if(churn === "no" && r.esChurn) return false;
+    if(cat && r.cat !== cat) return false;
+    if(search && !norm(r.cliente).includes(search) && !norm(r.dueno).includes(search)) return false;
     return true;
   });
-  renderAll();
+
+  updateStats();
+  renderTabla();
+  renderUrgentes();
+  if(activeTab === "insights") renderInsights();
+  showTab(activeTab);
 }
 
-// ── RENDER ALL ────────────────────────────────────────────────
-function renderAll(){renderKPIs();renderCharts();renderTabla();renderInsights();renderOwnerTab();}
-
-function renderKPIs(){
-  const t=filtered.length,ch=filtered.filter(r=>r.churn==="sí").length,ri=filtered.filter(r=>r.churn==="riesgo").length,ok=filtered.filter(r=>r.churn==="no").length;
-  document.getElementById("kpis").innerHTML=`
-    <div class="metric"><div class="lbl">Total llamadas</div><div class="val">${t}</div><div class="sub">en el período seleccionado</div></div>
-    <div class="metric red"><div class="lbl">🔴 Churn confirmado</div><div class="val">${ch}</div><div class="sub">${t?Math.round(ch/t*100):0}% del total</div></div>
-    <div class="metric orange"><div class="lbl">🟠 En riesgo</div><div class="val">${ri}</div><div class="sub">${t?Math.round(ri/t*100):0}% del total</div></div>
-    <div class="metric green"><div class="lbl">🟢 Sin riesgo</div><div class="val">${ok}</div><div class="sub">${t?Math.round(ok/t*100):0}% del total</div></div>`;
+function clearFilters(){
+  document.getElementById("f-dueno").value="";
+  document.getElementById("f-churn").value="";
+  document.getElementById("f-cat").value="";
+  document.getElementById("f-search").value="";
+  applyFilters();
 }
 
-function renderCharts(){
-  Object.values(chartObjs).forEach(c=>{try{c.destroy();}catch(e){}});chartObjs={};
-  // Categorías
-  const catsMap={};filtered.forEach(r=>{catsMap[r.cat]=(catsMap[r.cat]||0)+1;});
-  const cS=Object.entries(catsMap).sort((a,b)=>b[1]-a[1]);
-  chartObjs.cats=new Chart(document.getElementById("chart-cats"),{type:"bar",data:{labels:cS.map(x=>x[0]),datasets:[{data:cS.map(x=>x[1]),backgroundColor:"#1a1a2e99",borderColor:"#1a1a2e",borderWidth:1}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
-  // Riesgo
-  const rs={alto:0,medio:0,bajo:0};filtered.forEach(r=>{rs[r.riesgo]=(rs[r.riesgo]||0)+1;});
-  chartObjs.riesgo=new Chart(document.getElementById("chart-riesgo"),{type:"doughnut",data:{labels:["Alto","Medio","Bajo"],datasets:[{data:[rs.alto,rs.medio,rs.bajo],backgroundColor:["#FF4B4B","#FFA500","#00CC96"]}]},options:{plugins:{legend:{position:"bottom"}}}});
-  // HS reasons
-  const hsMap={};filtered.filter(r=>r.motivoHS).forEach(r=>{hsMap[r.motivoHS]=(hsMap[r.motivoHS]||0)+1;});
-  const hsS=Object.entries(hsMap).sort((a,b)=>b[1]-a[1]);
-  if(hsS.length)chartObjs.hs=new Chart(document.getElementById("chart-hs-reasons"),{type:"bar",data:{labels:hsS.map(x=>x[0]),datasets:[{data:hsS.map(x=>x[1]),backgroundColor:"#FF4B4B66",borderColor:"#FF4B4B",borderWidth:1}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
+// ── STATS ─────────────────────────────────────────────────────────────────
+function updateStats(){
+  const total = filtered.length;
+  const churns = filtered.filter(r=>r.esChurn).length;
+  const safe = total - churns;
+  const rate = total > 0 ? Math.round(churns/total*100) : 0;
+  const withCat = filtered.filter(r=>r.cat!=="Sin categoría").length;
+
+  document.getElementById("s-total").textContent = total;
+  document.getElementById("s-churn").textContent = churns;
+  document.getElementById("s-safe").textContent = safe;
+  document.getElementById("s-rate").textContent = rate + "%";
+  document.getElementById("s-cats").textContent = withCat;
+
+  document.getElementById("tb-count").textContent = total;
+  document.getElementById("tb-churn").textContent = churns;
 }
 
+// ── TABLA ─────────────────────────────────────────────────────────────────
 function renderTabla(){
-  document.getElementById("table-title").textContent=`📋 Todas las llamadas (${filtered.length})`;
-  const tbody=document.getElementById("tabla-body");
-  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:#aaa;padding:32px;">Sin datos para los filtros seleccionados</td></tr>`;return;}
-  tbody.innerHTML=filtered.map(r=>{
-    const cl=r.cliente||r.participantes||"—";
-    const pExtra=(r.participantes&&r.cliente&&r.participantes!==r.cliente)?`<div style="font-size:10px;color:#aaa;margin-top:2px;">${r.participantes}</div>`:"";
-    const estado=r.churn==="sí"?`<span class="badge sí">🔴 Churn</span>`:r.churn==="riesgo"?`<span class="badge riesgo">🟠 Riesgo</span>`:`<span class="badge no">🟢 OK</span>`;
-    const catColor=r.cat==="Sin categoría"?"color:#ccc":"color:#333;font-weight:500";
-    return`<tr>
-      <td style="white-space:nowrap">${r.dueno.split(" ")[0]}</td>
-      <td style="white-space:nowrap">${fmtDate(r.fecha)}</td>
-      <td><strong>${cl}</strong>${pExtra}</td>
-      <td>${estado}</td>
-      <td style="font-size:11px;${catColor}">${r.cat}</td>
-      <td>${r.motivoHS?`<span class="hs-reason">🔗 ${r.motivoHS}</span>`:'<span style="color:#ddd">—</span>'}</td>
-      <td style="white-space:nowrap;font-size:11px;color:#888">${r.fechaBaja?fmtDate(r.fechaBaja):'<span style="color:#ddd">—</span>'}</td>
-      <td><span class="badge ${r.riesgo}">${r.riesgo}</span></td>
-      <td class="td-resumen" title="${(r.resumen||"").replace(/"/g,"'")}" onclick="this.classList.toggle('expanded')">${r.resumen||"—"}</td>
-    </tr>`;
+  const tbody = document.getElementById("tbody");
+  if(filtered.length === 0){
+    tbody.innerHTML="";
+    document.getElementById("tab-empty").style.display="block";
+    return;
+  }
+  document.getElementById("tab-empty").style.display="none";
+  tbody.innerHTML = filtered.map((r,i)=>{
+    const cc = CAT_COLORS[r.cat] !== undefined ? CAT_COLORS[r.cat] : 6;
+    const churnBadge = r.esChurn
+      ? `<span class="badge badge-churn">✗ sí</span>`
+      : `<span class="badge badge-safe">✓ no</span>`;
+    const trBtn = r.transcript
+      ? `<button class="btn-tr" onclick="toggleTrRow(${i})">ver</button>`
+      : `<span style="color:var(--muted);font-size:11px">—</span>`;
+    return `
+      <tr>
+        <td class="fecha">${r.fecha}</td>
+        <td class="cliente">${esc(r.cliente)}</td>
+        <td class="dueno">${esc(r.dueno)}</td>
+        <td><span class="badge badge-cat c${cc}">${esc(r.cat)}</span></td>
+        <td class="motivo" title="${esc(r.hsReason)}">${esc(r.hsReason)||"—"}</td>
+        <td>${churnBadge}</td>
+        <td>${trBtn}</td>
+      </tr>
+      <tr id="tr-row-${i}" style="display:none">
+        <td colspan="7" style="padding:0 14px 12px;">
+          <div style="background:#13151f;border-radius:8px;padding:12px;font-size:12px;line-height:1.7;color:var(--muted);max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;">${esc(r.transcript)}</div>
+        </td>
+      </tr>
+    `;
   }).join("");
 }
 
+function toggleTrRow(i){
+  const row = document.getElementById("tr-row-"+i);
+  if(!row) return;
+  row.style.display = row.style.display==="none" ? "" : "none";
+}
+
+// ── URGENTES (CHURNS) ─────────────────────────────────────────────────────
+function renderUrgentes(){
+  const churns = filtered.filter(r=>r.esChurn);
+  const grid = document.getElementById("cards-grid");
+  const empty = document.getElementById("cards-empty");
+  if(churns.length === 0){
+    grid.innerHTML="";
+    empty.style.display="block";
+    return;
+  }
+  empty.style.display="none";
+  grid.innerHTML = churns.map((r,i)=>{
+    const cc = CAT_COLORS[r.cat] !== undefined ? CAT_COLORS[r.cat] : 6;
+    const trSection = r.transcript ? `
+      <div class="tr-panel">
+        <button class="tr-toggle" onclick="toggleCard('card-tr-${i}',this)">
+          <span>▶</span> Ver transcript completo
+        </button>
+        <div class="tr-body" id="card-tr-${i}">${esc(r.transcript)}</div>
+      </div>
+    ` : "";
+    return `
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-name">${esc(r.cliente)}</div>
+            <div class="card-date">📅 ${r.fecha}</div>
+            <div class="card-owner">👤 ${esc(r.dueno)}</div>
+          </div>
+          <span class="badge badge-churn">✗ Churn</span>
+        </div>
+        <div class="card-cat"><span class="badge badge-cat c${cc}">${esc(r.cat)}</span></div>
+        ${r.hsReason ? `<div class="card-hs-reason">⚠ HubSpot: ${esc(r.hsReason)}</div>` : ""}
+        ${trSection}
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleCard(id, btn){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const open = el.classList.toggle("open");
+  btn.innerHTML = open ? "<span>▼</span> Ocultar transcript" : "<span>▶</span> Ver transcript completo";
+}
+
+// ── INSIGHTS ─────────────────────────────────────────────────────────────
 function renderInsights(){
-  const t=filtered.length,ch=filtered.filter(r=>r.churn==="sí"),ri=filtered.filter(r=>r.churn==="riesgo");
-  const catMap={};filtered.filter(r=>r.cat!=="Sin categoría").forEach(r=>{catMap[r.cat]=(catMap[r.cat]||0)+1;});
-  const catTop=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-  const maxCat=catTop[0]?catTop[0][1]:1;
-  const urgentes=[...ch,...ri].sort((a,b)=>{const da=parseDate(a.fecha),db=parseDate(b.fecha);if(!da&&!db)return 0;if(!da)return 1;if(!db)return-1;return db-da;}).slice(0,18);
+  const container = document.getElementById("insights-content");
+  const churnRows = filtered.filter(r=>r.esChurn);
+  const total = filtered.length;
+  const churnTotal = churnRows.length;
 
-  document.getElementById("insights-content").innerHTML=`
-    <div class="insight-block red">
-      <h3>📍 Estado actual</h3>
-      <div class="alert-cards">
-        <div class="alert-card"><div class="a-num">${ch.length}</div><div class="a-label">Churns confirmados</div><div class="a-note">El ${t?Math.round(ch.length/t*100):0}% de las llamadas analizadas corresponde a clientes que ya solicitaron la baja.</div></div>
-        <div class="alert-card"><div class="a-num">${ri.length}</div><div class="a-label">Clientes en riesgo</div><div class="a-note">Llamadas donde Claude detectó señales de insatisfacción o intención de baja en el transcript.</div></div>
-        <div class="alert-card" style="background:#f0fff0;border-color:#c0e0c0;"><div class="a-num" style="color:#00AA70">${t?Math.round((ch.length+ri.length)/t*100):0}%</div><div class="a-label">Tasa de atención urgente</div><div class="a-note">${ch.length+ri.length} de ${t} llamadas requieren acción prioritaria.</div></div>
+  // Frecuencia de categorías (todos)
+  const catCount = {};
+  for(const r of filtered){
+    catCount[r.cat] = (catCount[r.cat]||0)+1;
+  }
+  const catSorted = Object.entries(catCount).sort((a,b)=>b[1]-a[1]);
+
+  // Frecuencia de categorías (churns)
+  const catChurn = {};
+  for(const r of churnRows){
+    catChurn[r.cat] = (catChurn[r.cat]||0)+1;
+  }
+  const catChurnSorted = Object.entries(catChurn).sort((a,b)=>b[1]-a[1]);
+
+  // Top 3 motivos para drill-down
+  const top3 = catChurnSorted.slice(0,3).map(([cat])=>cat);
+
+  // Sub-categorías para top 3
+  const subData = {};
+  for(const cat of top3){
+    const subs = {};
+    for(const r of churnRows){
+      if(r.cat !== cat) continue;
+      const detected = detSubCat(r.transcript, cat);
+      for(const [sub, cnt] of Object.entries(detected)){
+        subs[sub] = (subs[sub]||0)+cnt;
+      }
+    }
+    subData[cat] = Object.entries(subs).sort((a,b)=>b[1]-a[1]);
+  }
+
+  // HubSpot reasons breakdown
+  const hsReasons = {};
+  for(const r of churnRows){
+    if(r.hsReason){
+      hsReasons[r.hsReason] = (hsReasons[r.hsReason]||0)+1;
+    }
+  }
+  const hsReasonsSorted = Object.entries(hsReasons).sort((a,b)=>b[1]-a[1]);
+
+  // Dueños con más churn
+  const duenoChurn = {};
+  for(const r of churnRows){
+    duenoChurn[r.dueno] = (duenoChurn[r.dueno]||0)+1;
+  }
+  const duenoSorted = Object.entries(duenoChurn).sort((a,b)=>b[1]-a[1]);
+
+  const maxCat = catSorted[0]?.[1]||1;
+  const maxChurnCat = catChurnSorted[0]?.[1]||1;
+  const maxHs = hsReasonsSorted[0]?.[1]||1;
+  const maxDueno = duenoSorted[0]?.[1]||1;
+
+  let html = `
+    <!-- KPI Overview -->
+    <div class="insights-grid" style="margin-bottom:20px;">
+      <div class="ins-card">
+        <div class="ins-title">Categorías en llamadas (total)</div>
+        <div class="ins-sub">${total} llamadas · desde transcript</div>
+        <div class="ins-rank">
+          ${catSorted.slice(0,6).map(([c,n],i)=>{
+            const pct = Math.round(n/maxCat*100);
+            return `
+              <div class="ins-bar-row"><span class="ins-bar-label">${c}</span><span class="ins-bar-count">${n}</span></div>
+              <div class="ins-bar-bg"><div class="ins-bar-fill c${i}" style="width:${pct}%"></div></div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+      <div class="ins-card">
+        <div class="ins-title">Categorías en churns confirmados</div>
+        <div class="ins-sub">${churnTotal} churns · HubSpot match</div>
+        <div class="ins-rank">
+          ${catChurnSorted.slice(0,6).map(([c,n],i)=>{
+            const pct = Math.round(n/maxChurnCat*100);
+            return `
+              <div class="ins-bar-row"><span class="ins-bar-label">${c}</span><span class="ins-bar-count">${n}</span></div>
+              <div class="ins-bar-bg"><div class="ins-bar-fill c${i}" style="width:${pct}%"></div></div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+      <div class="ins-card">
+        <div class="ins-title">Motivos HubSpot</div>
+        <div class="ins-sub">Razón registrada en HubSpot</div>
+        <div class="ins-rank">
+          ${hsReasonsSorted.slice(0,6).map(([c,n],i)=>{
+            const pct = Math.round(n/maxHs*100);
+            return `
+              <div class="ins-bar-row"><span class="ins-bar-label">${c}</span><span class="ins-bar-count">${n}</span></div>
+              <div class="ins-bar-bg"><div class="ins-bar-fill c${i}" style="width:${pct}%"></div></div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+      <div class="ins-card">
+        <div class="ins-title">Churns por dueño</div>
+        <div class="ins-sub">Ranking de churn por comercial</div>
+        <div class="ins-rank">
+          ${duenoSorted.map(([d,n],i)=>{
+            const pct = Math.round(n/maxDueno*100);
+            return `
+              <div class="ins-bar-row"><span class="ins-bar-label">${d||"Sin dueño"}</span><span class="ins-bar-count">${n}</span></div>
+              <div class="ins-bar-bg"><div class="ins-bar-fill c${i}" style="width:${pct}%"></div></div>
+            `;
+          }).join("")}
+        </div>
       </div>
     </div>
 
-    <div class="insight-block dark">
-      <h3>🔍 ¿Por qué perdemos clientes? (desde transcripts)</h3>
-      <p style="margin-bottom:14px;font-size:13px;color:#666;">Categorías detectadas por Claude analizando los transcripts de Modjo:</p>
-      <div class="reason-bars">
-        ${catTop.map(([c,n])=>`<div class="rbar"><div class="rbar-label">${c}</div><div class="rbar-track"><div class="rbar-fill" style="width:${Math.round(n/maxCat*100)}%"><span>${n}</span></div></div><div class="rbar-count">${t?Math.round(n/t*100):0}%</div></div>`).join("")}
+    <!-- ANÁLISIS PROFUNDO TOP 3 -->
+    <div class="deep-section">
+      <div class="deep-title">
+        🔍 Análisis profundo — Top 3 motivos de churn
+        <span style="font-size:12px;color:var(--muted);font-weight:400">Desglose granular desde transcripts</span>
       </div>
-    </div>
-
-    <div class="insight-block orange">
-      <h3>📉 Patrón de deterioro observado</h3>
-      <div class="pattern-steps">
-        <div class="step"><div class="s-num">01</div><div class="s-title">Promesa de ventas desalineada</div><div class="s-desc">El cliente llega con expectativas que el producto no cubre tal como fue presentado.</div></div>
-        <div class="step"><div class="s-num">02</div><div class="s-title">Onboarding sin acompañamiento</div><div class="s-desc">No hay sesión de activación eficaz. El cliente no sabe sacar partido a la plataforma.</div></div>
-        <div class="step"><div class="s-num">03</div><div class="s-title">Primeros fallos técnicos</div><div class="s-desc">Errores en los primeros días refuerzan la percepción negativa inicial.</div></div>
-        <div class="step"><div class="s-num">04</div><div class="s-title">Soporte lento o ineficaz</div><div class="s-desc">El cliente no obtiene respuesta rápida, lo que escala la frustración.</div></div>
-        <div class="step"><div class="s-num">05</div><div class="s-title">Evaluación de alternativas</div><div class="s-desc">El cliente empieza a comparar con competidores o simplemente decide no renovar.</div></div>
-        <div class="step"><div class="s-num">06</div><div class="s-title">Solicitud de baja</div><div class="s-desc">A este punto, la recuperación es improbable sin intervención inmediata.</div></div>
-      </div>
-    </div>
-
-    <div class="insight-block orange">
-      <h3>🚨 Clientes con riesgo alto o churn reciente (${urgentes.length})</h3>
-      <p style="font-size:12px;color:#888;margin-bottom:14px;">Ordenados por fecha más reciente. Categoría extraída del transcript de Modjo.</p>
-      <div class="urgentes-grid">
-        ${urgentes.map((r,i)=>{
-          const ow=r.dueno.split(" ")[0];
-          const isChurn=r.churn==="sí";
-          const badge=isChurn&&r.motivoHS?`<span class="u-hs-badge">🔗 ${r.motivoHS}</span>`:`<span class="u-cat-badge">${r.cat}</span>`;
-          const desc=isChurn&&r.motivoHS?(r.fechaBaja?`Baja el ${fmtDate(r.fechaBaja)}. `:"Confirmado como churn. ")+(CAT_DESC[r.cat]||""):(CAT_DESC[r.cat]||"");
-          const signal=r.resumen?`<div class="u-signal">💬 "${r.resumen.substring(0,140)}${r.resumen.length>140?"...":""}"</div>`:"";
-          const action=isChurn?`<div class="u-action" style="background:#fff0f0;color:#AA0000">⚠️ Ya es churn. Documentar motivo y cerrar correctamente el proceso.</div>`:`<div class="u-action">${CAT_ACCION[r.cat]||"💡 Revisar el transcript y hacer seguimiento personalizado."}</div>`;
-          return`<div class="urgente-card">
-            <div class="u-top"><div class="u-nombre">${r.cliente||r.participantes||"—"}</div><div><div class="u-owner-badge">${ow}</div><div class="u-fecha">${fmtDate(r.fecha)}</div></div></div>
-            <div class="u-cat-row">${badge}<div class="u-cat-desc">${desc}</div></div>
-            ${signal}${action}
-            <div class="u-resumen-full" id="res-${i}">${r.resumen||""}</div>
-            <div class="u-toggle" onclick="toggleRes(${i})">Ver resumen completo ▾</div>
-          </div>`;
+      <div class="deep-cards">
+        ${top3.map((cat,idx)=>{
+          const total_cat = catChurn[cat]||0;
+          const subs = subData[cat]||[];
+          const maxSub = subs[0]?.[1]||1;
+          const color = SUB_COLORS[idx]||"#6c63ff";
+          return `
+            <div class="deep-card" style="border-color:${color}40;">
+              <div class="deep-card-title" style="color:${color};">#${idx+1} ${cat}</div>
+              <div class="deep-card-count">${total_cat} churns confirmados</div>
+              ${subs.length > 0 ? subs.map(([sub,cnt])=>{
+                const pct = Math.round(cnt/maxSub*100);
+                return `
+                  <div class="sub-row"><span class="sub-label">${sub}</span><span class="sub-count">${cnt}</span></div>
+                  <div class="sub-bar-bg"><div class="sub-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+                `;
+              }).join("") : `<div style="color:var(--muted);font-size:12px;">Sin sub-categorías detectadas en transcripts</div>`}
+            </div>
+          `;
         }).join("")}
       </div>
     </div>
 
-    <div class="insight-block green">
-      <h3>✅ Recomendaciones de acción</h3>
-      <div class="recom-cols">
-        <div class="recom-col c1"><h4>🔴 Esta semana</h4>
-          <div class="recom-item">Contactar a todos los clientes en riesgo identificados esta semana y asignar seguimiento personalizado.</div>
-          <div class="recom-item">Revisar con el equipo de ventas los casos de "Expectativas no cumplidas" y corregir el discurso de captación.</div>
-          <div class="recom-item">Escalar a producto los fallos técnicos más recurrentes detectados en transcripts.</div>
-        </div>
-        <div class="recom-col c2"><h4>🟠 Este mes</h4>
-          <div class="recom-item">Implementar proceso de handoff ventas → Customer Success para alinear expectativas desde el primer día.</div>
-          <div class="recom-item">Crear protocolo de onboarding con sesión obligatoria en las primeras 72h de alta.</div>
-          <div class="recom-item">Revisar SLAs de soporte y añadir alertas para tickets sin respuesta en más de 24h.</div>
-        </div>
-        <div class="recom-col c3"><h4>🟢 Próximo trimestre</h4>
-          <div class="recom-item">Diseñar un health score por cliente que detecte señales de riesgo antes de la llamada de seguimiento.</div>
-          <div class="recom-item">Analizar los churns por segmento de negocio para identificar perfiles con mayor propensión al abandono.</div>
-          <div class="recom-item">Implementar NPS post-onboarding para detectar problemas en los primeros 30 días.</div>
-        </div>
+    <!-- TABLA DE CHURNS CON CATEGORÍA + MOTIVO HS -->
+    <div class="ins-card" style="margin-top:4px;">
+      <div class="ins-title">Detalle churns: categoría transcript vs motivo HubSpot</div>
+      <div class="ins-sub">Comparación entre lo detectado en la llamada y lo registrado en HubSpot</div>
+      <div style="overflow-x:auto;margin-top:12px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left;font-size:11px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);">Cliente</th>
+              <th style="text-align:left;font-size:11px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);">Cat. Transcript</th>
+              <th style="text-align:left;font-size:11px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);">Motivo HS</th>
+              <th style="text-align:left;font-size:11px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);">Dueño</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${churnRows.slice(0,30).map(r=>{
+              const cc = CAT_COLORS[r.cat]!==undefined?CAT_COLORS[r.cat]:6;
+              const match = r.cat !== "Sin categoría" && r.hsReason && mapHsReason(r.hsReason) === r.cat;
+              return `
+                <tr style="border-top:1px solid var(--border);">
+                  <td style="padding:8px 12px;font-size:12px;font-weight:500;">${esc(r.cliente)}</td>
+                  <td style="padding:8px 12px;"><span class="badge badge-cat c${cc}">${esc(r.cat)}</span></td>
+                  <td style="padding:8px 12px;font-size:12px;color:${r.hsReason?"#f59e0b":"var(--muted)"};">${esc(r.hsReason)||"—"}</td>
+                  <td style="padding:8px 12px;font-size:12px;color:var(--muted);">${esc(r.dueno)}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+        ${churnRows.length > 30 ? `<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px;">… y ${churnRows.length-30} más. Usa los filtros para segmentar.</div>` : ""}
       </div>
-    </div>`;
+    </div>
+  `;
+
+  container.innerHTML = html;
 }
 
-function toggleRes(i){const el=document.getElementById("res-"+i);const btn=el.nextElementSibling;if(el.style.display==="block"){el.style.display="none";btn.textContent="Ver resumen completo ▾";}else{el.style.display="block";btn.textContent="Ocultar ▴";}}
-
-function renderOwnerTab(){
-  const os={};
-  filtered.forEach(r=>{if(!os[r.dueno])os[r.dueno]={total:0,churn:0,riesgo:0,ok:0,motivos:{}};os[r.dueno].total++;if(r.churn==="sí"){os[r.dueno].churn++;if(r.motivoHS)os[r.dueno].motivos[r.motivoHS]=(os[r.dueno].motivos[r.motivoHS]||0)+1;}else if(r.churn==="riesgo")os[r.dueno].riesgo++;else os[r.dueno].ok++;});
-  try{if(chartObjs.owner)chartObjs.owner.destroy();}catch(e){}
-  const owners=Object.keys(os);
-  chartObjs.owner=new Chart(document.getElementById("chart-owner"),{type:"bar",data:{labels:owners.map(o=>o.split(" ")[0]),datasets:[{label:"Churn",data:owners.map(o=>os[o].churn),backgroundColor:"#FF4B4B99"},{label:"Riesgo",data:owners.map(o=>os[o].riesgo),backgroundColor:"#FFA50099"},{label:"Sin riesgo",data:owners.map(o=>os[o].ok),backgroundColor:"#00CC9699"}]},options:{plugins:{legend:{position:"bottom"}},scales:{x:{stacked:false},y:{beginAtZero:true,ticks:{precision:0}}}}});
-  document.getElementById("owner-cards").innerHTML=owners.map(o=>{
-    const s=os[o],cr=s.total?Math.round(s.churn/s.total*100):0;
-    const top=Object.entries(s.motivos).sort((a,b)=>b[1]-a[1])[0];
-    return`<div class="owner-card"><h4>👤 ${o}</h4>
-      <div class="owner-stat"><span class="os-label">Total llamadas</span><span class="os-val">${s.total}</span></div>
-      <div class="owner-stat"><span class="os-label">🔴 Churns</span><span class="os-val" style="color:#FF4B4B">${s.churn} (${cr}%)</span></div>
-      <div class="owner-stat"><span class="os-label">🟠 En riesgo</span><span class="os-val" style="color:#FFA500">${s.riesgo}</span></div>
-      <div class="owner-stat"><span class="os-label">🟢 Sin riesgo</span><span class="os-val" style="color:#00CC96">${s.ok}</span></div>
-      ${top?`<div class="owner-stat"><span class="os-label">Top motivo HS</span><span class="os-val" style="font-size:11px;text-align:right;max-width:160px">${top[0]}</span></div>`:""}
-    </div>`;
-  }).join("");
-}
-
-function showTab(id,btn){
-  document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
+// ── TABS ─────────────────────────────────────────────────────────────────
+function switchTab(tab, el){
+  activeTab = tab;
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById("tab-"+id).classList.add("active");
-  btn.classList.add("active");
+  el.classList.add("active");
+  showTab(tab);
+  if(tab==="insights") renderInsights();
 }
 
-cargarDatos();
+function showTab(tab){
+  document.getElementById("tab-tabla").style.display = tab==="tabla"?"block":"none";
+  document.getElementById("tab-urgentes").style.display = tab==="urgentes"?"block":"none";
+  document.getElementById("tab-insights").style.display = tab==="insights"?"block":"none";
+}
+
+// ── ESCAPE HTML ───────────────────────────────────────────────────────────
+function esc(s){
+  if(!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+loadData();
 </script>
 </body>
 </html>

@@ -287,7 +287,7 @@ function getClientType(name){
   return'';
 }
 const CAT_KW={
-  'Facturación':      ['factura','cobro','precio','pago','cargo','coste','dinero','tarifa','plan','renovación','renovacion','cancelar','baja','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado'],
+  'Facturación':      ['factura','cobro','precio','coste','dinero','tarifa','renovación','renovacion','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado','cargo incorrecto','cargo inesperado','me han cobrado de más','cobro incorrecto','cobro inesperado'],
   'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz'],
   'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular','primer','empezar','setup'],
   'Sin resultados':   ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica'],
@@ -1175,16 +1175,18 @@ function toggleSubChart(id){const el=document.getElementById(id);if(el)el.classL
 function toggleXI(id){const el=document.getElementById('xi_'+id);if(el)el.classList.toggle('open');}
 
 function renderTablaModjo(){
-  document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>`
-    <tr>
-      <td><button class="expand-btn" onclick="toggleXI('m${i}')">▸</button></td>
+  document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>{
+    const hasDetail=(r.displayText||'').trim().length>20;
+    return`<tr>
+      <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria}</span></td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
       <td>${(()=>{const ct=getClientType(r.cliente);const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};return ct?`<span class="churn-badge" style="${colors[ct]||'background:#e0f2fe;color:#0369a1'}">${ct}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>';})()}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
     </tr>
-    <tr><td colspan="8"><div class="xi" id="xi_m${i}">${r.displayText||'Sin resumen'}</div></td></tr>`).join('');
+    ${hasDetail?`<tr><td colspan="8"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+  }).join('');
 }
 
 function renderTablaHS(){
@@ -1194,15 +1196,16 @@ function renderTablaHS(){
     const subParts=splitSub(r.subreason).join(' · ');
     const detail=[r.note&&'📝 Nota: '+r.note, r.conclusion&&'💡 Conclusión: '+r.conclusion, r.analysis&&'🔍 Análisis: '+r.analysis].filter(Boolean).join('\n\n');
     const preview=(r.conclusion||r.note||'').substring(0,80);
+    const hasDetail=detail.trim().length>20;
     return`<tr>
-      <td><button class="expand-btn" onclick="toggleXI('h${i}')">▸</button></td>
+      <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('h${i}')">▸</button>`:''}</td>
       <td>${r.churn_date||'–'}</td>
       <td style="font-weight:500">${r.name||'–'}</td>
       <td><span class="cat-badge" style="${!r.churn_reason?'background:#fee2e2;color:#dc2626':''}">${reasonLabel}</span></td>
       <td style="font-size:11px;color:var(--muted);max-width:160px">${subParts||'–'}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${preview}${(r.conclusion||r.note||'').length>80?'…':''}</td>
     </tr>
-    <tr><td colspan="6"><div class="xi" id="xi_h${i}">${detail||'Sin detalle registrado'}</div></td></tr>`;}).join('');
+    ${hasDetail?`<tr><td colspan="6"><div class="xi" id="xi_h${i}">${detail}</div></td></tr>`:''}`;}).join('');
 }
 
 // ============================================================

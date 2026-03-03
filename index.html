@@ -6,36 +6,29 @@
   <title>Dashboard de Churn Modjo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    :root {
-      --bg:#f2f5eb; --accent:#85D630; --accent-dark:#6ab820;
-      --card:#ffffff; --text:#1a1a1a; --muted:#6b7280;
-      --border:#e5e7eb; --danger:#ef4444; --warning:#f59e0b; --success:#22c55e;
-    }
+    :root{--bg:#f2f5eb;--accent:#85D630;--card:#fff;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--danger:#ef4444;--warning:#f59e0b;--success:#22c55e;}
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-    .header{background:#1a1a1a;color:white;padding:16px 24px;display:flex;align-items:center;gap:12px;}
-    .header-logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#1a1a1a;}
+    .header{background:#1a1a1a;color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px;}
+    .logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#1a1a1a;}
     .header h1{font-size:18px;font-weight:700;}
     .header-sub{font-size:12px;color:#9ca3af;margin-left:auto;}
-    .main-tabs{background:white;border-bottom:2px solid var(--border);padding:0 24px;display:flex;}
-    .main-tab{padding:14px 20px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;}
+    .main-tabs{background:#fff;border-bottom:2px solid var(--border);padding:0 24px;display:flex;overflow-x:auto;}
+    .main-tab{padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;}
     .main-tab.active{color:var(--text);border-bottom-color:var(--accent);}
-    .main-tab:hover{color:var(--text);}
     .sub-tabs{background:var(--bg);padding:12px 24px 0;display:flex;gap:8px;}
-    .sub-tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);background:white;border:1px solid var(--border);border-radius:20px;transition:all .2s;}
+    .sub-tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:20px;transition:all .2s;}
     .sub-tab.active{background:var(--accent);color:#1a1a1a;border-color:var(--accent);}
-    .sub-tab:hover:not(.active){border-color:var(--accent);color:var(--text);}
-    .filter-bar{background:white;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-    .filter-bar select{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:white;color:var(--text);cursor:pointer;min-width:140px;}
-    .filter-bar select:focus{outline:none;border-color:var(--accent);}
+    .filter-bar{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .filter-bar select{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;cursor:pointer;min-width:140px;}
     .period-btns{display:flex;gap:4px;margin-left:auto;}
-    .period-btn{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:white;color:var(--muted);transition:all .2s;}
+    .period-btn{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:var(--muted);transition:all .2s;}
     .period-btn.active{background:var(--accent);color:#1a1a1a;border-color:var(--accent);}
     .date-inputs{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);}
     .date-inputs input{padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;}
     .content{padding:24px;}
     .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-    .kpi-card{background:white;border-radius:12px;padding:20px;border:1px solid var(--border);}
+    .kpi-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);}
     .kpi-label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
     .kpi-value{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px;}
     .kpi-sub{font-size:12px;color:var(--muted);}
@@ -44,40 +37,52 @@
     .kpi-rate .kpi-value{color:var(--warning);}
     .section-title{font-size:16px;font-weight:700;margin-bottom:16px;}
     .malBien-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
-    .malBien-card{background:white;border-radius:12px;padding:20px;border:1px solid var(--border);}
+    .malBien-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);}
     .malBien-card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
     .malBien-card ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
     .malBien-card li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px;line-height:1.4;}
     .bullet{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
-    .chart-section{background:white;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:24px;}
+    .chart-section{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:24px;}
     .chart-bars{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
     .chart-bar-row{display:flex;align-items:center;gap:12px;font-size:13px;}
-    .chart-bar-label{width:170px;flex-shrink:0;display:flex;align-items:center;gap:6px;}
-    .chart-bar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;}
+    .chart-bar-label{width:200px;flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:12px;}
+    .chart-bar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;cursor:pointer;}
     .chart-bar-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#1a1a1a;min-width:28px;}
-    .chart-bar-count{width:50px;text-align:right;font-weight:600;color:var(--muted);font-size:12px;}
-    .insights-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-    .insight-card{background:white;border-radius:12px;padding:16px;border:1px solid var(--border);}
-    .insight-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .chart-bar-count{width:40px;text-align:right;font-weight:600;color:var(--muted);font-size:12px;}
+    .sub-chart{display:none;padding:8px 0 4px 212px;flex-direction:column;gap:6px;}
+    .sub-chart.open{display:flex;}
+    .sub-bar-row{display:flex;align-items:center;gap:8px;font-size:11px;}
+    .sub-bar-label{width:180px;flex-shrink:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .sub-bar-track{flex:1;height:14px;background:var(--bg);border-radius:4px;overflow:hidden;}
+    .sub-bar-fill{height:100%;background:#c4f27a;border-radius:4px;transition:width .3s;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:600;color:#1a1a1a;min-width:18px;}
+    /* Insight cards */
+    .insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+    .insight-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border);}
+    .insight-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
     .insight-cat{font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px;}
     .insight-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;}
     .badge-danger{background:#fee2e2;color:#dc2626;}
     .badge-warning{background:#fef3c7;color:#d97706;}
     .badge-ok{background:#dcfce7;color:#16a34a;}
     .badge-neutral{background:var(--bg);color:var(--muted);}
-    .insight-count{font-size:24px;font-weight:800;margin-bottom:4px;}
-    .insight-sub{font-size:11px;color:var(--muted);}
-    .insight-clients{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5;}
+    .insight-count{font-size:28px;font-weight:800;margin-bottom:2px;}
+    .insight-sub{font-size:11px;color:var(--muted);margin-bottom:8px;}
+    .sub-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+    .sub-pill{font-size:10px;padding:2px 7px;border-radius:10px;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;line-height:1.4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .sub-pill.orange{background:#fff7ed;color:#c2410c;border-color:#fed7aa;}
+    .sub-pill.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;}
+    .sub-pill.gray{background:var(--bg);color:var(--muted);border-color:var(--border);}
+    .sub-note{margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5;font-style:italic;border-top:1px solid var(--border);padding-top:6px;}
     /* Info tooltip */
     .info-wrap{position:relative;display:inline-flex;align-items:center;}
-    .info-btn{width:15px;height:15px;border-radius:50%;background:#e5e7eb;color:var(--muted);font-size:9px;font-weight:700;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+    .info-btn{width:15px;height:15px;border-radius:50%;background:#e5e7eb;color:var(--muted);font-size:9px;font-weight:700;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
     .info-btn:hover+.tooltip,.info-btn:focus+.tooltip{display:block;}
-    .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;font-size:11px;padding:10px 12px;border-radius:8px;width:240px;z-index:999;line-height:1.6;font-weight:400;pointer-events:none;white-space:normal;}
+    .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:11px;padding:10px 12px;border-radius:8px;width:240px;z-index:999;line-height:1.6;pointer-events:none;}
     .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1a1a1a;}
     .tooltip strong{color:var(--accent);display:block;margin-bottom:4px;}
     /* Owners */
     .owners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .owner-card{background:white;border-radius:12px;padding:20px;border:2px solid var(--border);}
+    .owner-card{background:#fff;border-radius:12px;padding:20px;border:2px solid var(--border);}
     .owner-name{font-size:15px;font-weight:700;margin-bottom:4px;}
     .owner-meta{font-size:12px;color:var(--muted);margin-bottom:12px;}
     .owner-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
@@ -85,7 +90,7 @@
     .owner-stat-val{font-size:20px;font-weight:800;}
     .owner-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;}
     /* Table */
-    .table-wrap{background:white;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+    .table-wrap{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:auto;}
     table{width:100%;border-collapse:collapse;font-size:13px;}
     th{background:var(--bg);padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border);}
     td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
@@ -94,439 +99,599 @@
     .churn-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
     .churn-si{background:#fee2e2;color:#dc2626;}
     .churn-no{background:#dcfce7;color:#16a34a;}
-    .cat-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#e0f2fe;color:#0369a1;}
-    .expand-btn{cursor:pointer;background:none;border:none;font-size:16px;color:var(--muted);padding:0;line-height:1;}
+    .cat-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#e0f2fe;color:#0369a1;white-space:nowrap;}
+    .expand-btn{cursor:pointer;background:none;border:none;font-size:16px;color:var(--muted);padding:0;}
     .xi{display:none;padding:12px 16px;background:#f9fafb;border-top:1px solid var(--border);font-size:12px;line-height:1.6;color:#374151;}
     .xi.open{display:block;}
+    /* Conclusions */
+    .conclusions-section{background:#fff;border-radius:12px;border:1px solid var(--border);margin-bottom:24px;overflow:hidden;}
+    .conclusions-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+    .conclusions-header h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+    .conclusions-toggle{font-size:20px;color:var(--muted);transition:transform .3s;}
+    .conclusions-toggle.open{transform:rotate(90deg);}
+    .conclusions-body{display:none;padding:0 20px 20px;}
+    .conclusions-body.open{display:block;}
+    .concl-cat{margin-bottom:20px;}
+    .concl-cat h3{font-size:14px;font-weight:700;margin-bottom:6px;}
+    .concl-cat p{font-size:13px;color:var(--muted);line-height:1.7;}
+    .concl-cat .clients{font-size:12px;color:#6366f1;margin-top:4px;font-style:italic;}
+    .concl-divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+    .concl-pattern{background:#fef3c7;border-radius:8px;padding:14px 16px;margin-bottom:16px;}
+    .concl-pattern h3{font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px;}
+    .concl-pattern p{font-size:12px;color:#92400e;line-height:1.6;}
+    .concl-rec-block{margin-bottom:12px;}
+    .concl-rec-block h4{font-size:13px;font-weight:700;margin-bottom:6px;}
+    .concl-rec-block ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+    .concl-rec-block li{font-size:12px;color:var(--muted);line-height:1.6;padding-left:16px;position:relative;}
+    .concl-rec-block li::before{content:"•";position:absolute;left:0;color:var(--accent);}
     .loading{text-align:center;padding:60px;color:var(--muted);}
     .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    @media(max-width:768px){
-      .kpi-row{grid-template-columns:repeat(2,1fr);}
-      .insights-grid{grid-template-columns:repeat(2,1fr);}
-      .owners-grid{grid-template-columns:1fr;}
-      .malBien-grid{grid-template-columns:1fr;}
-    }
+    @media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr);}.insights-grid{grid-template-columns:1fr 1fr;}.owners-grid{grid-template-columns:1fr;}.malBien-grid{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-logo">P</div>
+  <div class="logo">P</div>
   <h1>Dashboard de Churn Modjo</h1>
   <span class="header-sub" id="lastUpdate">Actualizando…</span>
 </div>
 
 <div class="main-tabs">
-  <div class="main-tab active" onclick="switchMain('dashboard')">Dashboard</div>
-  <div class="main-tab" onclick="switchMain('tabla')">Tabla</div>
+  <div class="main-tab active" onclick="switchMain('modjo')">Dashboard Modjo</div>
+  <div class="main-tab" onclick="switchMain('tabla-modjo')">Tabla Modjo</div>
+  <div class="main-tab" onclick="switchMain('hubspot')">Dashboard HubSpot</div>
+  <div class="main-tab" onclick="switchMain('tabla-hs')">Tabla HubSpot</div>
 </div>
 
-<div class="sub-tabs" id="subTabsRow">
+<div class="sub-tabs" id="subTabsRow" style="display:none">
   <div class="sub-tab active" onclick="switchSub('insights')">Insights</div>
   <div class="sub-tab" onclick="switchSub('owners')">Owners</div>
 </div>
 
-<div class="filter-bar">
-  <select id="fOwner" onchange="applyFilters()"><option value="">Todos los owners</option></select>
-  <select id="fCat" onchange="applyFilters()"><option value="">Todas las categorías</option></select>
-  <select id="fChurn" onchange="applyFilters()">
+<div class="filter-bar" id="filterModjo" style="display:none">
+  <select id="fOwner" onchange="applyModjoFilters()"><option value="">Todos los owners</option></select>
+  <select id="fCat" onchange="applyModjoFilters()"><option value="">Todas las categorías</option></select>
+  <select id="fChurn" onchange="applyModjoFilters()">
     <option value="">Churn + No churn</option>
     <option value="si">Solo churn</option>
     <option value="no">Sin churn</option>
   </select>
   <div class="period-btns">
-    <button class="period-btn active" onclick="setPeriod('7d',this)">7d</button>
-    <button class="period-btn" onclick="setPeriod('30d',this)">30d</button>
-    <button class="period-btn" onclick="setPeriod('90d',this)">90d</button>
-    <button class="period-btn" onclick="setPeriod('all',this)">Todo</button>
+    <button class="period-btn active" onclick="setModjoPeriod('7d',this)">7d</button>
+    <button class="period-btn" onclick="setModjoPeriod('30d',this)">30d</button>
+    <button class="period-btn" onclick="setModjoPeriod('90d',this)">90d</button>
+    <button class="period-btn" onclick="setModjoPeriod('all',this)">Todo</button>
   </div>
   <div class="date-inputs">
-    <input type="date" id="dFrom" onchange="applyFilters()"/>
+    <input type="date" id="dFrom" onchange="applyModjoFilters()"/>
     <span>→</span>
-    <input type="date" id="dTo" onchange="applyFilters()"/>
+    <input type="date" id="dTo" onchange="applyModjoFilters()"/>
+  </div>
+</div>
+
+<div class="filter-bar" id="filterHS" style="display:none">
+  <select id="fHSReason" onchange="applyHSFilters()"><option value="">Todas las razones</option></select>
+  <div class="period-btns">
+    <button class="hs-period-btn active" onclick="setHSPeriod('all',this)">Todo</button>
+    <button class="hs-period-btn" onclick="setHSPeriod('90d',this)">90d</button>
+    <button class="hs-period-btn" onclick="setHSPeriod('180d',this)">180d</button>
+    <button class="hs-period-btn" onclick="setHSPeriod('1y',this)">1 año</button>
+  </div>
+  <div class="date-inputs">
+    <input type="date" id="hsDFrom" onchange="applyHSFilters()"/>
+    <span>→</span>
+    <input type="date" id="hsDTo" onchange="applyHSFilters()"/>
   </div>
 </div>
 
 <div class="content">
   <div id="loadingDiv" class="loading"><div class="spinner"></div><br>Cargando datos…</div>
 
-  <div id="viewInsights" style="display:none">
-    <div class="kpi-row" id="kpiRow"></div>
-    <div class="malBien-grid" id="malBienGrid"></div>
+  <!-- MODJO INSIGHTS -->
+  <div id="viewModjoInsights" style="display:none">
+    <div class="kpi-row" id="kpiRowModjo"></div>
+    <div class="malBien-grid" id="malBienModjo"></div>
     <div class="chart-section">
       <div class="section-title">Distribución por categoría</div>
-      <div class="chart-bars" id="chartBars"></div>
+      <div class="chart-bars" id="chartModjo"></div>
     </div>
     <div class="section-title">Detalle por categoría</div>
-    <div class="insights-grid" id="insightsGrid"></div>
+    <div class="insights-grid" id="insightsModjo"></div>
+    <div id="conclusionsModjo"></div>
   </div>
 
-  <div id="viewOwners" style="display:none">
-    <div class="kpi-row" id="kpiRowOwners"></div>
+  <!-- MODJO OWNERS -->
+  <div id="viewModjoOwners" style="display:none">
+    <div class="kpi-row" id="kpiRowModjoOwners"></div>
     <div class="section-title">Rendimiento por owner</div>
     <div class="owners-grid" id="ownersGrid"></div>
+    <div id="conclusionsModjoOwners"></div>
   </div>
 
-  <div id="viewTabla" style="display:none">
+  <!-- TABLA MODJO -->
+  <div id="viewTablaModjo" style="display:none">
     <div class="table-wrap">
-      <table id="mainTable">
-        <thead>
-          <tr>
-            <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-            <th>Categoría</th><th>Churn</th><th>Resumen IA</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+      <table><thead><tr>
+        <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
+        <th>Categoría</th><th>Churn</th><th>Resumen IA</th>
+      </tr></thead><tbody id="tbodyModjo"></tbody></table>
+    </div>
+  </div>
+
+  <!-- HUBSPOT DASHBOARD -->
+  <div id="viewHSInsights" style="display:none">
+    <div class="kpi-row" id="kpiRowHS"></div>
+    <div class="chart-section">
+      <div class="section-title">Distribución por motivo de churn — haz clic en una barra para ver los sub-motivos</div>
+      <div class="chart-bars" id="chartHS"></div>
+    </div>
+    <div class="section-title">Detalle por motivo (con sub-motivos)</div>
+    <div class="insights-grid" id="insightsHS"></div>
+    <div id="conclusionsHS"></div>
+  </div>
+
+  <!-- TABLA HUBSPOT -->
+  <div id="viewTablaHS" style="display:none">
+    <div class="table-wrap">
+      <table><thead><tr>
+        <th></th><th>Fecha</th><th>Empresa</th><th>Motivo</th>
+        <th>Sub-motivo</th><th>Nota / Conclusión</th>
+      </tr></thead><tbody id="tbodyHS"></tbody></table>
     </div>
   </div>
 </div>
 
 <script>
+// ===== MODJO =====
 const SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv';
-
-const DUENOS_DISPLAY=['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
-
+const DUENOS=['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
 const CAT_KW={
-  'Fallos técnicos':   ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','problema técnico','lento','desconect','sincroniz','plataforma caída'],
-  'Onboarding':        ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular','primer','empezar','setup','inicio','arrancar'],
-  'Sin resultados':    ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica','no vale'],
-  'Contenido':         ['contenido','publicación','publicacion','post','copy','texto','imagen','creativo','calidad','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
-  'Soporte':           ['soporte','respuesta','no contesta','no responden','tarda','espera','atención','atencion','ticket','ayuda','nadie','no atiende'],
-  'Facturación':       ['factura','cobro','precio','pago','cargo','coste','costo','dinero','tarifa','plan','renovación','renovacion','cancelar','baja'],
-  'Limitaciones':      ['limitación','limitacion','no puede','no soporta','no permite','linkedin','red social','idioma','catalán','catalan','móvil','movil','subir','adjuntar','funcionalidad'],
-  'Razones externas':  ['externo','personal','agencia','crisis','económ','econom','trasladar','tiempo','prioridad','presupuesto','otra empresa','competencia']
+  'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz'],
+  'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular','primer','empezar','setup'],
+  'Sin resultados':   ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica'],
+  'Contenido':        ['contenido','publicación','publicacion','post','copy','imagen','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
+  'Soporte':          ['soporte','respuesta','no contesta','no responden','tarda','atención','atencion','ayuda','nadie','no atiende'],
+  'Facturación':      ['factura','cobro','precio','pago','cargo','coste','dinero','tarifa','plan','renovación','cancelar','baja'],
+  'Limitaciones':     ['limitación','limitacion','no puede','no soporta','no permite','linkedin','idioma','catalán','catalan','móvil','movil','subir','adjuntar'],
+  'Razones externas': ['externo','personal','agencia','crisis','económ','econom','trasladar','tiempo','prioridad','presupuesto','otra empresa']
 };
-
 const CAT_EXAMPLES={
-  'Fallos técnicos':  '<strong>¿Qué significa?</strong>El cliente tiene un problema técnico que impide usar el servicio.<br>· "Llevo una semana sin que se publiquen mis posts"<br>· "Vinculé Facebook pero sigue sin conectarse"<br>· "La plataforma va muy lenta"',
-  'Onboarding':       '<strong>¿Qué significa?</strong>El cliente no entiende cómo funciona el servicio.<br>· "No sé cómo pedir que cambiéis una publicación"<br>· "¿Cómo funciona el proceso de aprobación?"<br>· "Llevo un mes y no he vinculado mis cuentas"',
-  'Sin resultados':   '<strong>¿Qué significa?</strong>El cliente no ve retorno ni mejora en su negocio.<br>· "Llevo 3 meses y no he conseguido clientes nuevos"<br>· "Mis publicaciones antes tenían más alcance"<br>· "No justifica lo que pago"',
-  'Contenido':        '<strong>¿Qué significa?</strong>Las propuestas no encajan con su negocio o marca.<br>· "Esto parece de ChatGPT, no encaja con mi marca"<br>· "Me mandáis contenido genérico que no refleja mi estilo"<br>· "No capta mi tono ni mi sector"',
-  'Soporte':          '<strong>¿Qué significa?</strong>El cliente no recibe respuesta o atención adecuada.<br>· "Mandé un mensaje hace 5 días y nadie contestó"<br>· "Cada vez hablo con alguien distinto"<br>· "Llevo 20 propuestas pendientes sin feedback"',
-  'Facturación':      '<strong>¿Qué significa?</strong>Sorpresa o conflicto con un cobro.<br>· "Me cobrasteis y pensaba que era una prueba gratuita"<br>· "No sabía que cancelar requería avisar con 20 días"<br>· "Recibí un cargo inesperado"',
-  'Limitaciones':     '<strong>¿Qué significa?</strong>La plataforma no puede hacer algo que el cliente necesita.<br>· "Necesito gestionar LinkedIn y no podéis"<br>· "No puedo subir archivos desde el ordenador"<br>· "Tengo el negocio en catalán y no lo resolvéis"',
-  'Razones externas': '<strong>¿Qué significa?</strong>Se va pero no es culpa del servicio.<br>· "Paso por una crisis económica y recorto gastos"<br>· "He contratado una agencia que lleva toda mi comunicación"<br>· "Me traslado y no tengo tiempo"'
+  'Fallos técnicos':  '<strong>¿Qué significa?</strong>Problema técnico que impide usar el servicio.<br>· "Llevo una semana sin que se publiquen mis posts"<br>· "La plataforma va muy lenta"',
+  'Onboarding':       '<strong>¿Qué significa?</strong>El cliente no entiende cómo funciona.<br>· "No sé cómo pedir que cambiéis una publicación"<br>· "Llevo un mes y no he vinculado mis cuentas"',
+  'Sin resultados':   '<strong>¿Qué significa?</strong>No ve retorno ni mejora.<br>· "Llevo 3 meses y no he conseguido clientes"<br>· "No justifica lo que pago"',
+  'Contenido':        '<strong>¿Qué significa?</strong>Las propuestas no encajan con su marca.<br>· "Parece de ChatGPT, no encaja con mi negocio"',
+  'Soporte':          '<strong>¿Qué significa?</strong>No recibe respuesta o atención adecuada.<br>· "Mandé un mensaje hace 5 días y nadie contestó"',
+  'Facturación':      '<strong>¿Qué significa?</strong>Sorpresa con un cobro.<br>· "No sabía que cancelar requería avisar con 20 días"',
+  'Limitaciones':     '<strong>¿Qué significa?</strong>La plataforma no puede algo que necesita.<br>· "Necesito gestionar LinkedIn y no podéis"',
+  'Razones externas': '<strong>¿Qué significa?</strong>Se va pero no es culpa del servicio.<br>· "Crisis económica, recorto gastos"'
 };
-
 const CHURN_KW=['churn','churna','churned','se va','se fue','cancela','cancelo','canceló','baja','dar de baja','no renueva','rescinde','termina contrato','no continúa','no continua'];
 
-let allRows=[],filteredRows=[],currentMain='dashboard',currentSub='insights',currentPeriod='7d';
+// ===== HUBSPOT DATA =====
+const HS_DATA=[{"id": "396417534153", "name": "Alejandro Peláez Rodríguez", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "Fdk del cliente: La plataforma no funciona correctamente y su servicio de soporte es inexistente. Su agente de IA siempre responde con evasivas y no hay forma de que los mensajes que es dirijo sean atendidos por un humano o agente de IA con entrenamiento suficiente como para dar solución a los problemas que reporto, que son básicamente los de un cliente que acaba de contratar un servicio con el que no está aún familiarizado.", "analysis": "Se reviso el historial con el cliente", "conclusion": "Si el cliente escribe a hello@plinng no puede no llegar al inbox correcto, xq Maya esta dando ese correo. Esa 1ra experiencia a la hora de querer contactarnos debe ser buena. ", "churn_date": "2026-02-19"}, {"id": "392955288786", "name": "Sara Leiva Fernández", "churn_reason": "Sales Miscommunication", "subreason": "Trial Interpretation Conflict", "note": " Trial Interpretation Conflict", "analysis": "La clienta tenia publicaciones en su calendario pero la vinculación en late fue posterior a esa fecha y piensa que por error nuestro no se publicó. Argumentaba que no se había publicado en una fecha cuando si se había hecho  Sostiene que ella tenia una \"prueba gratuita a\" y no quiere continuar ni va apagar el recibo.", "conclusion": "No dar pruebas xq el cliente confunde que puede no pagar por el trabajo ya realizado.", "churn_date": "2026-02-19"}, {"id": "392695245007", "name": "Mary Sillero", "churn_reason": "Poor CX / Platform Issues", "subreason": "Connection RRSS Failure + Poor Industry Alignment (Quallity issues)", "note": " Connection RRSS Failure + Poor Industry Alignment", "analysis": "Se ha hablado con la clienta en múltiples ocasiones y no es lo que se le prefirió en un inicio, está frustrada y desea ejercer su derecho de baja y reembolso del servicio ", "conclusion": "Se ha hablado con la clienta en múltiples ocasiones y no es lo que se le prefirió en un inicio, está frustrada y desea ejercer su derecho de baja y reembolso del servicio. Estos puntos resumen los motivos clave de insatisfacción que están detrás de su baja / riesgo de churn: problemas técnicos de vinculación, contenido no adaptado a su sector, falta de funcionalidades que espera en la app y mala experiencia percibida en soporte y comunicación.", "churn_date": "2026-02-17"}, {"id": "389048747226", "name": "Andrea Garcia Sancho", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Buscaba algo mas personalizado a lo que le presentamos.", "analysis": "Call.", "conclusion": "clienta que solo nos dio unos dias de prueba.", "churn_date": "2026-03-03"}, {"id": "388956958909", "name": "Eddy Pecho", "churn_reason": "Forced Sales Closing", "subreason": "Low Commitment / Buyer's Remorse + Lack of Budget", "note": "Low Commitment / Buyer's Remorse  + Lack of Budget", "analysis": "Contactar al cliente", "conclusion": "Cerrar la venta sin demoras de pago. motivos económicos (primer pago erróneo)", "churn_date": "2026-02-24"}, {"id": "387170228436", "name": "Dahiana Riba Domínguez", "churn_reason": "Forced Sales Closing", "subreason": "Personal Circumstances", "note": "Personal Circumstances", "analysis": "Contacto con la cliente", "conclusion": "Nurturing? sin realizar el pago (no avanzó por temas personales)", "churn_date": "2026-02-24"}, {"id": "381243843818", "name": "Jorge Flores Jurado", "churn_reason": "Forced Sales Closing", "subreason": "Pricing Structure Confusion + Payment vs. Delivery Misalignment +  Low Commitment / Buyer's Remorse", "note": "Pricing Structure Confusion + Payment vs. Delivery Misalignment +  Low Commitment / Buyer's Remorse", "analysis": "Llamamos al cliente", "conclusion": "No utilizar SEPA en el primer cobro", "churn_date": "2026-02-16"}, {"id": "381029795033", "name": "Irene Lazaro Garcia", "churn_reason": "Unrealistic promise", "subreason": "Product Model Rejection", "note": "se le ofrecio un servicio mas personal", "analysis": "revisar comunicaciones", "conclusion": "hacer promesas realistas", "churn_date": "2026-02-09"}, {"id": "380582228167", "name": "MONTORO I VIDAL SL", "churn_reason": "Quality Issues", "subreason": "", "note": "No le gusta que sea con IA, ni las propuestas que realizamos. Tipografía y colores errados. No desea seguir.", "analysis": "", "conclusion": "Alinear web/IG con IA", "churn_date": "2026-03-03"}, {"id": "380158206179", "name": "Jorge", "churn_reason": "Support or Service Issues", "subreason": "", "note": "deolvió el primer recibo porque no pudo contactar", "analysis": "", "conclusion": "lo. hemos estado llamando y nunca más volvió a responder", "churn_date": "2026-03-02"}, {"id": "380274197725", "name": "Jose Antonio Restrepo Astorda", "churn_reason": "Onboarding Failure", "subreason": "Payment vs. Delivery Misalignment", "note": "Clienta enfadada por fallas en la comunicación, pide la baja antes de que se le haga el 1er cargo.", "analysis": "Se escucho llamada y revisión de wa", "conclusion": "Cliente pidió que se la contacte a un correo el cual no fue notificado y las comunicaciones automáticas fueron por wa. Clienta que no entiende que se suscripción a un servicio y nos trata de estafadores porque le llegó el recibo en el banco. Clienta quiso devolver llamada y cct de la persona de ventas y al no lograrlo se frustro. No creo que sea nuestro perfil de cliente.", "churn_date": "2026-02-06"}, {"id": "379945563362", "name": "Celso", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "tampoco puede acceder a sus redes sociales por que lo tiene bloqueado por la empresa que le gestina el kit digital", "analysis": "", "conclusion": "reaccionar mas rapidamente a los problemas de acceso a la app", "churn_date": "2026-02-23"}, {"id": "378594157761", "name": "Giangi solo pizza SL", "churn_reason": "Sales Miscommunication", "subreason": "", "note": " Unfit Customer Profile + High-Touch Expectation + Traditional Agency-Style", "analysis": "He hablado con la cliente para enteneder sus necesidades, y me comenta que dado su edad le es muy complicado usar la tecnologia que ella necesita que le lleve el marketing una persona que este con ella fisicamente no mediante una app", "conclusion": "La cliente no es nuestro publico, es una señora de 70 años  ella lo que buscaba no era una app si no un seguimiento mas personalizado,he hecho varias llamadas con la cliente para conetcar las cuentas a la app, pero me comenta que ya consiguo a otra persona que le lleve las redes y la web que esta en el mismo lugar que ella. Y que nos demoramos un mes en hacerle la web. Siempre tuvo problemas en manejar la app, lo que ella queria era un servicio de marketing no una app", "churn_date": "2026-02-27"}, {"id": "378008070369", "name": "Yanosik Tores", "churn_reason": "Forced Sales Closing", "subreason": "Payment vs. Delivery Misalignment + Lack of Budget", "note": "Payment Failed", "analysis": "na", "conclusion": "na", "churn_date": "2026-02-09"}, {"id": "372909323511", "name": "Yonaire Materano", "churn_reason": "Business Closed", "subreason": "Business Dissolution", "note": "Cliente cierra el negocio, sin embargo si le gustaron las publicaciones que al final fueron pocas pero ya va a necesitar el servicio ", "analysis": "Llamar a la clienta sin éxito, verificar por medio de correo la solicitud ", "conclusion": "A la clienta le gusta la plataforma y no tuvo problemas de conexión, lo cual agradece, pero ya no necesitará la app. ", "churn_date": "2026-02-25"}, {"id": "372851468493", "name": "Virginia Peñalver de la fuente", "churn_reason": "Sales Miscommunication", "subreason": "Pricing Structure Confusion + Low Commitment / Buyer's Remorse", "note": "Pricing Structure Confusion + Low Commitment / Buyer's Remorse", "analysis": "Comunicación con la cliente.", "conclusion": "A las horas de abonar me consultó por el precio (no sabía que era 160 +IVA) Finalizó diciendo: \"Vale, pues lo entendí mal. No puedo permitirme ese dinero en 3 meses. Hay opción de somos probar un mes?\" Rechazó el pago porque debe pagar 194,57€ (160€+IVA) en lugar de 160€. Ademas pregunta si el pago es por unica vez o si debería pagar todos los meses.", "churn_date": "2026-02-24"}, {"id": "372752865469", "name": "Mayra alexandra Guaman Guachamin", "churn_reason": "Unrealistic promise", "subreason": "", "note": "Se contacta con la clienta por teléfono el día previo a la reunión para confirmar asistencia, sin respuesta.Al día siguiente, la clienta escribe molesta indicando que se le ha cobrado un recibo cuando, según comenta, el asistente de ventas le informó de que el cobro se realizaría el 8 de febrero y que los días anteriores eran de prueba.La clienta manifiesta sentirse engañada.Se realiza llamada para explicarle la situación y se le indica que el cobro se puede solucionar, pero la clienta decide solicitar la baja igualmente.", "analysis": "Hablar con la clienta para entender su frustracion", "conclusion": "Que tenemos que ser mas agiles con el tema cobros", "churn_date": "2026-01-30"}, {"id": "370913876216", "name": "RAQUEL BALSALOBRE MORAL", "churn_reason": "Onboarding Failure", "subreason": "", "note": "no ha podido contactar con nosotros ante las dudas en el proceso de onboarding", "analysis": "revisar histórico de correos", "conclusion": ".", "churn_date": "2026-02-19"}, {"id": "371642733782", "name": "Jose Maria Santos", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "payment failed", "analysis": "", "conclusion": "na", "churn_date": "2026-02-11"}, {"id": "371588772074", "name": "JORGE VERDASCO NOVALVOS", "churn_reason": "Forced Sales Closing", "subreason": "Low Commitment / Buyer's Remorse + Payment vs. Delivery Misalignment + Early-Stage Support Failure", "note": "Low Commitment / Buyer's Remorse + Payment vs. Delivery Misalignment + Early-Stage Support Failure", "analysis": "Tratar de contactar/argumentar y ofrecer soluciones", "conclusion": "Resumen del caso:El cliente solicita la cancelación del servicio a los pocos días de la activación (alta hace aproximadamente 2 semanas).Se le envió el formulario necesario para configurar las campañas de Google y Meta Ads, pero no se recibió la información requerida para completar el onboarding. Se han realizado varios intentos de contacto por email y llamada telefónica sin éxito. Al no disponer de los datos mínimos necesarios (objetivos, segmentación, presupuesto, propuesta de valor, etc.), no se pudieron activar las campañas. El cliente indica que no abonará el próximo recibo y reitera su voluntad de cancelar. Solicitud: Revisar condiciones contractuales y proceder según política de cancelación vigente. Confirmar si aplica compromiso de permanencia y próximos pasos administrativos.", "churn_date": "2026-02-18"}, {"id": "371019056331", "name": "Albert Martínez", "churn_reason": "Business Closed", "subreason": "", "note": "Cliente no tiene negocio aun", "analysis": "Se tuvo reunión de onboarding con cliente, no tiene lista la marca ni claro que tipo de servicios desea brindar, cierre de negocio. ", "conclusion": "A los 6 días de la venta el cliente dice no tener claridad sobre su empresa, no efectúa el 1er pago y pide baja. Cancela servicio antes de la fecha de debito del 1er pago.", "churn_date": "2026-01-26"}, {"id": "370887568620", "name": "Micaela Rudelli", "churn_reason": "Poor CX / Platform Issues", "subreason": "Functional Bugs + Delivery Speed Gap +  Ads Visibility Failure", "note": "Se le ofrece mes gratis para compensar las molestias (y prioridad en sus solicitudes), pain points:App no le recogia las solicitudes de feedback ni le hacia las propuestas con  el contenido que subio la clienta a la galeria, pasamos varias veces ticket por estoTardanza en Instagram ADS, 11 dias despues de tener el ticket creado seguimos sin respuesta, igual con la web que teniamos que crearFalta de comunicacion ya que quiere un servicio mas 121Solicita finalmente la baja definitiva.", "analysis": "entender a la clienta", "conclusion": "mejorar tiempos con los tickets ", "churn_date": "2026-02-06"}, {"id": "369526015210", "name": "JUAN FERNANDEZ BARRUL", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "Cliente no tiene shows alineados para el mes que viene y no le ve oportunidad de uso a la app ", "analysis": "", "conclusion": "Hemos revisado que ha ocurrido con el clienta ya que no había pagado su ultima factura y ahora que le llamamos para poder avanzar el cliente pide esta pausa ", "churn_date": "2026-02-26"}, {"id": "369472901310", "name": "Ederson Silva", "churn_reason": "Forced Sales Closing", "subreason": "Low Commitment / Buyer's Remorse", "note": "Payment Failed", "analysis": "na", "conclusion": "na", "churn_date": "2026-02-09"}, {"id": "366733703380", "name": "Adriana Aguilar Moreira", "churn_reason": "Outside The Scope of the Plan", "subreason": "High-Touch Expectation", "note": "High-Touch Expectation ", "analysis": "Le contacté a la cliente al teléfono para comprender el motivo de la baja. Durante la llamada, se exploraron sus dificultades con la app y con la creación del perfil de Google. Se le ofrecieron soluciones concretas: apoyo en videollamada, creación de su web y perfil de Google, además de un mes gratuito como compensación. También se revisó si su necesidad estaba alineada con el servicio que ofrecemos. Finalmente, se confirmó que su decisión estaba basada en la búsqueda de un acompañamiento más cercano y continuo, algo que excede el alcance del producto.", "conclusion": "La baja se debe principalmente a una expectativa de servicio que no coincide con el modelo de la plataforma. La cliente buscaba un acompañamiento personalizado y constante, más cercano a un servicio de consultoría o gestión manual, en lugar de una herramienta digital de autoservicio. Aunque se ofrecieron alternativas y soporte adicional, la cliente ya había decidido trabajar con alguien que pudiera brindarle ese tipo de atención continua. ", "churn_date": "2026-02-16"}, {"id": "367018100932", "name": "Alejandro Moyano Vilardell", "churn_reason": "Forced Sales Closing", "subreason": "Low Commitment / Buyer's Remorse", "note": " Low Commitment / Buyer's Remorse", "analysis": "hablar con el cliente", "conclusion": "dice que no quiere seguir con nosotros porque va a hacer con alguien que conozca. No le hemos dado confianza (a los 3 dias  de la contratación cancela onboarding dejando cota que desiste a la contratación)", "churn_date": "2026-02-10"}, {"id": "365815001313", "name": "EVA MARÍA GARCÍA MAGUREGI", "churn_reason": "Poor CX / Platform Issues", "subreason": "Loading Error + UX Friction (approval of posts) + Failed Posting vs calendar  + Connection RRSS Failure", "note": "Loading Error + UX Friction (approval of posts) + Failed Posting vs calendar  + Connection RRSS Failure ", "analysis": "Al inicio tuvo problemas para visualizar las publicaciones programadas, luego considera que la app es poco intuitiva (aprobar propuestas) saber que se va  a publicar o xq no se ha publicado. Luego tambien tuvo fallas de carga y su perfil salía en blanco. No ha tenido una buena experiencia y no se siente cómoda manejando todo desde la app.", "conclusion": "Los problemas con la app este mes fueron suficientes para que la cliente no se sintiera identificada con el producto ", "churn_date": "2026-02-26"}, {"id": "366656733382", "name": "Ana Vilanoba", "churn_reason": "Quality Issues", "subreason": "Functional Bugs + High-Touch Expectation", "note": "La cliente esperaba un servicio más personalizado, es una señora mayor. Todo el momento el feedback me lo paso directamente por WHATSAPP, nunca utilizó la app para pasar feedback. Una vez aprobó las propuestas. No publicamos nada, hable con ella y con help desk y lo solucionamos y publicamos lo pendiente. Se le ofreció un mes gratis para salvar la baja y en su momento lo acepto. Pero después seguía viendo errores en la app como que la vista previa de las publicaciones aprobadas no le cargaba. Y al final ya no quiere continuar con nosotros. En resumen se le les muy complicado usar la app, le expliqué en el onboarding, con videos, y le ofrecí hacer otra videollamada pero no desea.  Tampoco realizo nunca el primer pago de la subrepción , por lo que regalarle otro mes gratis no creo que sea la solución , siendo que nunca pago para este servicio. Al final prefiere un trato mas directo y que su hija le siga llevando las redes como venía haciendo hasta ahora", "analysis": "He hablado constantemente con ella por whatssap, y por llamadas de teléfono , preguntándole el motivo y buscando soluciones", "conclusion": " En resumen se le les muy complicado usar la app, le expliqué en el onboarding, con videos, y le ofrecí hacer otra videollamada pero no desea. La app tiene problemas , como que no se le publican las publicaciones, no carga la vista previa. Tampoco realizo nunca el primer pago de la subrepción , por lo que regalarle otro mes gratis no creo que sea la solución , siendo que nunca pago para este servicio. Al final prefiere un trato mas directo y que su hija le siga llevando las redes como venía haciendo hasta ahora, no creo que este seria nuestro cliente ideal que buscamos ", "churn_date": "2026-02-03"}, {"id": "365766086854", "name": "karla Chopén", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "La clienta desde un primer momento quería un trato de agencia personalizada. A pesar de que se le explico varias veces como funcionaba la APP la clienta no quería continuar con este modelo de trabajo.", "analysis": "", "conclusion": "Que necesitamos mas clientes ideales", "churn_date": "2026-02-23"}, {"id": "361939693767", "name": "Inversiones Budha XXI SL", "churn_reason": "Quality Issues", "subreason": "Personalization Gap  Correction Failure +   Critical UX Friction  Functional Bugs (platform issues)", "note": "El cliente no pudo utilizar correctamente la app para subir sus fotos y videos, ya que la plataforma no permitía cargar la mayoría de su contenido. Me compartió todo el material por Drive, pero aun así solo se pudieron subir muy pocas imágenes. Se generaron tickets a Help Desk y Service Delivery para cargar el contenido y ajustar las publicaciones al estilo que el cliente solicitaba, pero las publicaciones finales no utilizaron sus fotos ni reflejaron su estilo actual.El cliente aprobó algunas publicaciones sin entender por qué se le pedía aprobarlas y eliminó otras que no le gustaron. Expresó frustración porque el contenido no estaba alineado con sus expectativas y porque las imágenes no eran reales ni representaban sus productos.", "analysis": "Revisamos el proceso inicial y confirmamos que la app no permitió subir la mayoría de las fotos y videos del cliente.Intentamos cargar el contenido manualmente desde nuestro lado, pero la plataforma también limitó la cantidad de imágenes aceptadas. Se abrieron tickets a Help Desk y Service Delivery para cargar el material y adaptar las publicaciones al estilo actual del cliente.Se revisaron las publicaciones generadas y se compararon con lo solicitado, detectando que no se utilizaron las fotos reales del cliente.Se analizó el feedback del cliente, incluyendo su frustración por publicaciones no alineadas, imágenes no reales y procesos de aprobación que no entendía.Se realizó una llamada de retención ofreciendo alternativas (videollamada, descuento, mes gratis), pero el cliente ya tenía una percepción negativa desde el inicio.", "conclusion": "El cliente se dio de baja porque el producto no cumplió sus expectativas desde el inicio. No pudo subir sus fotos ni videos a la app, el contenido que proporcionó no se utilizó en las publicaciones y el resultado final no representó su estilo ni sus productos reales. Además, el proceso de aprobación generó confusión y algunas publicaciones no fueron de su agrado.A pesar de los esfuerzos de soporte y retención, la mala experiencia inicial y la falta de alineación entre las publicaciones y sus expectativas generaron una percepción negativa que no pudimos revertir.", "churn_date": "2026-02-20"}, {"id": "361753502944", "name": "Andrea franco", "churn_reason": "Forced Sales Closing", "subreason": "Trial Interpretation Conflict", "note": "A la clienta se le ofreció que no se le  realizaría el cobro del plan hasta el primero de febrero como un estilo de prueba para la app. ", "analysis": "Se ha hablado con la clienta, llamada y enviado varios correos para poder revisar por qué no le gusta el servicio, pero no hemos obtenido respuesta y esta molesta por que ya se le exigió el cobro.  ", "conclusion": "La clienta deseaba ver como era la app y se forzó dicha venta para hacerlo en el onbaording y una vez vio el servicio no le gusto. No se cobra el 1er pago, pide la baja a los 3 días de la prueba.", "churn_date": "2026-02-02"}, {"id": "356046434528", "name": "Sofía Déniz", "churn_reason": "Unrealistic promise", "subreason": "Product Model Rejection APP/IA +  High-Touch Expectation +Website not delivered on time or not delivered yet", "note": "No se le cumplió el realizar la página web antes de que finalizara enero, la clienta no completó el brief por medio de la app jamás y nos envía toda la información por partes, ", "analysis": "Se ha hablado con la clienta y hacer énfasis en lo importante que era poder rellenar la información necesaria para poder avanzar, sin embargo ella más que todo quería la web ", "conclusion": "A la clienta se le realizaron promesas que no estan dentro de lo que se podía realizar en ese momento, no quería que fuera todo por la app ", "churn_date": "2026-02-09"}, {"id": "354644433127", "name": "Cris Ayats", "churn_reason": "Poor CX / Platform Issues", "subreason": "Maya: Logic & Context Failure + Delivery Speed Gap (Quality Issues)", "note": "- Experiencia del Cliente: El cliente tuvo dificultades para usar la aplicación, mencionando que la asistente de IA no respondía adecuadamente a sus consultas. Esto generó frustración y una mala primera impresión.- Expectativas vs. Realidad: El cliente esperaba que los cambios en la tipografía y en las publicaciones fueran automáticos, pero experimentó problemas al intentar implementar sus solicitudes. También nos facilitó en galería tipografía que le gustaria que usáramos para sus publicaciones, la cual no fue utilizada en ninguna ", "analysis": "He hablado con ella varias veces por teléfono, preguntándole lo sucedido y accediendo a su perfil y pidiendo cambios por ella en la app. Le ofreci un mes gratis o la posibilidad de hacer una videollamada, para solictar juntas los cambios pero no acepto ", "conclusion": "La baja se debe a fallos técnicos en la aplicación que impidieron al cliente utilizar el servicio desde el inicio, quien no llevo la mejor impresión y ya no quiere invertir mas tiempo en tratar que la app funcione.", "churn_date": "2026-02-09"}, {"id": "354150889663", "name": "Inmaculada Maldonado Pinto", "churn_reason": "Quality Issues", "subreason": "Maya: Early-Stage Support Failure +  Correction (fdk) Failure + Personalization Gap + Website not delivered on time or not delivered yet", "note": "Maya: Early-Stage Support Failure +  Correction (fdk) Failure + Personalization Gap", "analysis": "Hable con ella por telefono y le comente que esto se podría cambiar. Me dijo que bueno que si conseguimas hacer otra propuestas en el mismo dia lo consideraría. Me reuní con Mati e hicimos propuestas con las fotos de la cliente que subio a la galeria. Y le comente esto para que lo revise pero igual no le gusta que desea continuar con la baja que no le convencio el funcionamiento de la app ni la primera impresion. ", "conclusion": "Frustración por la falta de respuesta y cambios por parte de la inteligencia artificial utilizada, generando dudas sobre la utilidad del servicio. Subió contenido a la galería para que se usara para sus post, pero no fue tomado en cuenta ninguno, y también solicitó a Maya en las propuestas que utilizara una foto en específico, pero tampoco fue tomado en cuenta; se creó la propuesta con otra foto que no era de ella. ", "churn_date": "2026-02-11"}, {"id": "353516329163", "name": "Shampoo Sensational", "churn_reason": "Support or Service Issues", "subreason": "", "note": "no se le hizo caso porque el primer pago no había entrado todavia", "analysis": "", "conclusion": "que si al que paga se le considera cliente hay nosotros no hayamos cobrado deberíamos darle un servicio post-venta igual que al de los demás", "churn_date": "2026-02-19"}, {"id": "352398868705", "name": "Mireia Cruz Maetinez", "churn_reason": "Poor CX / Platform Issues", "subreason": "Failed Posting vs calendar + Connection RRSS Failure + High-Touch Expectation", "note": "Failed Posting vs calendar + Connection RRSS Failure + High-Touch Expectation", "analysis": "Hemos hablado con la clienta y le parece que el servicio brindado no estaba a la altura de sus expectativas par nada. La clienta estaba molesta desde antes que no iba a tener un punto de contacto diario y lo expreso antes", "conclusion": "La clienta no es nuestro publico objetivo y dejo de lado la app y no aprobó las propuestas necesarias", "churn_date": "2026-02-23"}, {"id": "346507559153", "name": "AIDEÉ ZAMORANO", "churn_reason": "Quality Issues", "subreason": "", "note": "El cliente indica que la aplicación se encuentra en desarrollo y que no es lo que esperaba. ", "analysis": "Se analizaron los motivos de baja teniendo en cuenta sus argumentos sobre las propuestas programadas no publicadas (se abre tkt pero cuando se programan la clienta ya había tomado la decisión) ", "conclusion": "La clienta queria mayor inmediatez y al reves que otros clientes si que esperaba que toda la interacción sea por la app como si hablara con gemini. ", "churn_date": "2026-01-08"}, {"id": "344755129593", "name": "Claudia Cristina Cáceres Montaño", "churn_reason": "Onboarding Failure", "subreason": "Payment vs. Delivery Misalignment", "note": "Cliente no llegó a realizar onboarding ni quiere hablar con nosotros", "analysis": "Correos y llamadas", "conclusion": "la relación se rompió antes de empezar por falta de claridad o mal entendido de la clienta sobre: el precio, el momento del cobro y la  forma de trabajo.", "churn_date": "2026-02-09"}, {"id": "344101935338", "name": "Raquel Rodriguez Marray", "churn_reason": "WTP < Cost", "subreason": "Lack of Budget", "note": "Cliente comento que le gusta mucho el servicio pero en este momento no se lo puede permitir económicamente ", "analysis": "Hemos intentado llamar a la clienta pero solamente nos envía un correo en respuesta, ser muy empáticos ", "conclusion": "Es nuestro target por qu ele gusta la app pero no el momenot para pagar esta cantidad. ", "churn_date": "2026-02-17"}, {"id": "344095937734", "name": "Carmen Fernandez", "churn_reason": "Outside The Scope of the Plan", "subreason": "", "note": "La clienta quiere que se publique un contenido especifico, No tiene un espacio en la APP para comentar sobre que se tiene que publicar, además, comenta que ha solicitado cambios muchas veces y no le han hecho caso. ", "analysis": "", "conclusion": "Que tenemos que mejorar el producto para poder retener mas", "churn_date": "2026-03-03"}, {"id": "344025695443", "name": "FUNDACION VIZCAINA AGUIRRE", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "No ha recibido nada. Pide el refund", "analysis": "", "conclusion": "", "churn_date": "2026-01-20"}, {"id": "341834367224", "name": "Luis Rodriguez Baltasar", "churn_reason": "WTP < Cost", "subreason": "Lack of Budget", "note": "Nunca fue cliente.", "analysis": "observar histórico", "conclusion": "Asegurarnos de que abonen el servicio antes.", "churn_date": "2026-02-04"}, {"id": "341993588950", "name": "Jose Luis Rodriguez Gomez", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "", "analysis": "Durante el onboarding se explicó de forma clara el funcionamiento y alcance del plan contratado. No obstante, el cliente insistía en que esperaba un servicio de agencia más personalizado, lo cual no se ajusta al modelo del plan.", "conclusion": "", "churn_date": "2026-01-27"}, {"id": "341661061330", "name": "Leticia Romero", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-10"}, {"id": "339271122114", "name": "Raul Santaella Lozano", "churn_reason": "Onboarding Failure", "subreason": "Multi-account necessity", "note": "expectativas + cliente no receptivo + gestion por nuestra parte ( cuando se quiso retener ) lenta", "analysis": "revisar", "conclusion": "gestionar expectativas y gestionar rapido las incidencias y meses de abono", "churn_date": "2026-02-02"}, {"id": "339144869050", "name": "Yolanda Fernández Gil", "churn_reason": "Poor CX / Platform Issues", "subreason": "Posting Error (publish without approval) +  Personalization Gap + Poor Industry/Buisness Alignment", "note": "No hay manejo de la web por medio de la app, no está alineado a lo que la clienta solicitó. ", "analysis": "Se tuvo la reunión de onboarding con la cc luego ya tuvimos varias llamadas telefónicas en donde todo estuvo bien y se quedó con buen sentimiento sin embargo cuando le envié la primera versión de la web se molestó y dijo que para nada era lo que solicito ", "conclusion": "Necesitamos mejora las webs, este esperemos mejore con la nueva manera de hacer webs ", "churn_date": "2026-02-02"}, {"id": "338407242953", "name": "Mercedes Ruiz Rios", "churn_reason": "Business Closed", "subreason": "", "note": "Cliente quiere darse de baja porque tiene que dejar de trabajar por seis meses , la llamo pero no me contesta, estamos en contacto por WHATSAPP, me dice que llamada no puede que no tiene cobertura. Hablo con ella por whatssap porque por teléfono para llamada no tiene cobertura, va a dejar de trabajar síes meses, entonces no le serviría de nada las publicaciones . Le ofrecí un descuento o mes gratis, pero no desea, solo desea que en seis meses le contactamos. Por favor darle de baja", "analysis": "E contactado a la cliente para entender su situación, hemos quedado que en seis meses cuando retome su negocio le contactaremos de nuevo para reactivar el plan", "conclusion": "Deberíamos tener una estrategia además de descuentos y mes gratis para salvar una baja cuando un cliente cierra el negocio ", "churn_date": "2026-01-29"}, {"id": "337547767995", "name": "José Manuel Fernández Gutiérrez", "churn_reason": "Business Closed", "subreason": "", "note": "Esta resolviendo un problema que tiene con su web, mientras tanto hasta no tenerlo resuelto se da de baja y luego retomaría el servicio", "analysis": "Nos contactamos con el cliente para entender situación (desde sale s y PS)", "conclusion": "Hemos ofrecido opciones para continuar pero al no tener permanencia prefiere darse de baja y luego volver a contratar", "churn_date": "2025-12-21"}, {"id": "336492359901", "name": "Jero Garcia", "churn_reason": "Does not see impact on their business", "subreason": "Trial Interpretation Conflict + High-Touch Expectation", "note": "Motivo de baja:Cliente indica que se le comunicó que podía probar el servicio durante tres meses para ver resultados. Afirma que no ha recibido llamadas ni comunicación con ningún asesor y que no ha obtenido resultados (sin llamadas de clientes).Situación:Reitera su decisión de rescindir el contrato (solicitado inicialmente el 20 de enero).Indica que no pagará más cuotas.Menciona que contactará con el banco para devolver recibos.Insatisfacción por falta de resultados y acompañamiento.Valoración negativa en encuesta (😠). ", "analysis": "Gestión realizada:Se le informó de la necesidad de preaviso de 20 días según condiciones.Se aclaró que no es posible devolver recibos ya cobrados.Se ofreció explicación detallada para aplicar la baja correctamente.Cliente confirma decisión definitiva de rescisión.", "conclusion": "Confirma que quiero rescindir el contrato, porque no ha tenido ningún paciente y no puedo seguir pagándonos", "churn_date": "2026-02-11"}, {"id": "336915492072", "name": "Mario Fernández", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "pidió la baja el 7 de enero porque no se le habían solucionado los problemas de la APP, no se le prestó ningún servicio.", "analysis": "na", "conclusion": "na", "churn_date": "2026-02-10"}, {"id": "336978247915", "name": "ANA GONZALEZ FERNANDEZ", "churn_reason": "Quality Issues", "subreason": "Personalization Gap +  Review Fatigue in fdk + Failed retention due to poor improvement", "note": " Personalization Gap +  Review Fatigue in fdk  + Failed retention due to poor improvement", "analysis": "revisar", "conclusion": "aumentar calidad publicaciones, usar el contenido de la galeria", "churn_date": "2026-02-02"}, {"id": "334151939290", "name": "Esther Renedo Martínez", "churn_reason": "Poor CX / Platform Issues", "subreason": "Personalization Gap + Review Fatigue in fdk", "note": "Cliente no le ve valor a la app, ya que le genera mas trabajo que si ella mismo edita y publica posts, reels, carruseles o stories ", "analysis": "Se ha revisado todo el trato con la clienta ya llevaba desde hace 20 dias pidiendo la baja, primero la vi Irene, segundo Gonzalo y ahora ya no quiere hablar conmigo ", "conclusion": "En el momento que la cliente solicita la baja aún no estaba la contact factory aún lista para carruseles y stories lo cual generó mucho malestar a la clienta. Se le indica si es posible que lo intente nuevamnete pero se rerusa y ya desintalo la app ", "churn_date": "2026-02-10"}, {"id": "334153669855", "name": "Katherine Seferlis", "churn_reason": "Quality Issues", "subreason": "", "note": "problemas con tiempos y calidad de servicio en la APP", "analysis": "SE analizo el historial del cliente", "conclusion": "El cliente si el 1er mes no ve que la app lo va  ayudar no espera a que se resuelvan los issues ", "churn_date": "2026-02-05"}, {"id": "333644734659", "name": "Marisol González Piñeiro", "churn_reason": "Forced Sales Closing", "subreason": "Unfit Customer Profile + Perceived Low Complexity in posts", "note": " Unfit Customer Profile + Perceived Low Complexity in posts", "analysis": "- Marisol expresó insatisfacción con el contenido proporcionado, considerándolo demasiado sencillo y fácil de replicar.- Mencionó que su uso de la aplicación es más un hobby y no tiene intenciones de generar ventas en este momento.- Solicita que se detenga el desarrollo de una web, ya que no tiene productos que subir.", "conclusion": "\"contenido no me gusta, muy sencillo\" (posts)\"no tengo ventas ni pienso tener por el momento, solo de hobbie por ahora\"\"estoy empezando a editar, haciendo cursos... puedo hacer las pptas yo\"\"lo mío fue una prueba, a ver cómo funciona\"", "churn_date": "2026-02-10"}, {"id": "333025125621", "name": "Maria Jesús", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "Clientas no se conectaron a la reunión de onboarding y por experiencias anteriores pensaron que era un timo, pero una pobre comunicación desde antes y no quieren continuar ahora. Contactar en marzo nuevamente ", "analysis": "son 2 socias, habían sufrido 2 timos y son muy desconfiadas. Se intentó descargar la APP y no podía meter info, escribió por whatsapp y nadie le respondió, sin embargo le escribió Oscar recordando el onboarding desde otro chat. Su compañera dio por hecho que éramos un timo echó para atrás el recibo.", "conclusion": "Tenemos que tener detectados desde antes estos perfiles", "churn_date": "2026-01-22"}, {"id": "332270715095", "name": "MIRYAM VENEGAS", "churn_reason": "Unrealistic promise", "subreason": "", "note": "Nunca quiso reunirse y accedió al plan porque tenia un descuento que dejaba su cuota en 29€ y Febrero gratis. Tras eso le llegó una reclamación del pago con el que no estaba de acuerdo y ya no se fía (dice que es problema nuestro si el comercial ha ofrecido algo que no era).", "analysis": "", "conclusion": "No era nuestro target. Se quej", "churn_date": "2026-02-17"}, {"id": "333526117620", "name": "Marcelo Calero", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Cliente contactado me comento que la decisión de contratar la tomo el sin consultar con sus socios y su socios ya no estaban de acuerdo.Esta decisión se toma debido a que, a día de hoy, no hemos recibido un contrato de prestación de servicios por escrito en el que consten de forma clara y expresa las condiciones aplicables al plan contratado, incluyendo entre otros aspectos duración, posibles permanencias, condiciones de cancelación y titularidad de los entregables (especialmente la página web).Volvi a hablar con el cliente le pase los terminos y condiciones que acepto al pagar stripe, pero me comenta que debido al tiempo que ha pasado desde que iniciamos la consulta, la dirección del centro ha tomado otra decisión con relación a las campañas de marketing. Tampoco le gusto la idea de que para quedarse con la web que le creamos debe estar un año con nosotros.( Cliente nunca hizo ningún pago , ni el de diciembre para empezar con nosotros el plan )", "analysis": "Se le explico al cliente sobre los términos y condiciones y se intentó dar lo que nos pedía pero no contamos con lo que el cliente necesitaba (contrato detallado con el servicio contratado + periodo de permanencia). Además el cliente queria hacer una web con sistema de reservas (ya la tenia en hostinguer y quería replicarla y mejorarla). Sobre meta ads no dio chance a que vea le valor del servicio.", "conclusion": "El cliente tomó solo la decisión de compra pero al momento de pagar los socios no quisieron avanzar. Tenemos que poder id quien toma la dedición de compra. Mejorar los términos particulares de contratación.", "churn_date": "2026-01-23"}, {"id": "333299333351", "name": "Viviana Castaño", "churn_reason": "Unrealistic promise", "subreason": "", "note": "La clienta dice que no es el servicio que le ofrecieron", "analysis": "hablar con la clienta", "conclusion": "Ser más claros con el producto que ofrecemos", "churn_date": "2026-01-28"}, {"id": "332272760051", "name": "MILAGROS HERRERA", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "nota en HS: Persona muy complicada de tratar. No terminamos el ONB el 12/12 y agendamos para hoy 15/12. En el medio de la reunión dijo que hablaría con su AE para discontinuar. No tenía del todo claro el servicio ni modo de trabajar.", "analysis": "(Julia) como todavía no tenemos Modjo y no podemos tener todas las demos grabadas porque a veces por configuración del cliente no podemos grabarla he hablado con la AE para que me explicara la situación de la clienta y no fue una venta forzada, la clienta tenía miedo de que no captáramos bien su marca y en el onboarding no se entendió con su CS. (Belén) se han escuchado las llamadas.", "conclusion": "La clienta estaba entusiasmado con la propuesta hasta que en el onboaridng entendió que su PS no iba a ser su agente de mkt como lo sería en una agencia tradicional. Conclusión: El cliente debe entender cómo es la forma de trabajar con la app.", "churn_date": "2025-12-15"}, {"id": "332404791491", "name": "Chiara Accorsi", "churn_reason": "Quality Issues", "subreason": "Critical Cross-Client Error in posts +  Poor Industry/Buisness Alignment", "note": "error en metricool y publicaciones no delg usto del cliente", "analysis": "revisar las causas", "conclusion": "llegan de ventas sin saber el valor del producto y que tenemos que tener mas cuidado al programar en metricool", "churn_date": "2026-02-02"}, {"id": "331919865062", "name": "Maria José Carrión Martínez", "churn_reason": "Sales Miscommunication", "subreason": "Payment vs. Delivery Misalignment + Product Model Rejection APP/IA", "note": "22/01 Irene: cliente no ha tenido onboaring y no está contenta con el servicio hasta ahora. El 07/01 su PS le envió calendly. Envío factura para que haga el pago de enero y comparto enlace para que agende onboarding. Cliente indica que la comercial le aseguró que no se le cobraría nada hasta tener la reunión y no están de acuerdo. Quieren la baja", "analysis": "no se tuvo el onboarding, solo tomo la llamada y solo indico que ya le cobraron y que eso no había acordado, Se desilusiono al ver las primeras propuestas, no le gusto y no sabia que se hacia con IA. Cliente no hace el 1er pago.", "conclusion": "na", "churn_date": "2026-02-10"}, {"id": "331539120376", "name": "Ldley Sucess", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "No se acreditó el primer pago. Contacto con AE", "analysis": "Vivi llamó a la clienta a ver si podía hacerle cambiar de opinión pero al final decidió que es un producto que no es para ella", "conclusion": "no estaba dentro de nuestro ICP", "churn_date": "2025-12-17"}, {"id": "331529538750", "name": "Ana Fernández Fageol", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "El cliente comento claramente al asistente de ventas que no queria que los textos fueran poco empaticos y que se vieran que eran IA. La clienta no esta nada contenta con los resultados y no quiere continuar", "analysis": "He intentado hacer ver a la clienta que se podria trabajar todo con sus imagenes y que se podrian mejorar los textos. Pero la clienta no estaba dispuesta a escucharme", "conclusion": "Que no es nuestro cliente objetivo y tenemos que mejorar el foco", "churn_date": "2026-01-28"}, {"id": "331567311059", "name": "MIRIAM FERNANDEZ UCELAY", "churn_reason": "Unrealistic promise", "subreason": "", "note": "Esta hablado con Mati y Alex esta al tanto. El cliente queria un trato super personalizado y queria trabajar con plantillas y de una forma que no podemos nosotros. Esta venta no tiene que contar a PS", "analysis": ".", "conclusion": "Tenemos que dejar muy claro al cliente que no es una aplicación personalizada para cada cliente", "churn_date": "2026-01-20"}, {"id": "330519679201", "name": "Belén González García", "churn_reason": "Quality Issues", "subreason": "", "note": "Cliente indica que el contenido de la app es genérico, sin alineación con su manual de identidad ni expectativas estéticas.Solicita cancelación, indicando que intentó hacerlo previamente sin éxito.Desde PLINNG se ofrece:Revisión del manual de identidad y referencias.Ajustes creativos.1 mes gratuito para reevaluar el servicio.Cliente responde que no desea continuar, solicita cancelación definitiva y menciona incluso la posibilidad de devolución, aclarando que ya había compartido materiales sin obtener resultados satisfactorios.", "analysis": "Se analizó el fdk de la clienta y se intentó retener con propuestas de mejora y bonificación", "conclusion": "Hay clientes más exigentes que otros en cuanto a la calidad de los post y semejanza con lo que plantean/comparten en galería, al no recibir algo de su estilo no dan chance a aplicar nueva ronda de fdk.", "churn_date": "2026-01-19"}, {"id": "324982994156", "name": "Benito Codina", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-09"}, {"id": "316281777341", "name": "Alejandra Ortegon", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-12-28"}, {"id": "317410685169", "name": "ANTONIA FRIGO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-01-14"}, {"id": "314158566592", "name": "YANIRA ROJAS SALAZAR", "churn_reason": "Quality Issues", "subreason": "Personalization Gap + Generic AI posts  + High-Touch Expectation", "note": "El cliente solicita la baja definitiva del servicio y afirma haberla comunicado por la app y por WhatsApp con anterioridad.Indica que ha intentado contactar por varios números de WhatsApp y por teléfono, sin obtener respuesta, lo que le ha generado molestia.Manifiesta que no quiere seguir recibiendo correos, propuestas ni notificaciones de pago.Aclara que entendió que el servicio era sin permanencia y no desea continuar ni pagar más.Expresa insatisfacción con los contenidos, ya que considera que no se usaron fotos reales aportadas y que el contenido era demasiado artificial.Rechaza planes adicionales y solicita que se respete su decisión de baja y se elimine la cuenta.También muestra malestar por la falta de llamadas, ya que al inicio sí existía contacto telefónico.", "analysis": "Contactar a clienta", "conclusion": "No era una potencial clienta. Entró con descuento y no sabe valorar ningún trabajo. No es nuestro target", "churn_date": "2026-02-09"}, {"id": "308720697563", "name": "KARETTA MALUCA", "churn_reason": "Quality Issues", "subreason": "", "note": "Especificado en nota del tkt", "analysis": "Se analizaron los tiempos de entrega: completó el brief el 22/11 y recibió las 1ras propuestas el 12/12. Clienta había compartido mucho material en drive que no se ha utilizado por lo que la frustra el tiempo que le tiene que dedicar al fdk en todos los posts. (Se sintió engañada con lo que se le ha vendido vs con los resultados) Intento de retención ofreciendo un mes 100% bonificado, el cual fue rechazado. ", "conclusion": "El equipo es consciente de las limitaciones en los post de clientes que ya vienen con un feed y una imagen de marca clara y próximamente será un punto resuelto. Deberíamos de anticiparnos con éste tipo de clientes para que no reciban post que sabemos que no van a estar alineados con las expectativas del cliente.", "churn_date": "2025-12-17"}, {"id": "301176480959", "name": "BAILANDO DANZA SLU", "churn_reason": "Does not see impact on their business", "subreason": "Service Overlap with active KD", "note": "Clienta super maja comenta que se da de baja por que tiene activo un plan con el kit digital con otra empresa y no quiere solapar los servicios, dice que volverá en Abril, se le da opción de mantener el plan de forma gratuita para seguir con los otros servicios pero no quiere.", "analysis": "Llamada", "conclusion": "clienta le gusta el servicio pero por causas externas no puede", "churn_date": "2026-02-19"}, {"id": "298434867426", "name": "Sara Gil Escrig", "churn_reason": "Quality Issues", "subreason": "", "note": "Descontenta con las propuestas tras aportar feedback extenso. Percibe que pierde más tiempo del que gana y no le suma.", "analysis": "Ofrecerle un mes gratis para que pueda ver el valor de la herramienta", "conclusion": "Mejorar la propuestas e intentar que no nos tengan que dar tanto feedback para que estén contentos.", "churn_date": "2026-01-08"}, {"id": "268599562448", "name": "María  Suárez", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "A los pocos días del onboardiing la clienta pide la baja por estar agobiada ya que recién empieza con el proyecto y que la situación le estaba superando y no tenia que haber firmado porque no era el momento.", "analysis": "", "conclusion": "", "churn_date": "2025-11-27"}, {"id": "269348115647", "name": "Ana María Garrido Godoy", "churn_reason": "Sales Miscommunication", "subreason": "Service Acquisition Denial + Low Commitment / Buyer's Remorse", "note": "Service Acquisition Denial + Low Commitment / Buyer's Remorse", "analysis": "Histórico (Nunca se sumó a la reunión ni respondió llamadas, mensajes. GHOSTEO. Hace 3 días, respondió a un mensaje automático: \"Yo no he comprado nada y si ustedes cogen algo de mi cuenta yo los denuncio\" En stripe ganó todas las disputas (no hay 1 pago ganado)", "conclusion": "Cliente no se enteró que había contratado el servicio (o no quiso enterarse)", "churn_date": "2026-02-26"}, {"id": "263454385382", "name": "Diego José Vilchez Pairazaman", "churn_reason": "Business Closed", "subreason": "Insolvency", "note": "Insolvency", "analysis": "Comunicación con el cliente.", "conclusion": "Ex trabajar de Orbidi. Sin trabajo, no puede pagarlo.", "churn_date": "2026-02-23"}, {"id": "256221200594", "name": "Marco Davelouis", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "El cliente venia pidiendo a gritos en todas las reuniones que quería un plan para conseguir clientes no para hacer crecer sus redes. Se le explica que cuando se terminara de crear la pagina web, se le iba a ofrecer ADS. El cliente ya estaba cabreado con la gestión y ya no quería otra cosa que no fuera la baja.  Por favor, detectar en ventas la necesidad del cliente", "analysis": "no he podido analizar la baja de ninguna manera porque es una venta de alguien que ya no trabaja aquí y no está la demo grabada", "conclusion": "expectativas del cliente", "churn_date": "2026-01-13"}, {"id": "256103278783", "name": "ACOMETIDAS DESAGUA SL", "churn_reason": "Sales Miscommunication", "subreason": "High-Touch Expectation +  Product Model Rejection APP + Plan Mis-selling", "note": "La clienta necesita que una persona se lo haga todo. Es un plan esencial legacy, la clienta no quiere usar la APP sin que nadie este pendiente de ella", "analysis": "", "conclusion": "Que este tipo de cliente no podemos mantenerlo en el tiempo", "churn_date": "2026-02-24"}, {"id": "247871776969", "name": "Claria", "churn_reason": "Quality Issues", "subreason": "Website not delivered on time or not delivered yet", "note": "Es una baja confirmada, la clienta necesitaba la página web para empezar con su marca y tardamos más de 3 semanas en presentar una primera versión. Encontró otro proveedor y se da de baja.", "analysis": "Belu es el caso que te comente de Gonzalo, fue una baja confirmada en Octubre, pero la subscripción sigue activa en Stripe , y le hemos cobrado, debemos devolverles, el mes de noviembre, diciembre y Enero y cancelarlo para que no se le cobre más, gracias  ", "conclusion": "Belu es el caso que te comente de Gonzalo, fue una baja confirmada en Octubre, pero la subscripción sigue activa en Stripe , y le hemos cobrado, debemos devolverles, el mes de noviembre, diciembre y Enero y cancelarlo para que no se le cobre más, gracias  ", "churn_date": "2026-02-04"}, {"id": "245571738868", "name": "OLIVER", "churn_reason": "Onboarding Failure", "subreason": "", "note": "Cliente informa que nadie lo contacto para el onboarding- Tengo capturas de pantalla como prueba", "analysis": "-hablar con el cliente , y leer lo que nos ha escrito al whatsapp", "conclusion": "- que el servicio al cliente importa", "churn_date": "2026-02-11"}, {"id": "242232367342", "name": "CASA FINA", "churn_reason": "WTP < Cost", "subreason": "Lack of Budget", "note": "No puede hacerse cargo - El negocio le va mal", "analysis": "Hemos ofrecido mes gratis ", "conclusion": "NA - Perfil de clienta humilde que no puede hacerse cargo del coste de dos planes si no obtiene ROI ", "churn_date": "2026-02-02"}, {"id": "238179025102", "name": "Juan Manuel Nadal Parra", "churn_reason": "Onboarding Failure", "subreason": "", "note": "El cliente se enfado en recibir distintas invitaciones para el onboarding, por ese motivo ya no quiso el servicio", "analysis": "Este cliente se molestó porque nadie se presentó al onboarding , agendado \"sin propietario\" por los cambios en hubspot que se estaban haciendo entre orbidi y plinng y luego tuvo otro onboarding agendado con Mariana pero aquí el cliente ya estaba tan enfadado que no quiso ni hacerlo y le pidió tanto a la AE como a Mariana que diéramos la baja.", "conclusion": "Que la organización es fundamental, tanto para los AE como los CS es fundamental revisar el calendario ver si tienen alguna reunión con un enlace de hubspot que no tienen detectado etc... y también un buen uso del CRM. Para que no haya confusiones en las que podamos quedar mal con el cliente, a veces habrá clientes a los que les podremos explicar el error y seguirán con nosotros pero otros piensan que transmitimos poca seriedad con estos errores. ", "churn_date": "2025-12-17"}, {"id": "221670903033", "name": "PATRICIA RODRÍGUEZ", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "La clienta contrato el servicio de META ADS, sin ninguna suscripción activa, solo el ADD-ON. Se permitió hacer esta venta, pero no se pudo hacer nada porque la clienta tenia la cuenta de FACEBOOK bloqueada. ", "analysis": "se le ofreció algo que no se puede vender, meta ads sin suscripción", "conclusion": "que no se pueden vender cosas que no están dentro del plan de plinng!!", "churn_date": "2026-01-19"}, {"id": "221424953576", "name": "Antonio Otin Liesa", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "Llamamos a final de septiembre y luego a inicio de octubre pero no tenían la app descargada si quiera. Una chica les llevaba el IG y no tenían acceso a él. El cliente hizo el primer pago por transferencia y nunca más abonó. // En noviembre, el AE se comunicó por los pagos y el cliente le comentó que no tenían tiempo para pedir las claves ni nada. // Hoy volvimos a llamar: sigue sin tener acceso al IG, ni tampoco tiene tiempo para gestionarlo. De momento no le interesa. A futuro nos avisará si logra destrabarlo.", "analysis": "", "conclusion": "En su momento abonó sin tener en cuenta qué datos serían necesarios para poder trabajar", "churn_date": "2026-03-03"}, {"id": "220064494790", "name": "Lemonburg", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-01-28"}, {"id": "217187091677", "name": "Milagros Caraballon", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "Se notificó a la clienta que el último cobro no pudo procesarse y se le pidió actualizar el método de pago.La clienta respondió que no se trata de un error, sino que se ha quedado sin empleo y tiene dificultades económicas.", "analysis": "", "conclusion": "Clienta que no era nuestro Target. Autónoma sin nociones de MKT Digital y que no sabe valorar las acciones que se hacen. Además no parecía el tipo de clienta que podía mantner un gasto en nuestro plan de cerca de 100€ mensuales", "churn_date": "2026-02-11"}, {"id": "216437730515", "name": "BOJ arq&bim", "churn_reason": "Support or Service Issues", "subreason": "", "note": "El cliente escribió indicando que cambió su num de móvil y ya no podía acceder a la app pero la conversación quedó en bandeja de SDR.Hubo un problema claro en la comunicación", "analysis": "", "conclusion": "", "churn_date": "2026-01-20"}, {"id": "216435862733", "name": "Monica Guirao Polo", "churn_reason": "", "subreason": "Legacy Facebook + Promoting diffrentes events/products each month", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-09"}, {"id": "214737352940", "name": "Tamara Berlanas", "churn_reason": "Business Closed", "subreason": "", "note": "\"Por motivos personales, el mes de enero es el último que voy a estar con vosotros. Solicitó la baja del servicio. Voy a parar mi negocio por un tiempo.\"", "analysis": "na", "conclusion": "na", "churn_date": "2026-01-02"}, {"id": "209942277332", "name": "Merche Vazquez PT", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Baja antigua (Octubre). Dijo que no le interesa y me colgó el teléfono.", "analysis": "Hemos intentado entender el motivo d el abaja pero la clienta no esta interesada en dar explicaciones", "conclusion": "Clienta desde agosto, cuando el servicio se vendía a través de orbidi, la baja fue también gestionada desde Orbidi por lo que se ha demorado en la suspensión del servicio.", "churn_date": "2026-01-22"}, {"id": "204660819185", "name": "Maria Elena Cubero Ollero", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-19"}, {"id": "204445407418", "name": "Malabrasa ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-29"}, {"id": "203954634977", "name": "ORIGENCONFORT", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Les gustaba más la linea del antiguo servicio de RR.SS", "analysis": "Propuse juntarnos para alinear la directriz pero aclara que \"la empresa ya ha hablado con otro servicio de rrss\"", "conclusion": "Intentar ser más proactivos para evitar llegar a estas instancias.", "churn_date": "2026-02-02"}, {"id": "198966568129", "name": "M&S Encuadernacion", "churn_reason": "Quality Issues", "subreason": "Personalization Gap +  Maya: Logic & Context Failure", "note": "Propuestas poco personalizadas, no utilizamos sus fotos tampoco. Esperaba también un trato más cercano, no tanto por APP.", "analysis": "", "conclusion": "Mejorar servicio", "churn_date": "2026-02-25"}, {"id": "192750547178", "name": "POP piñatas y manualidades perdonalizadas", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-15"}, {"id": "192322765002", "name": "Linbeauty ", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-31"}, {"id": "186766809330", "name": "Carolina Soria", "churn_reason": "Support or Service Issues", "subreason": "", "note": "No no tengo disponible mi página web ni tampoco creo que haya recibido el trabajo solicitado durante todos estos meses", "analysis": "", "conclusion": "", "churn_date": "2025-11-10"}, {"id": "174692040896", "name": "Maria Jesus Yañez", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-24"}, {"id": "174577704167", "name": "Mushin Studio", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-23"}, {"id": "173669237959", "name": "Anna Roig Llabata", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "Hay 2 clientas que se llaman exactamente igual y a la hora de tramitar la venta hubo una confusión con esta Ana Roig y con la otra que SI quería el plan", "analysis": "solucionar el problema con la clienta que si quería el servicio y claramente a esta que no tiene nada darle \"baja\"", "conclusion": "hay que fijarse en todo", "churn_date": "2026-02-17"}, {"id": "163490779373", "name": "Adriana de Icaza", "churn_reason": "Quality Issues", "subreason": "", "note": "Muy descontenta con el contenido", "analysis": "", "conclusion": "", "churn_date": "2026-01-20"}, {"id": "163236025564", "name": "REVELA ESTUDIO FOTOGRAFICO SL", "churn_reason": "Unrealistic promise", "subreason": "", "note": ".", "analysis": "Explicar con claridad el plan al cliente", "conclusion": "Que no podemos vender falsas espectativas", "churn_date": "2026-01-29"}, {"id": "163308567771", "name": "Ayala Extranjería ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-29"}, {"id": "160619521254", "name": "Jenny Catherine Cecilia Mendoza Parrales", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-23"}, {"id": "158582835427", "name": "WORLD RECORD LUXURY", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-10"}, {"id": "158082429125", "name": "Carolina Vasquez", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-22"}, {"id": "154645985517", "name": "Official World Record ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-10"}, {"id": "150966434010", "name": "Alejandro Calvo", "churn_reason": "Unrealistic promise", "subreason": "Traditional Agency-Style Expectation", "note": "Cliente no sabia que todo se manejaba por medio de un app hasta que llego a onboarding y el entendió que era un servicio personalizado ", "analysis": "Se hablado con cliente varias veces por intercom, hoy se coordino un llamada el cliente explica que no es el servicio que el pidió ", "conclusion": "Fue falta de comunicación de parte de AE ya que no se menciono la app para nada. Al margen si el hubiera podido conectar sus cuentas desde la app tal vez hubiera continuado porque no pidio la baja inmediatamente sino que 1ro interactuó, aprobó propuestas.", "churn_date": "2026-02-19"}, {"id": "140747531481", "name": "ALTERNATIVA ARDALES", "churn_reason": "Business Closed", "subreason": "", "note": "Por la situación actual por la que está pasando la empresa no tiene tiempo ni recursos para dedicarlos a Plinng, no está descontento con el servicio", "analysis": "", "conclusion": "", "churn_date": "2026-01-21"}, {"id": "138616745153", "name": "Bellanova ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-17"}, {"id": "136893704398", "name": "josep balltori", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-06-04"}, {"id": "135932290291", "name": "Angélica duran", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-30"}, {"id": "124506788063", "name": "David Abarca Orellana", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "Le prometimos linkedin al cliente", "analysis": "", "conclusion": "", "churn_date": "2025-12-10"}, {"id": "124167660734", "name": "MARÍA SOLEDAD ESTREMS MEMBRADO", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Prefiere quedarse con el Kit Digital", "analysis": "", "conclusion": "necesidad de FU post venta", "churn_date": "2026-03-03"}, {"id": "123726563557", "name": "FREDY IBARGUEN MOSQUERA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-22"}, {"id": "112061604045", "name": "JUAN CARLOS RUIZ CABALLERO", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "No necesitan el plan", "analysis": "Dice que ya no necesita el servicio. Su correo rechaza todos los intentos de contacto y no coge el telf. Envió 5 correos pidiendo la baja y bloqueó los pagos en stripe.", "conclusion": "Baja inmediata", "churn_date": "2026-01-30"}, {"id": "101169878238", "name": "CLAUDIA CRISTINA LEDESMA", "churn_reason": "Business Closed", "subreason": "", "note": "Servicio contratado para franquicia en Argentina y han rescindido el contrato.", "analysis": "", "conclusion": "", "churn_date": "2025-11-14"}, {"id": "97796070611", "name": "PAOLA PODESTA WHITE", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-01"}, {"id": "92631157972", "name": "MARIA ANTONIETTA BAZZONI", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-13"}, {"id": "82893606100", "name": "MARIA ROSA SERVERA MORALES", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-26"}, {"id": "82315587816", "name": " SOCIETAT CATALANA CARDIOLOGICA SLP", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-04"}, {"id": "77300416746", "name": "TIMOTHY INGARFIELD", "churn_reason": "Outside The Scope of the Plan", "subreason": "Unsupported Channel (LI)", "note": "Desde el primer momento, comentó que le interesaba LinkedIn por su tipo de negocio.", "analysis": "Observar histórico", "conclusion": "Fuera del alcance", "churn_date": "2026-02-04"}, {"id": "62078003444", "name": "Sergio Verges Balagué", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-28"}, {"id": "58179829972", "name": "ALBERTO IBAI REINOSO PRUSILLA", "churn_reason": "Forced Sales Closing", "subreason": "Pre-Payment Competitor Switch", "note": "Payment Failed", "analysis": "na", "conclusion": "na", "churn_date": "2026-02-09"}, {"id": "55787081944", "name": "MARIA CARMEN VARELA GIRALDEZ", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Solo pagó una factura en mayo de 2025 (12 pagos posteriores incompletos)- Cuenta fantasma", "analysis": "", "conclusion": "No es clienta", "churn_date": "2026-02-18"}, {"id": "54423488701", "name": "SUSANA AYUSO VALVERDE", "churn_reason": "Quality Issues", "subreason": "", "note": "Había pedido la baja en su momento porque estábamos fallando con las pptas (logo antiguo y volvimos a realizar caricaturas en lugar de personas reales).Kami estuvo gestionándolo y ayer, junto a Salomé (Prod) logramos entregar las pptas correspondientes.La cliente comenta que este será su último mes de RRSS, ya que el enfoque no es el correcto (no se siente identificada) y el logo continúa siendo incorrecto.", "analysis": "historial", "conclusion": "Mejorar cuando nos pasan fbk", "churn_date": "2026-02-23"}, {"id": "197227599053", "name": "WEBTEGUI SL", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "No quería el plan basic sin cambios web y adquirió otro plan con otro proveedor (nunca pagó y confirma que ya lo habló con la chica que le ofreció el plan)", "analysis": "escuchar la llamada de ventas", "conclusion": "que no tenían claro el plan básico y pensaba que algún cambio visual de wordpress con la web que nosotros habíamos hecho en orbidi si que entraba", "churn_date": "2026-01-19"}, {"id": "49128950002", "name": "LARA ISABEL CABRERA FLORES", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-12-07"}, {"id": "47137699049", "name": "TOMAS AZUAGA GONZALEZ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-02"}, {"id": "47059791037", "name": "MARIANNA SALANITRO", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "La clienta ya aviso desde el principio que iba a ser dificil, no tenia nada claro como funcionaba el plan y se le explico en repetidas ocasiones. Cuando les llego las primeras publicaciones, pidio la baja y no querias escucharnos ni atendernos", "analysis": "Desde el onboarding hubo señales claras de riesgo: confusión sobre el plan, baja autonomía digital y dependencia del acompañamiento humano. Se analizaron los tiempos de producción y es real el retraso y la no conformidad de la clienta.", "conclusion": "Tenemos que tener identificados a los clientes que ya presentan high churn risk desde onboarding.", "churn_date": "2025-12-31"}, {"id": "46141153486", "name": "LUIS ANSELMO GAHETE RODRIGUEZ", "churn_reason": "Unrealistic promise", "subreason": "", "note": "17/12 - No es posible migrar la WEB con nosotros ya que está hecha en IONOS y es ECOM (solo podríamos transferir el dominio). La solución? Pasar a Plan Elite ya que habría que crearla desde cero. 19/12 - Respuesta del cliente: \"La idea era migrar la página completa con vosotros y que todo lo correspondiente a la web dependiera de vosotros, y así reducir gastos, de esta manera duplicamos los gastos. Al no poder migrar la página dentro del precio básico que acordamos, tenemos que dar por finalizado cualquier tipo de relación o acuerdo. Dime como procedemos porque tenemos que hacer para dejar todo cerrado\"", "analysis": "analizar que no podíamos dar el servicio que el cliente quiere", "conclusion": "que no podemos migrar una web que está en Ionos, solo podemos migrar webs que estén en wordpress", "churn_date": "2025-12-22"}, {"id": "43500244178", "name": "jorge miguel gomes da silva", "churn_reason": "Business Closed", "subreason": "", "note": "Pondrá en pausa este negocio y requiere reducir gastos ", "analysis": "", "conclusion": "", "churn_date": "2025-12-17"}, {"id": "314891060435", "name": "TRIVELLINI HAIR GROUP SLP", "churn_reason": "Does not see impact on their business", "subreason": "Unstated Value Gap", "note": "Nunca han sido muy proactivos ni para usar la app ni para tratar de adaptar la estrategia.", "analysis": "Tratar de contactar y ofrecer mes gratis para valorar la evolución del trabajo, sin éxito.", "conclusion": "Han sido cortantes y no han dado mucha info. ", "churn_date": "2026-02-02"}, {"id": "35842661596", "name": "Xavi Ramírez claveria", "churn_reason": "Business Closed", "subreason": "", "note": "Cliente no se puede permitir el precio a totalidad del servicio el descuento que le ofrecieron termina este siguiente mes y en este momento no se puede permitir el plan. ", "analysis": "", "conclusion": "Hemos hablado con el cliente y revisado el motivo de la baja y actualmente no se lo puede permitir financieramente ", "churn_date": "2026-02-23"}, {"id": "29780599023", "name": "EVA GUERRERO VALERO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-10"}, {"id": "29689321700", "name": "DAVIDE RIGONI", "churn_reason": "Quality Issues", "subreason": "", "note": "No podía acceder a la app", "analysis": "", "conclusion": "", "churn_date": "2026-01-20"}, {"id": "29612153072", "name": "Angela Estefania Gomes Salgueiro De La Vega", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-08-05"}, {"id": "369566069960", "name": "Thaís Chaves almeida", "churn_reason": "Support or Service Issues", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-01-19"}, {"id": "28487574764", "name": "YAMILE ANDREA MONSALVE RODRIGUEZ", "churn_reason": "Quality Issues", "subreason": "Poor Industry/Buisness Alignment +  Transition to LATE Failure + Failed Posting vs calendar + Hello@plinng not in inox Plinng", "note": "Un poco descontenta con la calidad del servicio (WEB, RRSS). Las últimas semanas se queja porque no recibió respuesta del equipo. Comenta que el valor (luego de los 3 meses 50%OFF) le resulta costoso. Contrató agencia de mkt de su sector (UEBEA)", "analysis": "Ver histórico del cliente.", "conclusion": "Aprovechó la promo 3 meses 50%OFF y no pudimos darle valor. Conversaciones e la clienta en inbox de orbidi. Web con sistema de reservas.", "churn_date": "2026-02-12"}, {"id": "28150173885", "name": "JAIONE DAMIAN RUIZ DE GORDOA", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "ya lo pasé como baja en diciembre puesto que según ella cambió la cuenta pero no me ha respondido nunca más  ni por whatsapp, ni correo ni llamadas. BAJA", "analysis": "", "conclusion": "na", "churn_date": "2026-02-11"}, {"id": "26201094353", "name": "LOGIESTPEL SL", "churn_reason": "Quality Issues", "subreason": "", "note": "El cliente solicito baja a los 5 dias.                 El cliente manifiesta disconformidad con el servicio prestado. Indica que, por tratarse de una empresa de mayor tamaño, las publicaciones realizadas no cumplen con sus estándares de calidad esperados. Asimismo, expresa la necesidad de trabajar con una agencia más personalizada y con mayor nivel de adaptación a sus requerimientos, aclarando que percibe que Plinng no ofrece este tipo de servicio. El cliente comenta que, desde su perspectiva, se le vendió un producto diferente al que finalmente recibió, lo que genera una brecha entre expectativas y entrega.", "analysis": "he escuchado la llamada y el cliente estaba interesado, creo que no hemos cumplido las expectativas del cliente (Julia)", "conclusion": "El producto no cumplió sus expectativas (calidad de post desde el comienzo). El cliente tampoco muestra ser el perfil ya que pretendía un trabajo más a medida y personalizado por lo que decide ir por una agencia tradicional.", "churn_date": "2025-12-31"}, {"id": "26129128646", "name": "SÍLVIA VALLS MARTÍ", "churn_reason": "Unrealistic promise", "subreason": "", "note": "Quiere un Community Manager: Quiere alguien que esté para ella, \"juntarse en un café y ver cada punto\", que no sea todo online ni con IA", "analysis": "no tengo información no hay llamadas y la demo se hizo por videollamada pero por lo que dice el PS la clienta estaba buscando otro servicio", "conclusion": "que la clienta quería un servicio que no es el que nosotros ofrecemos.", "churn_date": "2025-12-17"}, {"id": "24914400473", "name": "DELKYSS AIDA MORA SANCHEZ", "churn_reason": "WTP < Cost", "subreason": "", "note": "No puede pagar porque ha dejado de trabajar en el centro (autónoma) ya lo confirmo en el mismo onboarding", "analysis": "Motivo: la han echado de su trabajo y su presupuesto actual es muy limitado.Pregunta si sería posible crear la web ahora y luego pasar a pagar solo 27 €, es decir, un plan reducido más adelante.Se le explicó que con solo 3 meses de servicio es posible que no pudiera quedarse la web, y aun así insistió en que su prioridad son las redes sociales, no la web.Debido al coste, ha solicitado la baja por otro canal.", "conclusion": "Motivo: la han echado de su trabajo y su presupuesto actual es muy limitado.Pregunta si sería posible crear la web ahora y luego pasar a pagar solo 27 €, es decir, un plan reducido más adelante.Se le explicó que con solo 3 meses de servicio es posible que no pudiera quedarse la web, y aun así insistió en que su prioridad son las redes sociales, no la web.Debido al coste, ha solicitado la baja por otro canal.", "churn_date": "2026-01-08"}, {"id": "22007395571", "name": "Gretter Ybarra Pérez", "churn_reason": "Quality Issues", "subreason": "", "note": "No contenta con la clidad de las publicaciones y le es problematico la forma de enlazar todo en la app", "analysis": "", "conclusion": "", "churn_date": "2026-01-21"}, {"id": "19766047975", "name": "NICOLE VALERIA VENTURA GONZALES", "churn_reason": "Unrealistic promise", "subreason": "Traditional Agency-Style Expectation", "note": "Traditional Agency-Style Expectation", "analysis": "Llamar a la clienta y explicar como es nuestro producto. La clienta se  niega a continuar sin un asesor y hacer las cosas autónomamente en la APP. Quiere la baja y devolución del servicio (no pudo completar el brief hasta con ayuda) quiere un asesor para ella que e slo que le vendieron.", "conclusion": "Que no tenenemos que vender a clientes que no son nuestro target", "churn_date": "2026-02-19"}, {"id": "19373270493", "name": "SEBASTIÁN OCAMPO LEÓN", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-28"}, {"id": "19281622516", "name": "ROBERTO VÁZQUEZ SANCHEZ", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "El cliente es como un influencer. Tiene un perfil muy personal y necesita una agencia personalizada que le edite los videos y demas. Hice el onboarding con el, pero no podemos cumplicar con sus espectativas", "analysis": "Que no es nuestro cliente ideal", "conclusion": "Que necesitamos clientes mas autonomos y que no depandan de nsotros. Cliente nunca ha pagado. A los 5 días de la venta, en el onoboaridng se decide no continuar ya que no podíamos cumplir con lo que el cliente necesitaba.", "churn_date": "2026-01-30"}, {"id": "18438924753", "name": "NORA ENTRENA CABALLERO", "churn_reason": "Outside The Scope of the Plan", "subreason": "", "note": "La clienta ha contratado una agencia ", "analysis": "", "conclusion": "", "churn_date": "2025-11-30"}, {"id": "18132323792", "name": "ROSA MARIA MUÑOZ GARCIA", "churn_reason": "Business Closed", "subreason": "Insolvency", "note": "Cliente indica que el servicio ha sido bueno con incidencias y le hubiese gustado mucho ver todas las publicaciones sin embargo ya no tendrá la perfumería y no necesita el servicio. ", "analysis": "La clienta solicito la baja desde hace casi un mes y anteriormente se le confirmo que ya esta realizada, le llego otro cobro que no corresponder y no realizara. ", "conclusion": "Rosa solicitó la baja del servicio debido a la falta de resultados y a que dejará de vender perfumes. Expresó su inconformidad por haber pagado el primer mes sin recibir las publicaciones prometidas. Kamila reconoció la demora, ofreció disculpas y se comprometió a agilizar el proceso de cancelación y a enviar una confirmación por correo.", "churn_date": "2026-02-12"}, {"id": "18558773976", "name": "ALEJANDRO SANCHEZ GOMEZ", "churn_reason": "Unrealistic promise", "subreason": "Fac elect Service Non-Delivery", "note": "El cliente solicita la baja del servicio.Indica que el servicio no le ha convencido en general. Señala como punto clave que nunca recibió el acceso al programa de facturación, a pesar de haberlo esperado durante casi 3 meses. Se le ofreció un mes gratuito como alternativa, pero la rechazó. Confirma de forma definitiva que no desea continuar con el servicio.", "analysis": "Se contactó con el cliente tras solicitar la baja para entender los motivos. Se identificó una insatisfacción general con el servicio.Se detectó un fallo crítico: el cliente no recibió el acceso al programa de facturación, pese a llevar casi 3 meses esperándolo.Se revisó internamente la incidencia para comprobar qué ocurrió con ese acceso.Se intentó una acción de retención, ofreciendo un mes gratuito para que pudiera reevaluar el servicio sin coste.El cliente rechazó la alternativa y confirmó su decisión de no continuar.", "conclusion": "No hemos cumplido con lo pactado para la facturación digital) y el cliente no era nuestro target (no sabe valorar el trabajo realizado)", "churn_date": "2026-02-10"}, {"id": "17986099161", "name": "CRISTINA ROMERO ORTIZ", "churn_reason": "Business Closed", "subreason": "", "note": "Contexto: les ha surgido un problema con el cuál no pueden seguir con el servicio, comentan que en unos meses cuando esté solucionado quieren volver a contratar.Fecha de solicitud de baja: 12/1/26Reportado por: Sales", "analysis": "", "conclusion": "", "churn_date": "2026-02-02"}, {"id": "17512059885", "name": "Georgios Rigopoulos", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2024-11-25"}, {"id": "16976078834", "name": "OSCAR MORESO HERNANDEZ", "churn_reason": "Sales Miscommunication", "subreason": "Product Model Rejection APP +  High-Touch Expectation + Promo-Induced Misalignment", "note": "El cliente aceptó el servicio únicamente porque se le ofreció un descuento de tres meses. Una vez finalizado el periodo promocional, expresó que el servicio no cumplía con sus expectativas, ya que buscaba una atención más personalizada y no un enfoque automatizado a través de la aplicación. ", "analysis": "", "conclusion": "La baja se produjo porque el cliente tenía expectativas distintas sobre el servicio. Aceptó inicialmente debido al descuento, pero una vez finalizado el periodo promocional, manifestó que necesitaba un acompañamiento más personalizado y no un sistema automatizado. Esto indica una falta de alineación entre lo que el cliente creía que recibiría y el funcionamiento real del servicio.A pesar de los intentos de retención, el cliente decidió no continuar y dejó abierta la posibilidad de volver en el futuro.", "churn_date": "2026-02-20"}, {"id": "16621918138", "name": "YANIEL GARAY GOMEZ", "churn_reason": "Forced Sales Closing", "subreason": "Promo-Induced Misalignment", "note": "El cliente en el onboarding me lo dejo muy claro. Contrato el plan: 1- Porque habia una promocion y le salia mas barato, 2- Solo queria el plan el mes de enero y feberero nada mas.", "analysis": "", "conclusion": "Que no es nuestro cliente ideal para nada", "churn_date": "2026-02-18"}, {"id": "16522175977", "name": "SERGIO ESAU VILLEDA RAMOS", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Ya no percibe necesidad del servicio en este momento.Prevención de futuros cargos (menciona expresamente evitar cobros extras y problemas posteriores).", "analysis": "", "conclusion": "Accedió por un descuento que no se aplicó más que un mes y no vio el valor del servicio teniendo en cuenta lo que le suponía ", "churn_date": "2026-03-03"}, {"id": "16403992804", "name": "LETICIA MORA SANCHEZ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-03-20"}, {"id": "16004364778", "name": "Anuar bezzeghoud achour talet", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "En su momento no estaban conformes con el resultado obtenido, específicamente en el SEO. Compartimos un informe y algunas recomendaciones, además de explicar que llevaba poco tiempo con esta implementación. Propusimos up-sell con promoción pero igualmente no lo quiso.", "analysis": "Se revisó el fdk del cliente: descontento con los resultados obtenidos en SEO y falta de atención. Se analizó el historial del servicio: tiempos de implementación ok, post en rrss al día, cambios web ok. También se evaluaron las interacciones con el cliente, confirmando que se respondieron todas las solicitudes y se brindaron explicaciones sobre los plazos habituales para obtener resultados en SEO incluyendo el envío de un informe con la evolución del tráfico y las mejoras detectadas. Se realizaron intentos de retención: propuesta de Google Ads y un up-sell al Plan Pro con una promoción especial, las cuales fueron rechazadas por el cliente.", "conclusion": "La baja se clasifica como un churn parcialmente evitable. No se detectaron fallas en la atención brindada, pero sí una desconexión entre las expectativas del cliente y la forma de trabajar en relación a la comunicación a través de la app, así como los tiempos para ver resultados en SEO. Este caso pone de manifiesto la importancia de reforzar  éstos puntos en la venta y en el onboarding.", "churn_date": "2025-12-17"}, {"id": "15817010899", "name": "ANGELINES CONDE FERNANDEZ", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "no ha respondido durante la gestión del churn", "analysis": "llamadas, mensajes, correos. No responde por ninguna via", "conclusion": "no ha respondido durante la gestión del churn", "churn_date": "2026-03-03"}, {"id": "15826923229", "name": "Maria Jose Porto Ferreras", "churn_reason": "Poor CX / Platform Issues", "subreason": "Maya: Early-Stage Support Failure +  Hello@plinng not in inox + Transition to LATE Failure +  Connection RRSS Failure", "note": "Maya: Early-Stage Support Failure +  Hello@plinng not in inox + Transition to LATE Failure +  Connection RRSS Failure ", "analysis": "- Verificamos que su Instagram no estaba vinculado a la app, lo que impidió que las publicaciones aprobadas se publicaran. Analizamos por qué no aparecía el botón de vinculación: todas las propuestas estaban aprobadas, lo que bloqueó la opción.Revisamos los mensajes dentro de la app y confirmamos que no había notificaciones previas para la clienta antes de la baja.Se realizó una llamada de retención para entender su frustración y ofrecer soluciones (videollamada, descuentoo, mes gratis)), pero la clienta ya había tomado la decisión de cancelar.", "conclusion": "La clienta se dio de baja debido a una combinación de problemas de calidad y falta de comunicación. No recibió respuesta a sus intentos de contacto porque nunca llegaron a mi intercom y  no pudo vincular su Instagram y las publicaciones aprobadas nunca se publicaron. Esto generó una percepción de falta de soporte y de un servicio que no cumplía sus expectativas.A pesar de los intentos de retención, la clienta ya había perdido la confianza en el servicio y decidió trabajar con alguien local.", "churn_date": "2026-02-20"}, {"id": "15212911036", "name": "Bruno Donizeti Studio", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-24"}, {"id": "14653759449", "name": "ANA CAROLOS GOMEZ", "churn_reason": "Forced Sales Closing", "subreason": "Low Commitment / Buyer's Remorse + Self onboarding Technical Blockers (Platform Issues)", "note": "Low Commitment / Buyer's Remorse", "analysis": "na", "conclusion": "El cliente mostró una tolerancia cero ante el primer desajuste logístico (confusión de canal de comunicación: link meet vs. teléfono). Esta reacción desproporcionada indica que el cierre de venta fue forzado y no hubo un \"buy-in\" real del valor del producto. Al primer obstáculo (cliente no se conectó a la videollamada ya que estaba esperando una llamada telefónica, no quiso agendar una 2da cita) , el cliente utilizó el malentendido como justificación para retractarse de una decisión de la que ya dudaba (Buyer’s Remorse).", "churn_date": "2026-02-09"}, {"id": "13626284002", "name": "TORRECILLA DISEÑO Y PROGRAMACION 3D S.L.", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "La principal molestia detectada es que no podía de forma sencilla trasladar los archivos en su ordenador a su app y le daba mas trabaja, le interesa mucho la versión web una vez disponible ", "analysis": "", "conclusion": "A este cleinte en espeficico le gusta mucho manejar este tipo de cuestiones en en el ordenador y es algo que le guste realizar por medio de la app ", "churn_date": "2026-02-26"}, {"id": "13552943590", "name": "VICTOR HUGO PEREZ GALMES", "churn_reason": "Forced Sales Closing", "subreason": "Premature Acquisition + Low Commitment / Buyer's Remorse", "note": "El cliente era de Mariana tenía programado el onboarding para el 10 de diciembre con Mariana, el cliente nunca se presentó, Mariana le llamo y solo le solicitó la baja, creo que esta no fue gestionada del todo porque le seguimos haciendo los cobros, se le puede dar de baja al cliente que está molesto, gracias ", "analysis": "Se reviso el historial con el cliente", "conclusion": "El cliente llego arrepentido al onboarding y no se pudo avanzar (no tenia claro su modelo de negocio no quiso seguir hasta no tener resuelto ese punto)", "churn_date": "2026-02-06"}, {"id": "13517145538", "name": "AMANDA CERDA TELLO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-21"}, {"id": "13402539732", "name": "IÑAKI GARCIA TINOCO", "churn_reason": "Forced Sales Closing", "subreason": "", "note": "Al momento de llamarlo para el onboarding (porque no se conectó al meet), comenta que no quiere continuar por le precio del servicio que la competencia le cobra 10€ por hosting y dominio. La baja se gestiona desde ventas. ", "analysis": "", "conclusion": "", "churn_date": "2025-11-30"}, {"id": "13026342881", "name": "JUAN JOSE MARTINEZ GARCIA", "churn_reason": "Support or Service Issues", "subreason": "", "note": "El cliente no quería contratar el plan, no llegamos a realizar ni el onborading completamente. Estaba buscando otra cosa ", "analysis": ".", "conclusion": ".", "churn_date": "2025-12-31"}, {"id": "12947865555", "name": "Sara Ivana Vejar Rojas", "churn_reason": "Quality Issues", "subreason": "", "note": "La cliente solicitó cambios para la web que, hasta el momento, no se han realizado. Estos cambios fueron pedidos el 28 de enero y los trasladé a Service Delivery para priorizarlos, pero tampoco se han ejecutado. Las publicaciones en redes sociales no le gustan porque las considera demasiado genéricas. En cuanto al posicionamiento SEO, comenta que no ve en qué se ha trabajado, ya que su Google Business sigue igual.Además, durante la venta se le indicó que no teníamos relación con Orbidi, pero los mensajes que recibe por WhatsApp aparecen como “Orbidi App”, lo cual le genera desconfianza. La cliente esta . La cliente me dijo que esta contencta con mi atencion pero que solo por esto no se puede quedar. ", "analysis": "", "conclusion": "La cliente decide darse de baja debido a una acumulación de insatisfacciones relacionadas con la ejecución del servicio. Los cambios solicitados para la web no se realizaron a pesar de haber sido priorizados, lo que generó frustración al no ver avances después de más de un mes. Las publicaciones en redes sociales fueron percibidas como demasiado genéricas y poco alineadas con su negocio, lo que reforzó la sensación de falta de personalización. En cuanto al SEO, la cliente no identifica mejoras visibles en su Google Business, lo que le hace sentir que no se ha trabajado en esta área.A esto se suma un factor crítico: la desconfianza generada por la aparición del nombre “Orbidi App” en los mensajes de WhatsApp, pese a que durante la venta se le aseguró que no existía relación con esa empresa. ", "churn_date": "2026-03-02"}, {"id": "12835287284", "name": "JOSE ADONIS ROMAN SANCHEZ", "churn_reason": "Support or Service Issues", "subreason": "", "note": "no hizo reunión de onboarding, no se le ha hecho nada ni de la web ni de rrss", "analysis": "", "conclusion": "no se gestionó bien", "churn_date": "2026-02-19"}, {"id": "12681141494", "name": "PAOLO FLOCCARI", "churn_reason": "Quality Issues", "subreason": "", "note": "External Web Bug + Unpublished Blog Content", "analysis": "He estado en constante contacto con el cliente y he escalado los casos a Service Delivery para que se solucionen con prioridad. El cliente no quiere continuar con nosotros en marzo porque va a seguir manejando las redes de forma interna. También está relacionado con varias propuestas que no hemos cumplido y con diferentes problemas. No se le han subido varios de los blogs que aprobó, y en algunos blogs la parte final del artículo no tenía relación con el contexto del contenido. Además, tuvo problemas con la web , ya que no podía recibir los formularios.Le ofrecí un descuento o un mes gratis hasta solucionar los problemas, y también le envié los otros planes de menor coste que teníamos, pero decidió no continua", "conclusion": "Este caso muestra que la causa principal de la baja fue la pérdida de confianza debido a incumplimientos y errores operativos, sumado a que el cliente sintió que el servicio no estaba funcionando como debería. Aunque hubo acompañamiento y escalados, para él la experiencia ya estaba deteriorada.", "churn_date": "2026-02-27"}, {"id": "393095893192", "name": "FRANCISCO NAVARRO MATEOS", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "Motivo: Demasiado caroContexto: \"Lo vamos a dejar, ya te comenté que tenía otro presupuesto más económico \"Fecha de solicitud de baja: 18/12/25Reportado por: Sales", "analysis": "", "conclusion": "na", "churn_date": "2026-02-12"}, {"id": "12639191772", "name": "Enric Puyalto Rosell", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-06-04"}, {"id": "12633299925", "name": "TOMÁS SUAREZ HYTTINEN", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-03"}, {"id": "12579940548", "name": "JOSE FRANCISCO GONZÁLEZ ARELLANO", "churn_reason": "Outside The Scope of the Plan", "subreason": "", "note": "El cliente no desea trabajar mediante una aplicación móvil, ya que prefiere el trato presencial. Se trata de una persona de 70 años que no está familiarizada con el uso de la tecnología. Realizo la web por KD, se la tenemos que entregar", "analysis": "Se revisó el historial completo del cliente con su PS, quien ha mostrado resultados y avances de la campaña de ads asi cómo ha mantenido conversaciones telefónicas y trato personalizado. Aún así se identifica una resistencia sostenida al uso de herramientas digitales y a la modalidad de trabajo online.", "conclusion": "La baja se clasifica como un churn no evitable. El motivo principal no está relacionado con la calidad del servicio ni con la falta de atención, sino con una preferencia personal del cliente por un modelo de trabajo presencial. Este caso refuerza la importancia de detectar tempranamente la afinidad del cliente con el uso de la app y la modalidad digital para evitar desalineaciones futuras.", "churn_date": "2025-12-17"}, {"id": "12528121026", "name": "OSCAR SANTIAGO RAMUNDO CASTELLUCCI", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-12-11"}, {"id": "12457242092", "name": "Paula Nutrianimal", "churn_reason": "Outside The Scope of the Plan", "subreason": "Legacy High-Touch Over-Servicing", "note": "Es una clienta Legacy que en su dia se salvo la baja, pero la clienta esta buscando un trato mas personalizado, cosa que no esta dentro de nuestro scope! Solicita la pagina web y demas", "analysis": "Ayudar a la clienta en todo lo posible hasta entender que no es nuestro cliente ideal", "conclusion": "Que necesitamos encontrar nuestros clientes ideales", "churn_date": "2026-02-04"}, {"id": "12440148457", "name": "JOSE ENRIQUE MORALEDA SERRANO", "churn_reason": "Forced Sales Closing", "subreason": "Product Model Rejection APP/IA +  Low Commitment / Buyer's Remorse + Discount-Period Value Gap", "note": "Product Model Rejection APP/IA +  Low Commitment / Buyer's Remorse + Discount-Period Value Gap", "analysis": "na", "conclusion": "El cliente no tiene tiempo para utilizar la aplicación y considera que no le compensa el servicio sin la promo del 70%Puntos de Dolor Identificados:- Dificultad para comunicarse con el soporte y falta de respuesta. (escribe a Orbidi y le toman la baja desde ahi)- Frustración por recibir facturas a pesar de haber solicitado la baja.- La aplicación requiere atención que el cliente no puede proporcionar. ", "churn_date": "2026-02-10"}, {"id": "12407327179", "name": "RUBEN MUÑOZ MANCHA", "churn_reason": "Business Closed", "subreason": "", "note": "El cliente cierra el negocio y sed da de baja de autonomo, no quiere mantener la web", "analysis": "No podemos hacer nada", "conclusion": "El cliente cierra negocio", "churn_date": "2026-01-28"}, {"id": "12348113600", "name": "SERGIO ZAMORA ZAMORA", "churn_reason": "Business Closed", "subreason": "", "note": "Se le ofrece una llamada para intentar salvar la baja pero me indica que quiere dar de baja el contrato para llevar ellos mismos las redes sociales. Insisto e intento tener una llamada con él. Me comenta que no está descontento con el servicio, sino que tiene que recortar gastos en la empresa porque ahora mismo no se lo pueden permitir. Quizás más adelante puedan volver a contratarlo.", "analysis": "", "conclusion": "", "churn_date": "2026-01-22"}, {"id": "12244191679", "name": "ALBERTO FAVA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-15"}, {"id": "12141385190", "name": "HUMBERTO JOSE SOJO BERROTERAN", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-03-20"}, {"id": "12083217102", "name": "ROCÍO RITA GOMEZ GARCIA", "churn_reason": "Support or Service Issues", "subreason": "", "note": "Lo llevará el novio de su sobrina, necesita un contacto más directo y cercano.", "analysis": "", "conclusion": "", "churn_date": "2025-11-18"}, {"id": "12043480015", "name": "YOURSPACE TENERIFE S.L.U.", "churn_reason": "Poor CX / Platform Issues", "subreason": "Maya: Early-Stage Support Failure +  SEO Service Non-Delivery + GMB Service Non-Delivery", "note": "Maya: Early-Stage Support Failure +  SEO Service Non-Delivery + GMB Service Non-Delivery +  Fac elect Service Non-Delivery", "analysis": "llamadas+ correo+ofrecer prioridad y mes gratis", "conclusion": "Muy reacio por formar parte de Orbidi, tiempo en entrega de SEO y de facturacion digital, por parte de Orbidi ha tenido problemas con el PC y sabe de la relaccion de ambas empresas. Ademas ha tenido una mala experiencia con el \"bot· Maya, entrega de SEO, GMB y fac elect.", "churn_date": "2026-02-19"}, {"id": "12037056968", "name": "DOLORES RAQUEL ROSALES DEL PINO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2024-12-10"}, {"id": "11803831792", "name": "Ignacio Jauregui González-Guija", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "Cliente indica que no ", "analysis": "", "conclusion": "Mala comunicación con el cliente y ya quiere su web y terminar esta ", "churn_date": "2026-02-26"}, {"id": "11630989262", "name": "CARLOS RICO ANDRES", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-02"}, {"id": "11603969747", "name": "LORENA GAMELLA MUÑOZ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-29"}, {"id": "11473842413", "name": "RENE BELTRÁN MATEOS", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-28"}, {"id": "11350069694", "name": "Mercedes Cimadevilla", "churn_reason": "WTP < Cost", "subreason": "", "note": "En su momento, comentó que le costaba delegar y trabajar en equipo. Es fotógrafa y quiere estar al tanto de todo.", "analysis": "na", "conclusion": "al no querer delegar, no se adapta a la APP y le genera más tiempo del debido.", "churn_date": "2025-12-30"}, {"id": "11288066290", "name": "RUBEN NUEZ NUEZ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-29"}, {"id": "11264711407", "name": "JUAN GODOY ATALAYA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-29"}, {"id": "11260808677", "name": "ANA MARIA SUBIRANA GARCIA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-03"}, {"id": "11233588158", "name": "JUAN MANUEL PAMOS SOTO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-15"}, {"id": "11054951157", "name": "Sara Bayona Roig", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-08-28"}, {"id": "11016662735", "name": "OLGA MARÍN PALANCAR", "churn_reason": "WTP < Cost", "subreason": "Lack of Budget", "note": "Lack of Budget", "analysis": "Contactar y ofrecer descuentos.", "conclusion": "Se da de baja por motivos económicos. No dexcarta en el futuro reemprender el plan .No puede continuar por el momento, por más que hemos insaistido.", "churn_date": "2026-02-17"}, {"id": "10977097421", "name": "LORENA NAVARRO PRIETO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-17"}, {"id": "10856958924", "name": "Carmen Vazquez Guerrerro", "churn_reason": "Onboarding Failure", "subreason": "", "note": "dice que franco quedó en que le devolvía la llamada para ver una cosa mal de la app y que no ha vuelto a saber y que eso sumado al a que hemos cobrado precio+iva y todo decidió devolver el recibo y pasar de nosotros, que ya ha empezado con malpié y que no quiere nada", "analysis": "Susana ha estado 1 hora al teléfono con la clienta, en un momento parecía que la recuperábamos pero está cruzada con nosotros", "conclusion": "que tenemos que dejar muy claro desde el principio que los precios son sin IVA y que en PS tienen no se pueden olvidar tan fácil del cliente cuando le han hecho el onboarding porque todavía no tenemos un producto que funcione 100% a la perfección así que si algo no funciona tener a la clienta tranquila y ayudarla", "churn_date": "2026-01-16"}, {"id": "10856868053", "name": "Mercedes Boronat Piqué", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-03-27"}, {"id": "10611013614", "name": "MARÍA ROCÍO GÓMEZ BERMÚDEZ", "churn_reason": "Unrealistic promise", "subreason": "Plan Mis-selling + Out-of-Scope Expectations", "note": "Desde el día 1, pagó para solicitar ajustes en su web. Ahora dice que no recibió llamadas ni mucho menos, creyendo que con el plan basic tendría ciertos resultados.", "analysis": "", "conclusion": "Plan indebido.", "churn_date": "2026-02-24"}, {"id": "10485792488", "name": "Christopher Shaffer Gorostiaga", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-23"}, {"id": "10341625041", "name": "TAKE CARE YOUR BODY FIT, SL", "churn_reason": "Sales Miscommunication", "subreason": "Pricing Structure Confusion. Internal Stakeholder Misalignment + Price-Value Discrepancy (WTP < Cost)", "note": "Pricing Structure Confusion + Internal Stakeholder Misalignment + Price-Value Discrepancy (WTP < Cost)", "analysis": "Chat", "conclusion": "Su socio no quiso pagar el plan. Darys pensaba que el costo era por un período de tres meses, mientras que Pietro aclaró que era un cargo mensual. Hubo una confusión con el precio del plan. ", "churn_date": "2026-02-13"}, {"id": "10231541205", "name": "Aravalle Equestrian Center", "churn_reason": "", "subreason": "Payment vs. Delivery Misalignment + Personal Circumstances", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-09"}, {"id": "228675590389", "name": "RUBEN ENCINA TAIBO", "churn_reason": "Quality Issues", "subreason": "", "note": "Fallos en la app y falta de comunicación. ", "analysis": "", "conclusion": "No hemos respondido a l expectativa que tenia el cliente al arrancar el plan", "churn_date": "2026-02-11"}, {"id": "10190813422", "name": "SINEQUANON WORDS S.L", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-02"}, {"id": "9963762631", "name": "YOLANDA ORTIZ PALACIOS", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-26"}, {"id": "9802774498", "name": "MARÍA JOSÉ ORTIZ PALACIOS", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-26"}, {"id": "9757809113", "name": "ANA FRANCISCA CARMONA MARTINEZ", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "Desde el primer onboarding la clienta mostró dudas...", "analysis": "", "conclusion": "Caso de solicitud de baja hecho por clienta que no ha llegado al equipo.", "churn_date": "2026-01-15"}, {"id": "9278945225", "name": "SUSANA ABAD FRANCO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-19"}, {"id": "9275839214", "name": "Jose Manuel Hernández Galera", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-06-10"}, {"id": "9265417704", "name": "RUBEN AUGUSTO BARBOSA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-18"}, {"id": "9194132729", "name": "Carmen Baquedano Bellot", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-04"}, {"id": "9119152081", "name": "Lorena Toral Callizo", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-07"}, {"id": "400844990670", "name": "Equirol Cano SL", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-09"}, {"id": "9102706159", "name": "Esther Rodriguez Gil", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-06-16"}, {"id": "9097570035", "name": "Germán Daniel Bergés", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-02-12"}, {"id": "9094537438", "name": "Carmen Laura López Pérez", "churn_reason": "Outside The Scope of the Plan", "subreason": "", "note": "Descontenta pidió la baja", "analysis": "", "conclusion": "No es tipo de cliente (al menos por ahora)", "churn_date": "2026-02-17"}, {"id": "9095352270", "name": "Roberto Estanislao Pérez", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-14"}, {"id": "8917317574", "name": "EOS TRADUCTORES INTÉRPRETES & CONGRESOS", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Cliente solicito la baja desde noviembre", "analysis": "", "conclusion": "EL cliente no sabia lo que incluía el plan", "churn_date": "2026-02-23"}, {"id": "8911067096", "name": "Soltayclothing", "churn_reason": "Outside The Scope of the Plan", "subreason": "", "note": "El cliente contrato el servicio en noviembre del 2024. Quiere cambios todos los dias", "analysis": "", "conclusion": "na", "churn_date": "2025-12-29"}, {"id": "8910856688", "name": "SANDRA O'KELLY IRANZO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-01"}, {"id": "38990429395", "name": "IBERIA COMPOSITECH MANUFACTURING", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-07"}, {"id": "8767056589", "name": "Renata santos music", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-01"}, {"id": "8656597745", "name": "ALBERTO ALAMO DIAZ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-04"}, {"id": "8602876374", "name": "Raquel Maria Rodriguez Medina", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-08"}, {"id": "8480173806", "name": "Sandra Rodríguez Zambrana", "churn_reason": "Forced Sales Closing", "subreason": "Expectation Mismatch (ADS results)", "note": "queria ADS y no ha visto resultados", "analysis": "", "conclusion": "Entender si buscan crecimiento organico o clientes", "churn_date": "2026-02-02"}, {"id": "8369095410", "name": "DAVID VAQUERO RODRIGUEZ", "churn_reason": "Support or Service Issues", "subreason": "", "note": "No paga desde 19 de junio", "analysis": "", "conclusion": "", "churn_date": "2025-07-01"}, {"id": "197227548866", "name": "Construcciones Y Rehabilitaciones Rodriguez De Pilas Sl", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-15"}, {"id": "10061401321", "name": "ASTROCORNUCOPIA. SL", "churn_reason": "Poor CX / Platform Issues", "subreason": "Personalization Gap + Delivery Speed Gap", "note": "", "analysis": "", "conclusion": "La clienta está en riesgo de baja inminente por una combinación de fallos", "churn_date": "2026-02-19"}, {"id": "8183137527", "name": "ELISA PORTILLO ROYO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2024-11-15"}, {"id": "8089394624", "name": "JOSE FRANCISCO RIVELLES CARRILLO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-08-27"}, {"id": "8051313139", "name": "GUILLERMO FEDERICO CORRALES JAJAM", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-02"}, {"id": "7991962348", "name": "MARIA LIDIA DOMINGO ORTEGA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-09"}, {"id": "7916266487", "name": "Héctor Checa Aparicio", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-02-01"}, {"id": "7886692594", "name": "VARATRAZZO S.L.U", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-26"}, {"id": "7763670970", "name": "Davide Barone", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-06-02"}, {"id": "7604207805", "name": "Dsf Core Service SL", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-25"}, {"id": "7601274833", "name": "JAVIER HERNANDEZ FERNANDEZ", "churn_reason": "Does not see impact on their business", "subreason": "", "note": "Cambia de proveedor. Nunca pareció convencido", "analysis": "", "conclusion": "No era un cliente interesado en nuestro servicio", "churn_date": "2026-02-02"}, {"id": "7596458229", "name": "VICTOR MANUEL MORATALLA FELIX", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-01"}, {"id": "7582682307", "name": "Tarot del amor con buenas videntes", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "no le gusta, que no quiere", "analysis": "", "conclusion": "na", "churn_date": "2026-02-10"}, {"id": "7570502870", "name": "Pilates Personal", "churn_reason": "Outside The Scope of the Plan", "subreason": "", "note": "Es un cliente legacy. Antiguamente le haciamos algo super personalizado", "analysis": "", "conclusion": "Que es un tipo de cliente que no va con nuestro modelo de negocio", "churn_date": "2026-01-28"}, {"id": "7557691122", "name": "MARIA DOLORES SANCHEZ GUILLEN", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-30"}, {"id": "7545213689", "name": "El mirador de Guejar sierra", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-08-18"}, {"id": "197264648394", "name": "La Carpa Produccions", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-12"}, {"id": "7407196151", "name": "PENSAMIENTO DURÁN PÉREZ", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-28"}, {"id": "7398386647", "name": "SONIA MOHEDANO COYO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-03-05"}, {"id": "7396334814", "name": "YUNIA DE LA CARIDAD SANCHEZ MONTOYA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2026-02-10"}, {"id": "7343783366", "name": "NSB", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "falta de correspondencia entre las imágenes enviadas y su trabajo", "analysis": "", "conclusion": "Que tenemos que mejorar el producto, porque el cliente no quería contenido con IA", "churn_date": "2026-02-06"}, {"id": "7318431460", "name": "Carla Galmés Munar", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-31"}, {"id": "7318790589", "name": "Raquel Ballesta Sanchez", "churn_reason": "Support or Service Issues", "subreason": "", "note": "no quiere renovar ni saber nada", "analysis": "", "conclusion": "", "churn_date": "2025-11-25"}, {"id": "7317199826", "name": "AGRAE SOLUTIONS SL", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2024-10-22"}, {"id": "7256935878", "name": "La Finka - Agroturismo La Finka", "churn_reason": "Sales Miscommunication", "subreason": "", "note": "PAGÓ ÚNICAMENTE PARA MIGRAR LA WEB", "analysis": "", "conclusion": "que pago el dinero para que no diéramos de baja la web", "churn_date": "2025-12-17"}, {"id": "7223761106", "name": "Carola Mocellini", "churn_reason": "Business Closed", "subreason": "", "note": "Clienta se dio de baja hace +2 meses y se le siguió cobrando", "analysis": "", "conclusion": "Clienta se dio de baja hace +2 meses y se le siguió cobrando", "churn_date": "2026-02-19"}, {"id": "7165727217", "name": "DORINA CRUDU CIOARA", "churn_reason": "Support or Service Issues", "subreason": "", "note": "pidió la baja en noviembre", "analysis": "", "conclusion": ".", "churn_date": "2026-02-10"}, {"id": "7111873270", "name": "Maria de los Angeles Fernandez Andaluz", "churn_reason": "Support or Service Issues", "subreason": "", "note": "No paga desde 1 de marzo", "analysis": "", "conclusion": "", "churn_date": "2025-03-01"}, {"id": "7029217724", "name": "TRAMITACIÓN DE EXPROPIACIONES SLU", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-08-18"}, {"id": "7021391587", "name": "Discotecas Madrid", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-24"}, {"id": "7020416211", "name": "X3 padel Stages Madrid", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-09"}, {"id": "6873302264", "name": "Liseth Karibay Peñaloza Rojas", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-29"}, {"id": "6873223144", "name": "JORGE MANUEL CASTAÑO CASTRO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-09-09"}, {"id": "6582033375", "name": "ROSA NADAL GILABERT", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-02-04"}, {"id": "6581955294", "name": "MARIA JESUS VILLASCLARAS LOMA", "churn_reason": "Support or Service Issues", "subreason": "", "note": "No paga desde 13 de enero", "analysis": "", "conclusion": "", "churn_date": "2025-01-13"}, {"id": "6582041318", "name": "Ana Magdaleno Sierra", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-30"}, {"id": "6582043086", "name": "RAQUEL VERGÉ IBERNON", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-30"}, {"id": "6582033363", "name": "CARINA PEREYRA DAVILA", "churn_reason": "Support or Service Issues", "subreason": "", "note": "No paga desde el 5 de enero", "analysis": "", "conclusion": "", "churn_date": "2025-01-05"}, {"id": "6582052559", "name": "MARIA DEL CARMEN MARIN CALLEJA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-01-11"}, {"id": "6582048965", "name": "Rizoma Cooperativa", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-08-18"}, {"id": "6458108641", "name": "Framugos78 Export & Import S.L.", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-06-16"}, {"id": "6350134250", "name": "ANGEL SORIANO SOLA", "churn_reason": "Support or Service Issues", "subreason": "", "note": "No paga desde 22 de abril", "analysis": "", "conclusion": "", "churn_date": "2025-04-22"}, {"id": "6319815866", "name": "EQUIPAMIENTOS COMERCIALES Y PROYECTOS CLIMENT S.L.U", "churn_reason": "Poor CX / Platform Issues", "subreason": "", "note": "Publicaciones incorrectas con otro nombre", "analysis": "", "conclusion": "La baja se debe a errores en la ejecución del servicio", "churn_date": "2026-03-02"}, {"id": "6310856153", "name": "MARIA DE LOS ANGELES MARTIN MARTIN", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-12"}, {"id": "6295424709", "name": "ALONSO ONSURBE CASTILLO", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-07-24"}, {"id": "6266760165", "name": "Pilar Esteban Belmonte", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-10-15"}, {"id": "6080827376", "name": "FRANCISCO JOSE SANCHEZ GARCIA", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-05-27"}, {"id": "5998803411", "name": "MABEQ 2014 S.L", "churn_reason": "", "subreason": "", "note": "", "analysis": "", "conclusion": "", "churn_date": "2025-04-11"}];
 
+const HS_REASON_ES={
+  'Forced Sales Closing':                  {es:'Cierre de venta forzado',        color:'badge-danger',  tip:'El cliente fue presionado para cerrar sin estar convencido.<br>· "Me insistieron y firmé sin entenderlo"<br>· "No estaba listo para comprar"'},
+  'Sales Miscommunication':                {es:'Mala comunicación en ventas',    color:'badge-warning', tip:'El cliente recibió información incorrecta durante la venta.<br>· "Me dijeron que la prueba era gratis"<br>· "No sabía que había que avisar 20 días antes"'},
+  'Quality Issues':                        {es:'Problemas de calidad',           color:'badge-danger',  tip:'El contenido o servicio no tiene la calidad esperada.<br>· "Las publicaciones no reflejan mi negocio"<br>· "Contenido genérico que no encaja con mi sector"'},
+  'Poor CX / Platform Issues':             {es:'Fallos de plataforma / CX',      color:'badge-danger',  tip:'Errores técnicos o mala experiencia con la plataforma.<br>· "La app no publica mis posts correctamente"<br>· "Las cuentas de redes no se vinculan bien"'},
+  'Does not see impact on their business': {es:'Sin impacto en su negocio',      color:'badge-warning', tip:'No percibe resultados tangibles.<br>· "Llevo meses y no he conseguido ningún cliente"<br>· "No justifica lo que pago"'},
+  'Support or Service Issues':             {es:'Problemas de soporte',           color:'badge-warning', tip:'Falta de respuesta o seguimiento nulo.<br>· "Nadie me contesta en días"<br>· "Cada vez hablo con alguien diferente"'},
+  'Business Closed':                       {es:'Negocio cerrado',                color:'badge-neutral', tip:'El cliente ha cerrado o pausado su negocio.<br>· "He tenido que cerrar mi empresa"'},
+  'Unrealistic promise':                   {es:'Promesa irreal',                 color:'badge-danger',  tip:'Se prometió algo que el servicio no puede cumplir.<br>· "Me dijeron que conseguiría clientes en un mes"'},
+  'Outside The Scope of the Plan':         {es:'Fuera del alcance del plan',     color:'badge-warning', tip:'El cliente necesita algo que el plan no incluye.<br>· "Necesito cambios diarios y no está incluido"'},
+  'Onboarding Failure':                    {es:'Fallo en el onboarding',         color:'badge-warning', tip:'El cliente nunca llegó a usar bien el servicio.<br>· "Nunca entendí cómo funciona la plataforma"'},
+  'WTP < Cost':                            {es:'No justifica el precio',         color:'badge-ok',      tip:'El valor percibido es menor que el coste.<br>· "Es muy caro para lo que ofrecéis"'}
+};
+
+// Sub-reason translations (key terms)
+const SUB_ES={
+  'Low Commitment / Buyer\'s Remorse':        'Arrepentimiento / baja convicción',
+  'Personalization Gap':                      'Falta de personalización',
+  'Connection RRSS Failure':                  'Fallo de vinculación RRSS',
+  'Payment vs. Delivery Misalignment':        'Cobro sin entrega esperada',
+  'Trial Interpretation Conflict':            'Malentendido prueba gratuita',
+  'High-Touch Expectation':                   'Esperaba atención personalizada',
+  'Lack of Budget':                           'Falta de presupuesto',
+  'Poor Industry/Buisness Alignment':         'Contenido no alineado al sector',
+  'Poor Industry/Business Alignment':         'Contenido no alineado al sector',
+  'Traditional Agency-Style Expectation':     'Esperaba servicio tipo agencia',
+  'Product Model Rejection APP/IA':           'Rechazo al modelo APP/IA',
+  'Product Model Rejection':                  'Rechazo al modelo de servicio',
+  'Pricing Structure Confusion':              'Confusión sobre el precio/plan',
+  'Failed Posting vs calendar':               'Publicaciones no se ejecutaron',
+  'Delivery Speed Gap':                       'Retrasos en entrega',
+  'Website not delivered on time or not delivered yet': 'Web no entregada en plazo',
+  'Early-Stage Support Failure':              'Fallo de soporte en el inicio',
+  'Insolvency':                               'Insolvencia económica',
+  'Business Dissolution':                     'Empresa cerrada',
+  'Promo-Induced Misalignment':               'Expectativa por promoción',
+  'Unsupported Channel (LI)':                 'LinkedIn no soportado',
+  'Legacy High-Touch Over-Servicing':         'Servicio legacy personalizado',
+  'Pre-Payment Competitor Switch':            'Cambio a competidor antes de pagar',
+  'Personal Circumstances':                   'Circunstancias personales',
+  'Multi-account necessity':                  'Necesita gestión multi-cuenta',
+  'Unstated Value Gap':                       'Valor no percibido',
+  'Service Overlap with active KD':           'Solapamiento con Kit Digital',
+  'Unfit Customer Profile':                   'Perfil no adecuado para el producto',
+  'Correction Failure':                       'Fallos repetidos en correcciones',
+  'Maya: Logic & Context Failure':            'Fallos de Maya (IA)',
+  'Maya: Early-Stage Support Failure':        'Fallo de Maya en onboarding',
+  'Functional Bugs':                          'Bugs funcionales',
+  'Posting Error (publish without approval)': 'Publicación sin aprobación',
+  'Loading Error':                            'Errores de carga'
+};
+
+function subLabel(s){return SUB_ES[s.trim()]||s.trim();}
+function splitSub(s){return(s||'').split(/\s*\+\s*/).map(p=>p.trim()).filter(Boolean);}
+
+// ===== SHARED STATE =====
+let allModjo=[],filteredModjo=[],currentMain='modjo',currentSub='insights',modjoperiod='7d';
+let filteredHS=[...HS_DATA],hsperiod='all';
+
+// ===== UTILS =====
 function norm(s){return(s||'').toLowerCase().trim().normalize('NFD').replace(/\p{Diacritic}/gu,'');}
+function col(row,...names){for(const n of names){for(const k of Object.keys(row)){if(norm(k)===norm(n)&&row[k]!==''&&row[k]!==undefined)return row[k];}}return'';}
+function canonicalOwner(s){const sn=norm(s||'');const map=[{k:['victor','ortega'],n:'Victor Ortega'},{k:['oscar','lopo'],n:'Óscar Lopo'},{k:['gonzalo','rosales'],n:'Gonzalo Rosales'},{k:['franco','ferretti'],n:'Franco Ferretti'},{k:['kamila','jimenez'],n:'Kamila Jiménez'},{k:['martina','benalcazar'],n:'Martina Benalcazar'}];for(const e of map){if(e.k.some(k=>sn.includes(norm(k))))return e.n;}return null;}
+function detCat(t){const tn=norm(t||'');for(const[c,kws]of Object.entries(CAT_KW)){if(kws.some(k=>tn.includes(norm(k))))return c;}return'Sin resultados';}
+function detChurn(t){const tn=norm(t||'');return CHURN_KW.some(k=>tn.includes(norm(k)));}
+function parseDate(s){if(!s)return null;const p=s.split(/[\/\-\.]/);if(p.length===3){let[a,b,c]=p;if(a.length===4)return new Date(+a,+b-1,+c);if(c.length===4)return new Date(+c,+b-1,+a);return new Date(+c+2000,+b-1,+a);}const d=new Date(s);return isNaN(d)?null:d;}
+function infoBtn(tip){return`<span class="info-wrap"><button class="info-btn" tabindex="0">?</button><span class="tooltip">${tip}</span></span>`;}
+function dynBadge(c,t){if(!t)return'<span class="insight-badge badge-neutral">Sin datos</span>';const r=c/t;if(r>=0.5)return'<span class="insight-badge badge-danger">Alto</span>';if(r>=0.25)return'<span class="insight-badge badge-warning">Medio</span>';if(r>0)return'<span class="insight-badge badge-ok">Bajo</span>';return'<span class="insight-badge badge-neutral">Sin churn</span>';}
 
-function col(row,...names){
-  for(const n of names){
-    for(const k of Object.keys(row)){
-      if(norm(k)===norm(n)&&row[k]!==undefined&&row[k]!=='')return row[k];
-    }
-  }
-  return '';
-}
-
-function canonicalOwner(s){
-  const sn=norm(s||'');
-  const map=[
-    {keys:['victor','ortega'],          name:'Victor Ortega'},
-    {keys:['oscar','lopo'],             name:'Óscar Lopo'},
-    {keys:['gonzalo','rosales'],        name:'Gonzalo Rosales'},
-    {keys:['franco','ferretti'],        name:'Franco Ferretti'},
-    {keys:['kamila','jimenez'],         name:'Kamila Jiménez'},
-    {keys:['martina','benalcazar'],     name:'Martina Benalcazar'}
-  ];
-  for(const e of map){if(e.keys.some(k=>sn.includes(norm(k))))return e.name;}
-  return null;
-}
-
-function detCat(t){
-  const tn=norm(t||'');
-  for(const[cat,kws]of Object.entries(CAT_KW)){
-    if(kws.some(k=>tn.includes(norm(k))))return cat;
-  }
-  return 'Sin resultados';
-}
-
-function detChurn(t){
-  const tn=norm(t||'');
-  return CHURN_KW.some(k=>tn.includes(norm(k)));
-}
-
-function parseDate(s){
-  if(!s)return null;
-  const parts=s.split(/[\/\-\.]/);
-  if(parts.length===3){
-    let[a,b,c]=parts;
-    if(a.length===4)return new Date(+a,+b-1,+c);
-    if(c.length===4)return new Date(+c,+b-1,+a);
-    return new Date(+c+2000,+b-1,+a);
-  }
-  const d=new Date(s);return isNaN(d)?null:d;
-}
-
-function procesarDatos(raw){
+// ===== MODJO PROCESSING =====
+function procesarModjo(raw){
   const rows=[],seen=new Set();
   for(const r of raw){
-    const duenoBruto=col(r,'Dueño','Dueno','Owner','dueño','dueno','owner');
-    const participantes=col(r,'Participantes','participantes','Participants');
+    const dueno=col(r,'Dueño','Dueno','Owner','dueño','dueno','owner');
+    const partic=col(r,'Participantes','participantes','Participants');
     const transcript=col(r,'Transcript','transcript','Transcripción','transcripcion');
     const summary=col(r,'Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen');
     const fechaStr=col(r,'Fecha','fecha','Date','date');
-
-    let owner=canonicalOwner(duenoBruto);
-    if(!owner){
-      for(const d of DUENOS_DISPLAY){
-        if(participantes&&norm(participantes).includes(norm(d))){owner=d;break;}
-      }
-    }
+    let owner=canonicalOwner(dueno);
+    if(!owner){for(const d of DUENOS){if(partic&&norm(partic).includes(norm(d))){owner=d;break;}}}
     if(!owner)continue;
-
     let cliente='';
-    if(participantes){
-      const parts=participantes.split(',').map(p=>p.replace(/[\[\]]/g,'').trim()).filter(Boolean);
-      for(const part of parts){
-        if(!canonicalOwner(part)){cliente=part;break;}
-      }
-    }
+    if(partic){const ps=partic.split(',').map(p=>p.replace(/[\[\]]/g,'').trim()).filter(Boolean);for(const p of ps){if(!canonicalOwner(p)){cliente=p;break;}}}
     if(!cliente)cliente='Desconocido';
-
     const combined=(transcript||'')+' '+(summary||'');
-    const categoria=detCat(combined);
-    const esChurn=detChurn(combined);
-    const fecha=parseDate(fechaStr);
-    const displayText=summary||transcript||'';
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
-    if(seen.has(key))continue;
-    seen.add(key);
-    rows.push({owner,cliente,categoria,esChurn,fecha,fechaStr,displayText});
+    if(seen.has(key))continue;seen.add(key);
+    rows.push({owner,cliente,categoria:detCat(combined),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||''});
   }
   return rows;
 }
 
-function applyFilters(){
-  const fOwner=document.getElementById('fOwner').value;
-  const fCat=document.getElementById('fCat').value;
-  const fChurn=document.getElementById('fChurn').value;
-  const dFrom=document.getElementById('dFrom').value?new Date(document.getElementById('dFrom').value):null;
-  const dTo=document.getElementById('dTo').value?new Date(document.getElementById('dTo').value):null;
-  let periodFrom=null;
-  const now=new Date();
-  if(currentPeriod==='7d'){periodFrom=new Date(now);periodFrom.setDate(now.getDate()-7);}
-  else if(currentPeriod==='30d'){periodFrom=new Date(now);periodFrom.setDate(now.getDate()-30);}
-  else if(currentPeriod==='90d'){periodFrom=new Date(now);periodFrom.setDate(now.getDate()-90);}
-  filteredRows=allRows.filter(r=>{
-    if(fOwner&&r.owner!==fOwner)return false;
-    if(fCat&&r.categoria!==fCat)return false;
-    if(fChurn==='si'&&!r.esChurn)return false;
-    if(fChurn==='no'&&r.esChurn)return false;
-    if(r.fecha){
-      if(periodFrom&&r.fecha<periodFrom)return false;
-      if(dFrom&&r.fecha<dFrom)return false;
-      if(dTo){const dt=new Date(dTo);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}
-    }
+// ===== MODJO FILTERS =====
+function applyModjoFilters(){
+  const fO=document.getElementById('fOwner').value,fC=document.getElementById('fCat').value,fCh=document.getElementById('fChurn').value;
+  const dF=document.getElementById('dFrom').value?new Date(document.getElementById('dFrom').value):null;
+  const dT=document.getElementById('dTo').value?new Date(document.getElementById('dTo').value):null;
+  let pF=null;const now=new Date();
+  if(modjoperiod==='7d'){pF=new Date(now);pF.setDate(now.getDate()-7);}
+  else if(modjoperiod==='30d'){pF=new Date(now);pF.setDate(now.getDate()-30);}
+  else if(modjoperiod==='90d'){pF=new Date(now);pF.setDate(now.getDate()-90);}
+  filteredModjo=allModjo.filter(r=>{
+    if(fO&&r.owner!==fO)return false;
+    if(fC&&r.categoria!==fC)return false;
+    if(fCh==='si'&&!r.esChurn)return false;
+    if(fCh==='no'&&r.esChurn)return false;
+    if(r.fecha){if(pF&&r.fecha<pF)return false;if(dF&&r.fecha<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}}
     return true;
   });
-  render();
+  renderModjo();
 }
+function setModjoPeriod(p,btn){modjoperiod=p;document.querySelectorAll('#filterModjo .period-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyModjoFilters();}
 
-function setPeriod(p,btn){
-  currentPeriod=p;
-  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  applyFilters();
+// ===== HUBSPOT FILTERS =====
+function applyHSFilters(){
+  const fR=document.getElementById('fHSReason').value;
+  const dF=document.getElementById('hsDFrom').value?new Date(document.getElementById('hsDFrom').value):null;
+  const dT=document.getElementById('hsDTo').value?new Date(document.getElementById('hsDTo').value):null;
+  let pF=null;const now=new Date();
+  if(hsperiod==='90d'){pF=new Date(now);pF.setDate(now.getDate()-90);}
+  else if(hsperiod==='180d'){pF=new Date(now);pF.setDate(now.getDate()-180);}
+  else if(hsperiod==='1y'){pF=new Date(now);pF.setFullYear(now.getFullYear()-1);}
+  filteredHS=HS_DATA.filter(r=>{
+    if(fR&&r.churn_reason!==fR)return false;
+    const d=parseDate(r.churn_date);
+    if(d){if(pF&&d<pF)return false;if(dF&&d<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(d>dt)return false;}}
+    return true;
+  });
+  renderHS();
 }
+function setHSPeriod(p,btn){hsperiod=p;document.querySelectorAll('.hs-period-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyHSFilters();}
 
-function renderKPI(id){
-  const total=filteredRows.length;
-  const churns=filteredRows.filter(r=>r.esChurn).length;
-  const ok=total-churns;
-  const rate=total?Math.round(churns/total*100):0;
-  document.getElementById(id).innerHTML=`
-    <div class="kpi-card"><div class="kpi-label">Total llamadas</div><div class="kpi-value">${total}</div><div class="kpi-sub">en el período</div></div>
-    <div class="kpi-card kpi-churn"><div class="kpi-label">Churn detectado</div><div class="kpi-value">${churns}</div><div class="kpi-sub">llamadas con churn</div></div>
-    <div class="kpi-card kpi-ok"><div class="kpi-label">Sin churn</div><div class="kpi-value">${ok}</div><div class="kpi-sub">llamadas OK</div></div>
-    <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${rate}%</div><div class="kpi-sub">del total</div></div>`;
-}
-
-function dynBadge(c,t){
-  if(!t)return'<span class="insight-badge badge-neutral">Sin datos</span>';
-  const r=c/t;
-  if(r>=0.5)return'<span class="insight-badge badge-danger">Alto riesgo</span>';
-  if(r>=0.25)return'<span class="insight-badge badge-warning">Moderado</span>';
-  if(r>0)return'<span class="insight-badge badge-ok">Bajo riesgo</span>';
-  return'<span class="insight-badge badge-neutral">Sin churn</span>';
-}
-
-function dynClients(rows){
-  const names=[...new Set(rows.filter(r=>r.esChurn).map(r=>r.cliente))].slice(0,3);
-  if(!names.length)return'';
-  return`<div class="insight-clients">↑ Churns: ${names.join(', ')}${rows.filter(r=>r.esChurn).length>3?'…':''}</div>`;
-}
-
-function infoBtn(cat){
-  const ex=CAT_EXAMPLES[cat]||'';
-  return`<span class="info-wrap"><button class="info-btn" tabindex="0">?</button><span class="tooltip">${ex}</span></span>`;
-}
-
-function renderInsights(){
-  const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
-  const cc={};
-  cats.forEach(c=>{cc[c]={total:0,churn:0};});
-  filteredRows.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
-
-  const sorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].churn-cc[a].churn);
-  const mal=sorted.slice(0,3);
-  const bien=sorted.filter(c=>cc[c].churn===0).slice(0,3);
-
-  document.getElementById('malBienGrid').innerHTML=`
-    <div class="malBien-card">
-      <h3><span style="font-size:18px">⚠️</span> Lo que estamos haciendo mal</h3>
-      <ul>${mal.length?mal.map(c=>`<li><span class="bullet" style="background:#ef4444"></span>${c}: ${cc[c].churn} churns de ${cc[c].total} llamadas</li>`).join(''):'<li><span class="bullet" style="background:#ef4444"></span>Sin datos suficientes</li>'}</ul>
+// ===== CONCLUSIONS =====
+function conclusionsHTML(){
+  return`<div class="conclusions-section">
+    <div class="conclusions-header" onclick="toggleConclusions(this)">
+      <h2>📊 Análisis de patrones de churn — Conclusiones</h2>
+      <span class="conclusions-toggle">▶</span>
     </div>
-    <div class="malBien-card">
-      <h3><span style="font-size:18px">✅</span> Lo que estamos haciendo bien</h3>
-      <ul>${bien.length?bien.map(c=>`<li><span class="bullet" style="background:#22c55e"></span>${c}: ${cc[c].total} llamadas sin churn</li>`).join(''):'<li><span class="bullet" style="background:#22c55e"></span>Sin churns detectados</li>'}</ul>
-    </div>`;
+    <div class="conclusions-body">
+      <div class="concl-cat"><h3>1. Fallos técnicos recurrentes — Muy alta frecuencia</h3>
+        <p>El problema más mencionado. Incluye: publicaciones que no salen, vinculación fallida con Instagram/Facebook, errores en el sistema de pagos, carga lenta y cuentas no conectadas.</p>
+        <p class="clients">Clientes afectados: Karina, Enrique, Patricia, María (varias), Leticia, Isabel, Yolanda, Heidy.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>2. Onboarding deficiente / confusión de uso — Alta frecuencia</h3>
+        <p>Muchos clientes no entienden cómo funciona la plataforma después de semanas o meses. La demo en vivo reactiva como solución universal indica que el onboarding inicial no es suficiente.</p>
+        <p class="clients">Clientes afectados: Isabel, prospecta del gimnasio, Ángel, Yolanda, Joaquim, María (odontopediatría).</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>3. Bajo valor percibido / ausencia de resultados — Alta frecuencia</h3>
+        <p>Clientes que no ven resultados tangibles (ventas, leads, engagement) y sienten que no justifican la inversión.</p>
+        <p class="clients">Clientes afectados: Ángel, Solventana, Virginia, Isabel, Samuel, María (odontopediatría), Laia.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>4. Calidad y relevancia del contenido — Alta frecuencia</h3>
+        <p>Propuestas genéricas sin personalización. Clientes con negocios nicho sienten que la IA no captura su sector.</p>
+        <p class="clients">Clientes afectados: Ángel, Aikari, María (cancelación), Yolanda, Enrique, Laia.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>5. Comunicación y soporte deficiente — Alta frecuencia</h3>
+        <p>Solicitudes sin registrar, sin respuesta en días, múltiples interlocutores sin continuidad. Samuel lleva 20+ propuestas sin feedback.</p>
+        <p class="clients">Clientes afectados: Karina, Samuel, José, María, Fran, Heidy, Enrique.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>6. Sorpresas en facturación — Frecuencia media</h3>
+        <p>Cobros inesperados, falta de transparencia sobre la política de cancelación (20 días de aviso).</p>
+        <p class="clients">Clientes afectados: Miryam, Patricia, Heidy, Fran, Karina.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>7. Limitaciones del producto — Frecuencia media</h3>
+        <p>Sin soporte para LinkedIn, sin carga de archivos desde ordenador, problemas con el catalán.</p>
+        <p class="clients">Clientes afectados: Leticia, María (cancelación), Laia.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-cat"><h3>8. Razones externas — Frecuencia baja</h3>
+        <p>Crisis económica, contratación de agencia, cambios vitales. No achacables al servicio.</p></div>
+      <hr class="concl-divider"/>
+      <div class="concl-pattern"><h3>⚠️ Patrón crítico</h3>
+        <p>Fallo técnico o expectativa no cumplida → sin respuesta → frustración → propuestas bloqueadas → cancelación.<br/>Los churns no son instantáneos: los clientes dan señales semanas antes. Las llamadas de seguimiento llegan tarde.</p></div>
+      <div class="section-title" style="margin-top:20px">Recomendaciones para Revenue Ops</div>
+      <div class="concl-rec-block"><h4>Corto plazo (0-30 días)</h4><ul>
+        <li>Alerta temprana: sin propuestas aprobadas en 10 días, sin cuentas vinculadas en primera semana, sin abrir la app en 7 días.</li>
+        <li>Onboarding obligatorio: demo en vivo los primeros 3 días, no como recurso de rescate.</li>
+        <li>Proceso de cancelación claro y estandarizado.</li>
+      </ul></div>
+      <div class="concl-rec-block"><h4>Medio plazo (30-90 días)</h4><ul>
+        <li>Feedback estructurado por propuesta con opciones predefinidas.</li>
+        <li>Quality Check mensual: cuentas vinculadas, propuestas sin acumular, contenido alineado al brief.</li>
+        <li>Email de aviso de cobro 5-7 días antes con resumen del mes.</li>
+      </ul></div>
+      <div class="concl-rec-block"><h4>Estratégico</h4><ul>
+        <li>Alinear expectativas en ventas: los clientes esperan ventas/leads, el servicio entrega presencia digital.</li>
+      </ul></div>
+    </div>
+  </div>`;
+}
+function toggleConclusions(h){const b=h.nextElementSibling,t=h.querySelector('.conclusions-toggle');b.classList.toggle('open');t.classList.toggle('open');}
 
+// ===== MODJO RENDER =====
+function renderModjoKPI(id){
+  const t=filteredModjo.length,c=filteredModjo.filter(r=>r.esChurn).length;
+  document.getElementById(id).innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total llamadas</div><div class="kpi-value">${t}</div><div class="kpi-sub">en el período</div></div>
+    <div class="kpi-card kpi-churn"><div class="kpi-label">Churn detectado</div><div class="kpi-value">${c}</div><div class="kpi-sub">llamadas con churn</div></div>
+    <div class="kpi-card kpi-ok"><div class="kpi-label">Sin churn</div><div class="kpi-value">${t-c}</div><div class="kpi-sub">llamadas OK</div></div>
+    <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${t?Math.round(c/t*100):0}%</div><div class="kpi-sub">del total</div></div>`;
+}
+function renderModjoInsights(){
+  const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
+  const cc={};cats.forEach(c=>{cc[c]={total:0,churn:0};});
+  filteredModjo.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
+  const sorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].churn-cc[a].churn);
+  const mal=sorted.slice(0,3),bien=sorted.filter(c=>cc[c].churn===0).slice(0,3);
+  document.getElementById('malBienModjo').innerHTML=`
+    <div class="malBien-card"><h3><span>⚠️</span> Lo que estamos haciendo mal</h3><ul>
+      ${mal.length?mal.map(c=>`<li><span class="bullet" style="background:#ef4444"></span>${c}: ${cc[c].churn} churns de ${cc[c].total}</li>`).join(''):'<li>Sin datos</li>'}
+    </ul></div>
+    <div class="malBien-card"><h3><span>✅</span> Lo que estamos haciendo bien</h3><ul>
+      ${bien.length?bien.map(c=>`<li><span class="bullet" style="background:#22c55e"></span>${c}: ${cc[c].total} llamadas sin churn</li>`).join(''):'<li>Sin churns detectados</li>'}
+    </ul></div>`;
   const maxC=Math.max(...cats.map(c=>cc[c].total),1);
-  document.getElementById('chartBars').innerHTML=cats.filter(c=>cc[c].total>0).map(c=>`
+  document.getElementById('chartModjo').innerHTML=cats.filter(c=>cc[c].total>0).map(c=>`
     <div class="chart-bar-row">
-      <div class="chart-bar-label">${infoBtn(c)}<span>${c}</span></div>
+      <div class="chart-bar-label">${infoBtn(CAT_EXAMPLES[c]||'')} ${c}</div>
       <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,5)}%">${cc[c].total}</div></div>
-      <div class="chart-bar-count">${cc[c].churn>0?'<span style="color:#ef4444">'+cc[c].churn+' ↓</span>':''}</div>
+      <div class="chart-bar-count">${cc[c].churn>0?`<span style="color:#ef4444">${cc[c].churn}↓</span>`:''}</div>
     </div>`).join('');
-
-  document.getElementById('insightsGrid').innerHTML=cats.map(c=>{
-    const rows=filteredRows.filter(r=>r.categoria===c);
-    const ch=rows.filter(r=>r.esChurn);
-    return`
-      <div class="insight-card">
-        <div class="insight-card-header">
-          <span class="insight-cat">${infoBtn(c)}<span>${c}</span></span>
-          ${dynBadge(ch.length,rows.length)}
-        </div>
-        <div class="insight-count">${rows.length}</div>
-        <div class="insight-sub">${ch.length} churn${ch.length!==1?'s':''}</div>
-        ${dynClients(rows)}
-      </div>`;
-  }).join('');
+  document.getElementById('insightsModjo').innerHTML=cats.map(c=>{
+    const rows=filteredModjo.filter(r=>r.categoria===c),ch=rows.filter(r=>r.esChurn);
+    const names=[...new Set(ch.map(r=>r.cliente))].slice(0,3).join(', ');
+    return`<div class="insight-card">
+      <div class="insight-card-header"><span class="insight-cat">${infoBtn(CAT_EXAMPLES[c]||'')} ${c}</span>${dynBadge(ch.length,rows.length)}</div>
+      <div class="insight-count">${rows.length}</div><div class="insight-sub">${ch.length} churns</div>
+      ${names?`<div class="insight-clients" style="font-size:11px;color:var(--muted);margin-top:4px">↑ ${names}${ch.length>3?'…':''}</div>`:''}
+    </div>`;}).join('');
+  document.getElementById('conclusionsModjo').innerHTML=conclusionsHTML();
+}
+function renderModjoOwners(){
+  renderModjoKPI('kpiRowModjoOwners');
+  document.getElementById('ownersGrid').innerHTML=DUENOS.map(owner=>{
+    const rows=filteredModjo.filter(r=>r.owner===owner),c=rows.filter(r=>r.esChurn).length;
+    const rate=rows.length?Math.round(c/rows.length*100):0,bc=rate>=50?'#ef4444':rate>=25?'#f59e0b':'#22c55e';
+    const topC=Object.entries(rows.reduce((a,r)=>{a[r.categoria]=(a[r.categoria]||0)+1;return a;},{})).sort((a,b)=>b[1]-a[1])[0];
+    return`<div class="owner-card" style="border-color:${bc}">
+      <div class="owner-name">${owner}</div><div class="owner-meta">${topC?'Top: '+topC[0]:'Sin datos'}</div>
+      <div class="owner-stats">
+        <div class="owner-stat"><div class="owner-stat-val">${rows.length}</div><div class="owner-stat-lbl">Llamadas</div></div>
+        <div class="owner-stat"><div class="owner-stat-val" style="color:#ef4444">${c}</div><div class="owner-stat-lbl">Churns</div></div>
+        <div class="owner-stat"><div class="owner-stat-val" style="color:${bc}">${rate}%</div><div class="owner-stat-lbl">Tasa</div></div>
+      </div></div>`;}).join('');
+  document.getElementById('conclusionsModjoOwners').innerHTML=conclusionsHTML();
 }
 
-function renderOwners(){
-  renderKPI('kpiRowOwners');
-  document.getElementById('ownersGrid').innerHTML=DUENOS_DISPLAY.map(owner=>{
-    const rows=filteredRows.filter(r=>r.owner===owner);
-    const churns=rows.filter(r=>r.esChurn).length;
-    const rate=rows.length?Math.round(churns/rows.length*100):0;
-    const bc=rate>=50?'#ef4444':rate>=25?'#f59e0b':'#22c55e';
-    const topCats={};
-    rows.forEach(r=>{topCats[r.categoria]=(topCats[r.categoria]||0)+1;});
-    const topCat=Object.entries(topCats).sort((a,b)=>b[1]-a[1])[0];
-    return`
-      <div class="owner-card" style="border-color:${bc}">
-        <div class="owner-name">${owner}</div>
-        <div class="owner-meta">${topCat?'Top: '+topCat[0]:'Sin datos'}</div>
-        <div class="owner-stats">
-          <div class="owner-stat"><div class="owner-stat-val">${rows.length}</div><div class="owner-stat-lbl">Llamadas</div></div>
-          <div class="owner-stat"><div class="owner-stat-val" style="color:#ef4444">${churns}</div><div class="owner-stat-lbl">Churns</div></div>
-          <div class="owner-stat"><div class="owner-stat-val" style="color:${bc}">${rate}%</div><div class="owner-stat-lbl">Tasa</div></div>
-        </div>
-      </div>`;
-  }).join('');
+// ===== HUBSPOT RENDER =====
+function buildSubCounts(reason){
+  // Count sub-reasons for records of this reason in filteredHS
+  const cnt={};
+  filteredHS.filter(r=>r.churn_reason===reason).forEach(r=>{
+    splitSub(r.subreason).forEach(s=>{if(s){const k=s.trim();cnt[k]=(cnt[k]||0)+1;}});
+  });
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
 }
 
-function toggleDetail(id){
-  const el=document.getElementById('xi_'+id);
+function toggleSubChart(id){
+  const el=document.getElementById('sub_'+id);
   if(el)el.classList.toggle('open');
 }
 
-function buildRows(rows){
-  return rows.map((r,i)=>`
+function renderHSKPI(){
+  const t=filteredHS.length,wr=filteredHS.filter(r=>r.churn_reason).length;
+  const wn=filteredHS.filter(r=>r.note||r.conclusion).length;
+  document.getElementById('kpiRowHS').innerHTML=`
+    <div class="kpi-card kpi-churn"><div class="kpi-label">Total churns</div><div class="kpi-value">${t}</div><div class="kpi-sub">empresas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Con motivo registrado</div><div class="kpi-value" style="color:#8b5cf6">${wr}</div><div class="kpi-sub">${t?Math.round(wr/t*100):0}% del total</div></div>
+    <div class="kpi-card kpi-ok"><div class="kpi-label">Sin motivo</div><div class="kpi-value">${t-wr}</div><div class="kpi-sub">pendientes de análisis</div></div>
+    <div class="kpi-card"><div class="kpi-label">Con nota / conclusión</div><div class="kpi-value" style="color:#f59e0b">${wn}</div><div class="kpi-sub">documentados</div></div>`;
+}
+
+function renderHSInsights(){
+  const reasons=Object.keys(HS_REASON_ES);
+  const cc={};reasons.forEach(r=>{cc[r]=0;});cc['Sin motivo']=0;
+  filteredHS.forEach(r=>{const k=r.churn_reason||'Sin motivo';if(cc[k]!==undefined)cc[k]++;else cc[k]=1;});
+  const sorted=Object.entries(cc).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const total=filteredHS.length||1;
+  const maxC=Math.max(...sorted.map(([,v])=>v),1);
+
+  // Main chart with expandable sub-charts
+  document.getElementById('chartHS').innerHTML=sorted.map(([k,v],idx)=>{
+    const info=HS_REASON_ES[k];
+    const label=info?info.es:k;
+    const tip=info?`<strong>${label}</strong>${info.tip}`:'';
+    const subCounts=buildSubCounts(k);
+    const subMax=subCounts.length?subCounts[0][1]:1;
+    const subHTML=subCounts.length?subCounts.slice(0,6).map(([s,n])=>`
+      <div class="sub-bar-row">
+        <div class="sub-bar-label" title="${s}">${subLabel(s)}</div>
+        <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${Math.max(n/subMax*100,8)}%">${n}</div></div>
+      </div>`).join(''):'<div style="font-size:11px;color:var(--muted);padding:4px 0">Sin sub-motivos registrados</div>';
+    return`
+      <div class="chart-bar-row">
+        <div class="chart-bar-label">${tip?infoBtn(tip):''} ${label}</div>
+        <div class="chart-bar-track" onclick="toggleSubChart('${idx}')"><div class="chart-bar-fill" style="width:${Math.max(v/maxC*100,4)}%">${v}</div></div>
+        <div class="chart-bar-count">${Math.round(v/total*100)}%</div>
+      </div>
+      <div class="sub-chart" id="sub_${idx}">${subHTML}</div>`;
+  }).join('');
+
+  // Insight cards — with sub-pills
+  document.getElementById('insightsHS').innerHTML=sorted.map(([k,v])=>{
+    const info=HS_REASON_ES[k];
+    const label=info?info.es:k;
+    const tip=info?`<strong>${label}</strong>${info.tip}`:'';
+    const badgeCls=info?info.color:'badge-neutral';
+    const pct=Math.round(v/total*100);
+    const subCounts=buildSubCounts(k).slice(0,4);
+    const pillColors=['','orange','blue','gray'];
+    const pills=subCounts.map(([s,n],i)=>`<span class="sub-pill ${pillColors[i]||''}" title="${s}">${subLabel(s)} <strong>${n}</strong></span>`).join('');
+    // Sample names
+    const names=[...new Set(filteredHS.filter(r=>r.churn_reason===k).map(r=>r.name))].slice(0,2).join(', ');
+    // Sample note
+    const noteRec=filteredHS.find(r=>r.churn_reason===k&&(r.note||r.conclusion));
+    const noteSample=noteRec?(noteRec.conclusion||noteRec.note||'').substring(0,120):'';
+    return`<div class="insight-card">
+      <div class="insight-card-header">
+        <span class="insight-cat">${tip?infoBtn(tip):''} ${label}</span>
+        <span class="insight-badge ${badgeCls}">${pct}%</span>
+      </div>
+      <div class="insight-count">${v}</div>
+      <div class="insight-sub">${pct}% del total de churns</div>
+      ${pills?`<div class="sub-pills">${pills}</div>`:''}
+      ${names?`<div style="font-size:11px;color:var(--muted);margin-top:6px">Ej: ${names}${v>2?'…':''}</div>`:''}
+      ${noteSample?`<div class="sub-note">"${noteSample}${noteSample.length>=120?'…':''}"</div>`:''}
+    </div>`;}).join('');
+
+  document.getElementById('conclusionsHS').innerHTML=conclusionsHTML();
+}
+
+// ===== TABLE RENDERS =====
+function toggleXI(id){const el=document.getElementById('xi_'+id);if(el)el.classList.toggle('open');}
+
+function renderTablaModjo(){
+  document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>`
     <tr>
-      <td><button class="expand-btn" onclick="toggleDetail(${i})">▸</button></td>
-      <td>${r.fechaStr||'–'}</td>
-      <td>${r.cliente}</td>
-      <td>${r.owner}</td>
+      <td><button class="expand-btn" onclick="toggleXI('m${i}')">▸</button></td>
+      <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria}</span></td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${r.displayText&&r.displayText.length>80?'…':''}</td>
     </tr>
-    <tr><td colspan="7"><div class="xi" id="xi_${i}">${r.displayText||'Sin resumen disponible'}</div></td></tr>`).join('');
+    <tr><td colspan="7"><div class="xi" id="xi_m${i}">${r.displayText||'Sin resumen'}</div></td></tr>`).join('');
 }
 
-function renderTabla(){
-  document.getElementById('tableBody').innerHTML=buildRows(filteredRows);
+function renderTablaHS(){
+  document.getElementById('tbodyHS').innerHTML=filteredHS.map((r,i)=>{
+    const info=HS_REASON_ES[r.churn_reason];
+    const reasonLabel=info?info.es:(r.churn_reason||'–');
+    const subParts=splitSub(r.subreason).map(s=>subLabel(s)).join(' · ');
+    const detail=[r.note,r.conclusion,r.analysis].filter(Boolean).join('\n\n---\n\n');
+    return`<tr>
+      <td><button class="expand-btn" onclick="toggleXI('h${i}')">▸</button></td>
+      <td>${r.churn_date||'–'}</td>
+      <td style="font-weight:500">${r.name||'–'}</td>
+      <td><span class="cat-badge">${reasonLabel}</span></td>
+      <td style="font-size:11px;color:var(--muted);max-width:160px">${subParts||'–'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${(r.conclusion||r.note||'').substring(0,80)}${(r.conclusion||r.note||'').length>80?'…':''}</td>
+    </tr>
+    <tr><td colspan="6"><div class="xi" id="xi_h${i}">${detail||'Sin detalle registrado'}</div></td></tr>`;}).join('');
 }
 
+// ===== NAV =====
 function render(){
-  if(currentMain==='dashboard'){
+  ['viewModjoInsights','viewModjoOwners','viewTablaModjo','viewHSInsights','viewTablaHS'].forEach(v=>document.getElementById(v).style.display='none');
+  document.getElementById('filterModjo').style.display='none';
+  document.getElementById('filterHS').style.display='none';
+  document.getElementById('subTabsRow').style.display='none';
+  if(currentMain==='modjo'){
+    document.getElementById('filterModjo').style.display='flex';
     document.getElementById('subTabsRow').style.display='flex';
-    if(currentSub==='insights'){
-      document.getElementById('viewInsights').style.display='block';
-      document.getElementById('viewOwners').style.display='none';
-      document.getElementById('viewTabla').style.display='none';
-      renderKPI('kpiRow');
-      renderInsights();
-    } else {
-      document.getElementById('viewInsights').style.display='none';
-      document.getElementById('viewOwners').style.display='block';
-      document.getElementById('viewTabla').style.display='none';
-      renderOwners();
-    }
-  } else {
-    document.getElementById('subTabsRow').style.display='none';
-    document.getElementById('viewInsights').style.display='none';
-    document.getElementById('viewOwners').style.display='none';
-    document.getElementById('viewTabla').style.display='block';
-    renderTabla();
+    if(currentSub==='insights'){document.getElementById('viewModjoInsights').style.display='block';renderModjoKPI('kpiRowModjo');renderModjoInsights();}
+    else{document.getElementById('viewModjoOwners').style.display='block';renderModjoOwners();}
+  }else if(currentMain==='tabla-modjo'){
+    document.getElementById('filterModjo').style.display='flex';
+    document.getElementById('viewTablaModjo').style.display='block';renderTablaModjo();
+  }else if(currentMain==='hubspot'){
+    document.getElementById('filterHS').style.display='flex';
+    document.getElementById('viewHSInsights').style.display='block';renderHSKPI();renderHSInsights();
+  }else if(currentMain==='tabla-hs'){
+    document.getElementById('filterHS').style.display='flex';
+    document.getElementById('viewTablaHS').style.display='block';renderTablaHS();
   }
 }
-
+function renderModjo(){
+  if(currentMain==='modjo'||currentMain==='tabla-modjo')render();
+}
 function switchMain(tab){
   currentMain=tab;
-  document.querySelectorAll('.main-tab').forEach((t,i)=>t.classList.toggle('active',['dashboard','tabla'][i]===tab));
+  const tabs=['modjo','tabla-modjo','hubspot','tabla-hs'];
+  document.querySelectorAll('.main-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   render();
 }
-
 function switchSub(tab){
   currentSub=tab;
   document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',['insights','owners'][i]===tab));
   render();
 }
 
+// ===== INIT =====
 function initFilters(){
-  document.getElementById('fOwner').innerHTML='<option value="">Todos los owners</option>'+DUENOS_DISPLAY.map(d=>`<option value="${d}">${d}</option>`).join('');
+  document.getElementById('fOwner').innerHTML='<option value="">Todos los owners</option>'+DUENOS.map(d=>`<option value="${d}">${d}</option>`).join('');
   const cats=Object.keys(CAT_KW).concat(['Sin resultados']);
   document.getElementById('fCat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const reasons=[...new Set(HS_DATA.map(r=>r.churn_reason).filter(Boolean))].sort();
+  document.getElementById('fHSReason').innerHTML='<option value="">Todas las razones</option>'+reasons.map(r=>{const i=HS_REASON_ES[r];return`<option value="${r}">${i?i.es:r}</option>`;}).join('');
 }
-
-async function loadData(){
-  try{
-    Papa.parse(SHEET_URL,{
-      download:true,header:true,skipEmptyLines:true,
-      complete:function(results){
-        allRows=procesarDatos(results.data);
-        const dates=allRows.filter(r=>r.fecha).map(r=>r.fecha);
-        if(dates.length){
-          const maxDate=new Date(Math.max(...dates));
-          document.getElementById('lastUpdate').textContent='Última actualización: '+maxDate.toLocaleDateString('es-ES');
-        } else {
-          document.getElementById('lastUpdate').textContent=allRows.length+' registros cargados';
-        }
-        document.getElementById('loadingDiv').style.display='none';
-        initFilters();
-        applyFilters();
-      },
-      error:function(err){
-        document.getElementById('loadingDiv').innerHTML='<p style="color:#ef4444">Error cargando datos: '+err.message+'</p>';
-      }
-    });
-  }catch(e){
-    document.getElementById('loadingDiv').innerHTML='<p style="color:#ef4444">Error: '+e.message+'</p>';
-  }
-}
-
-window.addEventListener('load',loadData);
+window.addEventListener('load',function(){
+  Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
+    complete:function(res){
+      allModjo=procesarModjo(res.data);filteredModjo=allModjo;
+      const dates=allModjo.filter(r=>r.fecha).map(r=>r.fecha);
+      if(dates.length){const mx=new Date(Math.max(...dates));document.getElementById('lastUpdate').textContent='Modjo: '+mx.toLocaleDateString('es-ES')+' · HubSpot: '+filteredHS.length+' registros';}
+      document.getElementById('loadingDiv').style.display='none';
+      initFilters();applyModjoFilters();render();
+    },
+    error:function(err){document.getElementById('loadingDiv').innerHTML='<p style="color:#ef4444">Error: '+err.message+'</p>';}
+  });
+});
 </script>
 </body>
 </html>

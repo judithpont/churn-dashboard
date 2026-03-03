@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Dashboard de Churn</title>
+  <title>Dashboard de Modjo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     :root{--bg:#f2f5eb;--accent:#85D630;--card:#fff;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--danger:#ef4444;--warning:#f59e0b;--success:#22c55e;}
@@ -147,13 +147,13 @@
 
 <div class="header">
   <div class="logo">P</div>
-  <h1>Dashboard de Churn</h1>
+  <h1>Dashboard de Modjo</h1>
   <span class="header-sub" id="lastUpdate">Actualizando…</span>
   <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄 Actualizar</button>
 </div>
 
 <div class="main-tabs">
-  <div class="main-tab active" onclick="switchMain('modjo')">Dashboard de Churn</div>
+  <div class="main-tab active" onclick="switchMain('modjo')">Dashboard de Modjo</div>
   <div class="main-tab" onclick="switchMain('tabla-modjo')">Tabla Modjo</div>
   <div class="main-tab" onclick="switchMain('hubspot')">Dashboard HubSpot</div>
   <div class="main-tab" onclick="switchMain('tabla-hs')">Tabla HubSpot</div>
@@ -813,14 +813,22 @@ function renderModjoInsights(){
     </div>`).join('');
   document.getElementById('insightsModjo').innerHTML=cats.map(c=>{
     const rows=filteredModjo.filter(r=>r.categoria===c),ch=rows.filter(r=>r.esChurn);
+    // Skip categories with no data in the current period
+    if(rows.length===0)return'';
     const names=[...new Set(ch.map(r=>r.cliente))].slice(0,3).join(', ');
     const desc=CAT_DESC[c];
+    // Real examples from current filtered data (prefer churn records, fallback to all)
+    const sampleRecs=(ch.length?ch:rows).filter(r=>(r.displayText||'').trim().length>20).slice(0,3);
+    const realExamples=sampleRecs.map(r=>{
+      const snippet=(r.displayText||'').substring(0,120).trim();
+      return`<li style="font-size:11px;color:#4b5563;line-height:1.5;padding-left:12px;position:relative"><span style="position:absolute;left:0;color:var(--accent);font-weight:700">·</span><strong>${r.cliente}:</strong> ${snippet}${snippet.length>=120?'…':''}</li>`;
+    }).join('');
     const exHTML=desc?`
       <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
         <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">¿Por qué ocurre?</div>
         <p style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:8px">${desc.porque}</p>
-        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Ejemplos reales</div>
-        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">${desc.ejemplos.map(e=>`<li style="font-size:11px;color:#4b5563;line-height:1.5;padding-left:12px;position:relative"><span style="position:absolute;left:0;color:var(--accent);font-weight:700">·</span>${e}</li>`).join('')}</ul>
+        ${realExamples?`<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Casos del período</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">${realExamples}</ul>`:''}
         <div style="margin-top:8px;background:#f0fdf4;border-radius:6px;padding:6px 8px;font-size:11px;color:#15803d"><strong>Acción:</strong> ${desc.accion}</div>
       </div>`:''
     return`<div class="insight-card">

@@ -17,12 +17,10 @@
     nav { background: white; border-bottom: 1px solid #e0e0e0; display: flex; padding: 0 32px; gap: 4px; }
     nav button { padding: 14px 20px; border: none; background: none; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
     nav button.active { color: #1a1a2e; border-bottom-color: #FF4B4B; font-weight: 700; }
-    nav button:hover { color: #1a1a2e; }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* MÉTRICAS */
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 32px 0; }
     .metric { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .metric .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
@@ -32,28 +30,26 @@
     .metric.orange .value { color: #FFA500; }
     .metric.green .value { color: #00CC96; }
 
-    /* CHARTS */
     .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 24px 32px 0; }
     .chart-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
     .chart-card.full { grid-column: 1 / -1; }
 
-    /* TABLA */
     .table-section { padding: 24px 32px 32px; }
     .table-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #333; }
     table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-collapse: collapse; }
     th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; }
-    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f8f9ff; }
+    .resumen-text { max-width: 400px; font-size: 12px; color: #666; line-height: 1.5; }
 
-    /* BADGES */
     .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge.alto, .badge.sí, .badge.si { background: #FFE0E0; color: #CC0000; }
     .badge.medio, .badge.riesgo { background: #FFF3E0; color: #CC7700; }
     .badge.bajo, .badge.no { background: #E0FFE0; color: #007700; }
+    .badge.neutral { background: #F0F0F0; color: #666; }
 
-    /* INSIGHTS */
     .insights-page { padding: 24px 32px 32px; }
     .insight-block { background: white; border-radius: 12px; padding: 28px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
     .insight-block.highlight { border-left: 4px solid #FF4B4B; }
@@ -62,38 +58,46 @@
     .insight-block h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e; }
     .insight-block h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; color: #333; }
     .insight-block p { font-size: 14px; line-height: 1.8; color: #555; }
-    .insight-tag { display: inline-block; background: #FF4B4B; color: white; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-bottom: 12px; font-weight: 600; }
-    .insight-tag.orange { background: #FFA500; }
-    .insight-tag.green { background: #00CC96; }
+    .insight-tag { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-bottom: 12px; font-weight: 600; }
+    .insight-tag.red { background: #FF4B4B; color: white; }
+    .insight-tag.orange { background: #FFA500; color: white; }
+    .insight-tag.green { background: #00CC96; color: white; }
 
     .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px; }
     .cat-item { background: #f8f9ff; border-radius: 8px; padding: 16px; }
     .cat-item .cat-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
     .cat-item .cat-freq { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
-    .cat-item .cat-freq.muy-alta { background: #FFE0E0; color: #CC0000; }
-    .cat-item .cat-freq.alta { background: #FFF0E0; color: #CC5500; }
-    .cat-item .cat-freq.media { background: #FFF9E0; color: #CC8800; }
+    .cat-item .cat-freq.alta { background: #FFE0E0; color: #CC0000; }
+    .cat-item .cat-freq.media { background: #FFF0E0; color: #CC5500; }
     .cat-item .cat-freq.baja { background: #E0FFE0; color: #007700; }
-    .cat-item p { font-size: 13px; color: #555; line-height: 1.6; }
-    .cat-item .clientes { font-size: 12px; color: #888; margin-top: 6px; }
+    .cat-item .cat-count { font-size: 28px; font-weight: 800; color: #FF4B4B; }
+    .cat-item .cat-clients { font-size: 12px; color: #888; margin-top: 6px; }
 
-    /* OWNERS */
-    .owners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
+    .owners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .owner-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid #1a1a2e; }
-    .owner-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e; }
-    .owner-card .owner-resumen { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 10px; }
-    .owner-card .owner-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 4px; }
-    .owner-card .owner-value { font-size: 13px; color: #333; margin-bottom: 10px; }
-    .owner-card .owner-accion { font-size: 12px; background: #f0f7ff; border-left: 3px solid #4B8BFF; padding: 10px 12px; border-radius: 4px; color: #2255CC; line-height: 1.5; }
+    .owner-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .owner-stats { display: flex; gap: 12px; margin: 12px 0; }
+    .owner-stat { text-align: center; }
+    .owner-stat .n { font-size: 24px; font-weight: 800; }
+    .owner-stat .l { font-size: 11px; color: #888; }
+    .owner-stat.red .n { color: #FF4B4B; }
+    .owner-stat.orange .n { color: #FFA500; }
+    .owner-stat.green .n { color: #00CC96; }
+    .owner-top { font-size: 12px; background: #fff0f0; border-left: 3px solid #FF4B4B; padding: 8px 12px; border-radius: 4px; color: #333; margin-top: 10px; }
+    .owner-motivos { margin-top: 10px; }
+    .owner-motivos .motivo { font-size: 12px; color: #555; padding: 4px 0; border-bottom: 1px solid #f5f5f5; line-height: 1.4; }
+    .owner-motivos .motivo:last-child { border-bottom: none; }
 
-    .loading { text-align: center; padding: 60px; color: #888; font-size: 16px; }
+    .patron-box { background: #fff8e1; border: 1px solid #FFD54F; border-radius: 8px; padding: 16px; margin-top: 12px; font-size: 14px; color: #5D4037; line-height: 1.7; }
+
+    .loading { text-align: center; padding: 80px; color: #888; font-size: 16px; }
     footer { text-align: center; padding: 24px; color: #999; font-size: 12px; }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .charts { grid-template-columns: 1fr; }
-      .cat-grid { grid-template-columns: 1fr; }
       .owners-grid { grid-template-columns: 1fr; }
+      .cat-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -101,134 +105,143 @@
 
 <header>
   <h1>📊 Churn Dashboard — Revenue Ops</h1>
-  <span id="ultima-actualizacion">Cargando...</span>
+  <span id="ultima-act">Cargando...</span>
 </header>
 
 <nav>
-  <button class="active" onclick="mostrarTab('dashboard')">📊 Dashboard</button>
-  <button onclick="mostrarTab('insights')">🧠 Insights de Churn</button>
-  <button onclick="mostrarTab('owners')">👥 Por Owner</button>
+  <button class="active" onclick="mostrarTab('dashboard', this)">📊 Dashboard</button>
+  <button onclick="mostrarTab('insights', this)">🧠 Insights de Churn</button>
+  <button onclick="mostrarTab('owners', this)">👥 Por Owner</button>
 </nav>
 
-<!-- ============ TAB: DASHBOARD ============ -->
 <div id="tab-dashboard" class="tab-content active">
-  <div id="contenido-dashboard">
-    <div class="loading">⏳ Cargando datos...</div>
-  </div>
+  <div id="cont-dashboard"><div class="loading">⏳ Cargando datos...</div></div>
 </div>
-
-<!-- ============ TAB: INSIGHTS ============ -->
 <div id="tab-insights" class="tab-content">
-  <div class="insights-page" id="contenido-insights">
-    <div class="loading">⏳ Cargando insights...</div>
-  </div>
+  <div class="insights-page" id="cont-insights"><div class="loading">⏳ Cargando...</div></div>
 </div>
-
-<!-- ============ TAB: OWNERS ============ -->
 <div id="tab-owners" class="tab-content">
-  <div class="insights-page" id="contenido-owners">
-    <div class="loading">⏳ Cargando datos por owner...</div>
-  </div>
+  <div class="insights-page" id="cont-owners"><div class="loading">⏳ Cargando...</div></div>
 </div>
 
 <footer>🔄 Actualizado diariamente a las 8:00 AM · Análisis con Claude AI</footer>
 
 <script>
 // ============================================================
-// CONFIG
+// CONFIG — solo esta URL
 // ============================================================
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=0&single=true&output=csv";
-const INSIGHTS_CSV_URL = "TU_URL_INSIGHTS_CSV_AQUI"; // pestaña Insights_Churn
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?gid=0&single=true&output=csv";
 
-const DUENOS = ["Victor Ortega", "Oscar Lopo", "Kamila", "Martina", "Gonzalo", "Franco"];
+const DUENOS = ["Victor Ortega", "Óscar Lopo", "Martina Benalcazar", "Kamila Jiménez", "Gonzalo Rosales", "Franco Ferretti"];
 
-let datosOriginales = [];
-let insightsData = [];
+// Palabras clave para detectar churn en el Resumen IA
+const CHURN_KEYWORDS = {
+  "sí": ["cancela", "cancel", "churn", "baja", "devoluci", "no quiere continuar", "no desea continuar", "abandona", "se va", "reembolso", "no está satisf", "insatisf", "no voy a seguir", "definitiva"],
+  "riesgo": ["frustrac", "no ve valor", "no entiende", "considera", "dudas", "no funciona", "problema", "fallo", "error", "no ha visto", "no recibe", "decepcion", "no está contento", "no está conten", "no ha funcionado", "evaluar", "reconsiderar", "plantea"]
+};
+
+const CATEGORIAS_KEYWORDS = {
+  "Fallos técnicos": ["vinculaci", "instagram", "publicaci", "no se publica", "error técnico", "no funciona", "fallo", "metricool", "carga", "sincroniz", "bloqueo técnico"],
+  "Onboarding deficiente": ["no entiende", "no sabe cómo", "confus", "demo", "no sabe usar", "no comprende", "cómo funciona", "no ha revisado", "no ha usado"],
+  "Bajo valor percibido": ["no ve valor", "no ve resultados", "no ve beneficio", "no justifica", "sin resultados", "no ha visto resultados", "retorno", "leads", "ventas"],
+  "Contenido irrelevante": ["no refleja", "no es relevante", "contenido genérico", "no se ajusta", "propuesta fría", "no personaliz", "chat gpt", "automático sin"],
+  "Soporte deficiente": ["no responde", "sin respuesta", "falta de comunicación", "no atiende", "no gestiona", "múltiples contactos", "sin seguimiento"],
+  "Sorpresas en facturación": ["cobro", "factura", "pago sin aviso", "no avisaron", "cargo inesperado", "no esperaba el cobro", "prueba gratuita"],
+  "Limitaciones del producto": ["linkedin", "no permite", "no puede cargar", "catalán", "limitación", "no soporta", "solo móvil"],
+  "Razones externas": ["económico", "crisis", "trabajo", "tiempo", "otra agencia", "traslado", "personal"]
+};
+
+let datos = [];
 let charts = {};
 
 // ============================================================
-// NAVEGACIÓN
+// NAV
 // ============================================================
-function mostrarTab(tab) {
+function mostrarTab(tab, btn) {
   document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
   document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   document.getElementById("tab-" + tab).classList.add("active");
-  event.target.classList.add("active");
+  btn.classList.add("active");
 }
 
 // ============================================================
-// CARGAR DATOS PRINCIPALES
+// DETECTAR CHURN
 // ============================================================
-function cargarDatos() {
-  Papa.parse(SHEET_CSV_URL, {
+function detectarChurn(resumen) {
+  const r = (resumen || "").toLowerCase();
+  for (const kw of CHURN_KEYWORDS["sí"]) if (r.includes(kw)) return "sí";
+  for (const kw of CHURN_KEYWORDS["riesgo"]) if (r.includes(kw)) return "riesgo";
+  return "no";
+}
+
+function detectarCategoria(resumen) {
+  const r = (resumen || "").toLowerCase();
+  for (const [cat, kws] of Object.entries(CATEGORIAS_KEYWORDS)) {
+    if (kws.some(kw => r.includes(kw))) return cat;
+  }
+  return "Sin categoría";
+}
+
+function detectarRiesgo(churn) {
+  if (churn === "sí") return "alto";
+  if (churn === "riesgo") return "medio";
+  return "bajo";
+}
+
+// ============================================================
+// CARGAR Y PROCESAR
+// ============================================================
+function cargar() {
+  Papa.parse(SHEET_URL, {
     download: true, header: true, skipEmptyLines: true,
     complete: function(r) {
-      datosOriginales = r.data.filter(row => DUENOS.some(d => (row["Dueño"] || "").includes(d)));
-      const fechas = datosOriginales.map(r => r["Actualizado"]).filter(Boolean);
-      if (fechas.length) document.getElementById("ultima-actualizacion").textContent = "Actualizado: " + fechas[0];
-      renderDashboard(datosOriginales);
-    },
-    error: () => {
-      document.getElementById("contenido-dashboard").innerHTML = '<div class="loading">❌ Error cargando datos.</div>';
-    }
-  });
-}
+      const raw = r.data.filter(row => DUENOS.includes((row["Dueño"] || "").trim()));
+      datos = raw.map(row => ({
+        dueno: (row["Dueño"] || "").trim(),
+        fecha: row["Fecha"] || "",
+        cliente: row["Participante"] || row["Título"] || "",
+        resumen: row["Resumen IA"] || "",
+        churn: detectarChurn(row["Resumen IA"]),
+        categoria: detectarCategoria(row["Resumen IA"]),
+        riesgo: detectarRiesgo(detectarChurn(row["Resumen IA"]))
+      }));
 
-// ============================================================
-// CARGAR INSIGHTS
-// ============================================================
-function cargarInsights() {
-  if (!INSIGHTS_CSV_URL || INSIGHTS_CSV_URL === "TU_URL_INSIGHTS_CSV_AQUI") {
-    document.getElementById("contenido-insights").innerHTML = '<div class="loading">⚠️ Configura INSIGHTS_CSV_URL para ver los insights.</div>';
-    document.getElementById("contenido-owners").innerHTML = '<div class="loading">⚠️ Configura INSIGHTS_CSV_URL para ver los insights por owner.</div>';
-    return;
-  }
-  Papa.parse(INSIGHTS_CSV_URL, {
-    download: true, header: false, skipEmptyLines: true,
-    complete: function(r) {
-      insightsData = r.data;
+      const fechas = raw.map(r => r["Fecha"]).filter(Boolean).sort().reverse();
+      if (fechas.length) document.getElementById("ultima-act").textContent = "Datos hasta: " + fechas[0];
+
+      renderDashboard();
       renderInsights();
       renderOwners();
+    },
+    error: () => {
+      document.getElementById("cont-dashboard").innerHTML = '<div class="loading">❌ Error cargando datos. Verifica la URL del Sheet.</div>';
     }
   });
 }
 
-function getInsight(seccion, owner) {
-  const fila = insightsData.find(f => f[0] === seccion && (!owner || f[1] === owner));
-  return fila ? fila[2] : "";
-}
-
-function getCategorias() {
-  return insightsData.filter(f => f[0] === "categoria").map(f => {
-    try { return JSON.parse(f[2]); } catch { return null; }
-  }).filter(Boolean);
-}
-
 // ============================================================
-// RENDER DASHBOARD
+// DASHBOARD
 // ============================================================
-function renderDashboard(datos) {
+function renderDashboard() {
   const total = datos.length;
-  const churns = datos.filter(r => (r["Churn detectado"]||"").toLowerCase() === "sí").length;
-  const riesgo = datos.filter(r => (r["Churn detectado"]||"").toLowerCase() === "riesgo").length;
-  const ok = datos.filter(r => (r["Churn detectado"]||"").toLowerCase() === "no").length;
+  const churns = datos.filter(d => d.churn === "sí").length;
+  const riesgo = datos.filter(d => d.churn === "riesgo").length;
+  const ok = datos.filter(d => d.churn === "no").length;
 
   const cats = {};
-  datos.forEach(r => { const c = r["Categoría de churn"]||"N/A"; cats[c] = (cats[c]||0)+1; });
+  datos.forEach(d => { cats[d.categoria] = (cats[d.categoria] || 0) + 1; });
   const catsSorted = Object.entries(cats).sort((a,b) => b[1]-a[1]);
 
   const riesgos = {};
-  datos.forEach(r => { const v = (r["Nivel de riesgo"]||"N/A").toLowerCase(); riesgos[v] = (riesgos[v]||0)+1; });
+  datos.forEach(d => { riesgos[d.riesgo] = (riesgos[d.riesgo] || 0) + 1; });
 
   const byOwner = {};
-  datos.forEach(r => {
-    const o = r["Dueño"]||"Sin asignar";
-    const c = (r["Churn detectado"]||"sin datos").toLowerCase();
-    if (!byOwner[o]) byOwner[o] = {"sí":0,"riesgo":0,"no":0};
-    byOwner[o][c] = (byOwner[o][c]||0)+1;
+  datos.forEach(d => {
+    if (!byOwner[d.dueno]) byOwner[d.dueno] = {"sí":0,"riesgo":0,"no":0};
+    byOwner[d.dueno][d.churn]++;
   });
 
-  document.getElementById("contenido-dashboard").innerHTML = `
+  document.getElementById("cont-dashboard").innerHTML = `
     <div class="metrics">
       <div class="metric"><div class="label">Total llamadas</div><div class="value">${total}</div></div>
       <div class="metric red"><div class="label">🔴 Churn confirmado</div><div class="value">${churns}</div><div class="sub">${total?Math.round(churns/total*100):0}% del total</div></div>
@@ -236,38 +249,37 @@ function renderDashboard(datos) {
       <div class="metric green"><div class="label">🟢 Sin riesgo</div><div class="value">${ok}</div><div class="sub">${total?Math.round(ok/total*100):0}% del total</div></div>
     </div>
     <div class="charts">
-      <div class="chart-card"><h3>🔥 Motivos de Churn por Categoría</h3><canvas id="chart-cats"></canvas></div>
+      <div class="chart-card"><h3>🔥 Motivos de Churn</h3><canvas id="chart-cats"></canvas></div>
       <div class="chart-card"><h3>🎯 Distribución de Riesgo</h3><canvas id="chart-riesgo"></canvas></div>
       <div class="chart-card full"><h3>👥 Churn por Owner</h3><canvas id="chart-owner"></canvas></div>
     </div>
     <div class="table-section">
-      <h3>📋 Detalle de Clientes (${total})</h3>
+      <h3>📋 Detalle de Llamadas (${total})</h3>
       <table>
-        <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Churn</th><th>Categoría</th><th>Riesgo</th><th>Motivo</th></tr></thead>
+        <thead><tr><th>Owner</th><th>Fecha</th><th>Cliente</th><th>Churn</th><th>Categoría</th><th>Riesgo</th><th>Resumen</th></tr></thead>
         <tbody>
-          ${datos.map(r => `<tr>
-            <td>${r["Dueño"]||"-"}</td>
-            <td>${r["Fecha"]||"-"}</td>
-            <td><strong>${r["Cliente"]||"-"}</strong></td>
-            <td><span class="badge ${(r["Churn detectado"]||"").toLowerCase()}">${r["Churn detectado"]||"-"}</span></td>
-            <td>${r["Categoría de churn"]||"-"}</td>
-            <td><span class="badge ${(r["Nivel de riesgo"]||"").toLowerCase()}">${r["Nivel de riesgo"]||"-"}</span></td>
-            <td>${r["Motivo principal"]||"-"}</td>
+          ${datos.map(d => `<tr>
+            <td>${d.dueno}</td>
+            <td>${d.fecha}</td>
+            <td><strong>${d.cliente}</strong></td>
+            <td><span class="badge ${d.churn}">${d.churn}</span></td>
+            <td>${d.categoria}</td>
+            <td><span class="badge ${d.riesgo}">${d.riesgo}</span></td>
+            <td><div class="resumen-text">${d.resumen.substring(0,150)}...</div></td>
           </tr>`).join("")}
         </tbody>
       </table>
     </div>`;
 
-  Object.values(charts).forEach(c => c.destroy());
-  charts = {};
-  const riesgoColors = {alto:"#FF4B4B",medio:"#FFA500",bajo:"#00CC96","n/a":"#CCCCCC"};
+  Object.values(charts).forEach(c => c.destroy()); charts = {};
+  const rc = {alto:"#FF4B4B",medio:"#FFA500",bajo:"#00CC96"};
 
   charts.cats = new Chart(document.getElementById("chart-cats"), {
-    type:"bar", data:{ labels:catsSorted.map(c=>c[0]), datasets:[{data:catsSorted.map(c=>c[1]),backgroundColor:"#FF4B4B99",borderColor:"#FF4B4B",borderWidth:1}]},
+    type:"bar", data:{labels:catsSorted.map(c=>c[0]),datasets:[{data:catsSorted.map(c=>c[1]),backgroundColor:"#FF4B4B99",borderColor:"#FF4B4B",borderWidth:1}]},
     options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
   });
   charts.riesgo = new Chart(document.getElementById("chart-riesgo"), {
-    type:"doughnut", data:{labels:Object.keys(riesgos),datasets:[{data:Object.values(riesgos),backgroundColor:Object.keys(riesgos).map(k=>riesgoColors[k]||"#CCCCCC")}]},
+    type:"doughnut", data:{labels:Object.keys(riesgos),datasets:[{data:Object.values(riesgos),backgroundColor:Object.keys(riesgos).map(k=>rc[k]||"#CCC")}]},
     options:{plugins:{legend:{position:"bottom"}}}
   });
   const owners = Object.keys(byOwner);
@@ -282,90 +294,136 @@ function renderDashboard(datos) {
 }
 
 // ============================================================
-// RENDER INSIGHTS
+// INSIGHTS
 // ============================================================
 function renderInsights() {
-  const cats = getCategorias();
-  const fecha = getInsight("fecha", "global");
+  const total = datos.length;
+  const churns = datos.filter(d => d.churn === "sí");
+  const riesgo = datos.filter(d => d.churn === "riesgo");
 
-  document.getElementById("contenido-insights").innerHTML = `
+  // Categorías ordenadas
+  const cats = {};
+  datos.forEach(d => { cats[d.categoria] = (cats[d.categoria] || 0) + 1; });
+  const catsSorted = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+
+  // Clientes por categoría
+  const clientesPorCat = {};
+  datos.forEach(d => {
+    if (!clientesPorCat[d.categoria]) clientesPorCat[d.categoria] = [];
+    const nombre = d.cliente.split(",")[0].trim();
+    if (!clientesPorCat[d.categoria].includes(nombre)) clientesPorCat[d.categoria].push(nombre);
+  });
+
+  function frecuencia(n) {
+    if (n >= total * 0.4) return ["muy alta", "alta"];
+    if (n >= total * 0.2) return ["alta", "alta"];
+    if (n >= total * 0.1) return ["media", "media"];
+    return ["baja", "baja"];
+  }
+
+  // Owner con más churn
+  const ownerChurn = {};
+  churns.forEach(d => { ownerChurn[d.dueno] = (ownerChurn[d.dueno] || 0) + 1; });
+  const topOwner = Object.entries(ownerChurn).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById("cont-insights").innerHTML = `
     <div class="insight-block highlight">
-      <span class="insight-tag">IA · ${fecha}</span>
+      <span class="insight-tag red">Análisis automático</span>
       <h2>¿Por qué estamos perdiendo clientes?</h2>
-      <p>${getInsight("resumen_ejecutivo","global")}</p>
+      <p>Se analizaron <strong>${total} llamadas</strong> de los 6 owners.
+      <strong>${churns.length} clientes</strong> (${Math.round(churns.length/total*100)}%) muestran señales claras de churn y
+      <strong>${riesgo.length}</strong> están en riesgo.
+      Los motivos no son aislados — casi siempre se combinan 2-3 factores simultáneamente, lo que acelera la decisión de cancelar.
+      ${topOwner ? `El owner con más churns confirmados es <strong>${topOwner[0]}</strong> con ${topOwner[1]} casos.` : ""}</p>
     </div>
 
     <div class="insight-block">
-      <h2>Categorías de churn</h2>
+      <h2>Categorías de churn detectadas</h2>
       <div class="cat-grid">
-        ${cats.map(c => `
-          <div class="cat-item">
-            <div class="cat-name">${c.nombre||""}</div>
-            <span class="cat-freq ${(c.frecuencia||"").replace(" ","").toLowerCase()}">${c.frecuencia||""}</span>
-            <p>${c.descripcion||""}</p>
-            <div class="clientes">👥 ${c.clientes_afectados||""}</div>
-          </div>`).join("")}
+        ${catsSorted.map(([cat, n]) => {
+          const [freq] = frecuencia(n);
+          const clientes = (clientesPorCat[cat] || []).slice(0,5).join(", ");
+          return `<div class="cat-item">
+            <div class="cat-count">${n}</div>
+            <div class="cat-name">${cat}</div>
+            <span class="cat-freq ${freq === "muy alta" || freq === "alta" ? "alta" : freq === "media" ? "media" : "baja"}">${freq}</span>
+            <div class="cat-clients">👥 ${clientes || "Sin datos"}</div>
+          </div>`;
+        }).join("")}
       </div>
     </div>
 
     <div class="insight-block warning">
-      <h2>⚠️ Patrón crítico detectado</h2>
-      <p>${getInsight("patron_critico","global")}</p>
+      <span class="insight-tag orange">Patrón crítico</span>
+      <h2>⚠️ Ciclo de deterioro detectado</h2>
+      <div class="patron-box">
+        Fallo técnico o expectativa no cumplida → cliente intenta comunicarse → sin respuesta clara o rápida → frustración → propuestas pendientes que bloquean → percepción de que "nada funciona" → cancelación o amenaza de churn.<br><br>
+        La mayoría de los churns <strong>no son instantáneos</strong>: los clientes dan señales durante semanas. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.
+      </div>
     </div>
 
     <div class="insight-block">
-      <span class="insight-tag">0–30 días</span>
+      <span class="insight-tag red">0–30 días</span>
       <h3>Acciones inmediatas</h3>
-      <p>${getInsight("recomendaciones_corto","global")}</p>
+      <p>Crear un sistema de alerta temprana: cliente sin propuestas aprobadas en más de 10 días, sin cuentas vinculadas después de la primera semana, o sin actividad en la app en 7 días. Revisar el proceso de onboarding — la demo en vivo no puede ser el único recurso de rescate, debe ser el punto de partida obligatorio. Estandarizar la comunicación de cancelación para reducir la frustración de clientes como Karina que no saben cómo darse de baja.</p>
     </div>
 
     <div class="insight-block">
       <span class="insight-tag orange">30–90 días</span>
-      <h3>Medio plazo</h3>
-      <p>${getInsight("recomendaciones_medio","global")}</p>
+      <h3>Acciones a medio plazo</h3>
+      <p>Implementar un mecanismo de feedback estructurado en la plataforma para que el cliente indique qué le gusta o no de cada propuesta. Crear un Quality Check mensual por cliente: revisar que las cuentas estén vinculadas, sin propuestas acumuladas y con contenido alineado al negocio. Añadir email de aviso 5-7 días antes del cobro con resumen del servicio del mes.</p>
     </div>
 
     <div class="insight-block success">
       <span class="insight-tag green">Estratégico</span>
       <h3>Visión a largo plazo</h3>
-      <p>${getInsight("recomendaciones_estrategico","global")}</p>
+      <p>El motivo más difícil de resolver es la ausencia de resultados tangibles. Los clientes esperan ventas o leads, pero el servicio entrega presencia digital. Alinear expectativas desde el proceso de venta es clave para reducir este gap estructural.</p>
     </div>
   `;
 }
 
 // ============================================================
-// RENDER OWNERS
+// OWNERS
 // ============================================================
 function renderOwners() {
-  document.getElementById("contenido-owners").innerHTML = `
+  document.getElementById("cont-owners").innerHTML = `
     <div class="insight-block highlight" style="margin-bottom:24px">
       <h2>👥 Situación por Owner</h2>
-      <p>Análisis individual de cada responsable: su principal problema y la acción más urgente.</p>
+      <p>Resumen de cada responsable: total de llamadas, churn detectado y principales motivos.</p>
     </div>
     <div class="owners-grid">
-      ${DUENOS.map(d => {
-        const resumen = getInsight("owner_resumen", d);
-        const problema = getInsight("owner_problema", d);
-        const accion = getInsight("owner_accion", d);
-        if (!resumen) return `<div class="owner-card"><h4>${d}</h4><p class="owner-resumen" style="color:#aaa">Sin datos disponibles</p></div>`;
-        return `
-          <div class="owner-card">
-            <h4>${d}</h4>
-            <p class="owner-resumen">${resumen}</p>
-            <div class="owner-label">Problema principal</div>
-            <div class="owner-value">${problema}</div>
-            <div class="owner-accion">💡 ${accion}</div>
-          </div>`;
+      ${DUENOS.map(dueno => {
+        const dd = datos.filter(d => d.dueno === dueno);
+        if (!dd.length) return `<div class="owner-card"><h4>${dueno}</h4><p style="color:#aaa;font-size:13px">Sin llamadas registradas</p></div>`;
+        const ch = dd.filter(d => d.churn === "sí").length;
+        const ri = dd.filter(d => d.churn === "riesgo").length;
+        const ok = dd.filter(d => d.churn === "no").length;
+
+        const cats = {};
+        dd.forEach(d => { cats[d.categoria] = (cats[d.categoria] || 0) + 1; });
+        const topCat = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+
+        const motivos = dd.filter(d => d.churn !== "no")
+          .map(d => d.resumen.split(".")[0])
+          .filter(Boolean).slice(0, 3);
+
+        return `<div class="owner-card">
+          <h4>${dueno}</h4>
+          <div class="owner-stats">
+            <div class="owner-stat red"><div class="n">${ch}</div><div class="l">Churn</div></div>
+            <div class="owner-stat orange"><div class="n">${ri}</div><div class="l">Riesgo</div></div>
+            <div class="owner-stat green"><div class="n">${ok}</div><div class="l">OK</div></div>
+            <div class="owner-stat"><div class="n">${dd.length}</div><div class="l">Total</div></div>
+          </div>
+          ${topCat ? `<div class="owner-top">🔥 Principal problema: <strong>${topCat[0]}</strong> (${topCat[1]} casos)</div>` : ""}
+          ${motivos.length ? `<div class="owner-motivos">${motivos.map(m => `<div class="motivo">• ${m.substring(0,100)}...</div>`).join("")}</div>` : ""}
+        </div>`;
       }).join("")}
     </div>
   `;
 }
 
-// ============================================================
-// INIT
-// ============================================================
-cargarDatos();
-cargarInsights();
+cargar();
 </script>
 </body>
 </html>

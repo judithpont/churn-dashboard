@@ -647,65 +647,62 @@ function updateHSSubTabCounts(){
 // MODJO CONCLUSIONS (based on transcripts)
 // ============================================================
 function modjoConclHTML(){
+  const t=filteredModjo.length;
+  if(!t)return'';
+  const totalChurns=filteredModjo.filter(r=>r.esChurn).length||1;
+  // Build per-category stats
+  const cc={};
+  Object.keys(CAT_KW).forEach(k=>{cc[k]={total:0,churn:0,clients:[]};});
+  filteredModjo.forEach(r=>{
+    if(cc[r.categoria]){
+      cc[r.categoria].total++;
+      if(r.esChurn){cc[r.categoria].churn++;cc[r.categoria].clients.push(r.cliente);}
+    }
+  });
+  // Only categories with churns, sorted by churn count
+  const sorted=Object.entries(cc).filter(([,v])=>v.churn>0).sort((a,b)=>b[1].churn-a[1].churn);
+  if(!sorted.length)return'';
+  // Frequency thresholds based on % of total churns
+  function freqClass(n){const p=n/totalChurns*100;return p>=30?'freq-muy-alta':p>=15?'freq-alta':p>=7?'freq-media':'freq-baja';}
+  function freqLabel(n){const p=n/totalChurns*100;return p>=30?'Muy alta frecuencia':p>=15?'Alta frecuencia':p>=7?'Frecuencia media':'Frecuencia baja';}
+  // Category descriptions for conclusions
+  const CAT_CONCL={
+    'Fallos técnicos':'Problemas técnicos que impiden usar el servicio correctamente: publicaciones que no se publican, vinculación fallida con Instagram/Facebook, carga lenta o errores de conexión. Cuando el cliente no puede usar la plataforma desde el inicio, la confianza se pierde de forma irreversible.',
+    'Contenido':'Las propuestas generadas no reflejan la identidad ni el sector del cliente. Negocios de nicho sienten que la IA no captura su voz ni su propuesta de valor. El brief inicial es insuficiente para garantizar personalización real.',
+    'Soporte':'El cliente no recibe respuesta o la recibe tarde, de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
+    'Sin resultados':'El cliente no percibe resultados tangibles (ventas, leads, alcance) y siente que no justifica la inversión. En muchos casos la expectativa fue creada en ventas sin matizarse adecuadamente.',
+    'Onboarding':'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación de contenido.',
+    'Facturación':'Cobros inesperados, falta de transparencia sobre la política de cancelación (20 días de preaviso) o errores en el cargo generan reclamaciones y pérdida de confianza.',
+    'Limitaciones':'La plataforma no soporta algo que el cliente necesita: LinkedIn, idiomas distintos del castellano, carga de archivos desde ordenador, o gestión multi-cuenta.',
+    'Razones externas':'Cancelaciones no atribuibles al servicio: crisis económica, contratación de agencia externa, cierre del negocio o cambio de situación personal.',
+  };
+  const itemsHTML=sorted.map(([cat,data],i)=>{
+    const uniqueClients=[...new Set(data.clients)];
+    const clientStr=uniqueClients.slice(0,6).join(', ')+(uniqueClients.length>6?`… y ${uniqueClients.length-6} más`:'');
+    const churnRate=data.total?Math.round(data.churn/data.total*100):0;
+    const desc=CAT_CONCL[cat]||'';
+    return`<div class="concl-item">
+      <h3><span class="concl-freq ${freqClass(data.churn)}">${freqLabel(data.churn)}</span> ${i+1}. ${cat}</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:6px"><strong>${data.churn} churns</strong> de ${data.total} llamadas en el período (${churnRate}% tasa) — ${Math.round(data.churn/totalChurns*100)}% del churn total.</p>
+      ${desc?`<p>${desc}</p>`:''}
+      ${clientStr?`<p class="clientes">Clientes en el período: ${clientStr}.</p>`:''}
+    </div>`;
+  }).join('');
+  // Dynamic pattern: top 2 categories
+  const top2=sorted.slice(0,2).map(([k])=>k).join(' y ');
+  const topCat=sorted[0]?sorted[0][0]:'';
   return`<div class="concl-section">
     <div class="concl-header" onclick="toggleConcl(this)">
-      <h2>📋 Conclusiones Modjo — basadas en transcripciones</h2>
+      <h2>📋 Conclusiones Modjo — basadas en transcripciones del período</h2>
       <span class="concl-toggle">▶</span>
     </div>
     <div class="concl-body">
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-muy-alta">Muy alta frecuencia</span> 1. Fallos técnicos recurrentes</h3>
-        <p>El problema más mencionado en todas las transcripciones: publicaciones que no se publican a tiempo, vinculación fallida con Instagram/Facebook (algunos casos sin resolver desde diciembre), errores en el sistema de pagos, carga lenta y cuentas no correctamente conectadas. La solución reactiva usual es reiniciar la vinculación o "llamar el lunes".</p>
-        <p class="clientes">Clientes identificados: Karina, Enrique, Patricia, María (varias), Leticia, Isabel, Yolanda, Heidy.</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-alta">Alta frecuencia</span> 2. Onboarding deficiente</h3>
-        <p>Clientes que llevan semanas o meses sin entender cómo funciona la plataforma. No saben cómo solicitar cambios ni entienden el flujo de aprobación. La demo en vivo reactiva ("hagamos una llamada el lunes") es el parche universal, lo que indica que el onboarding inicial no es suficiente para retener sin fricción.</p>
-        <p class="clientes">Clientes identificados: Isabel, prospecta del gimnasio, Ángel, Yolanda, Joaquim, María (odontopediatría).</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-alta">Alta frecuencia</span> 3. Bajo valor percibido / sin resultados</h3>
-        <p>Clientes que no ven resultados tangibles (ventas, leads, engagement) y sienten que no justifican la inversión. Algunos mencionan que sus propias publicaciones generaban más tráfico antes (Solventana). Ángel lleva meses usando la plataforma sin ver conversión en ventas, que era su expectativa inicial.</p>
-        <p class="clientes">Clientes identificados: Ángel, Solventana, Virginia, Isabel, Samuel, María (odontopediatría), Laia.</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-alta">Alta frecuencia</span> 4. Calidad y relevancia del contenido</h3>
-        <p>Propuestas genéricas que no reflejan el negocio del cliente. Sensación de contenido automatizado sin personalización real. Negocios de nicho (galletas publicitarias, electromagnetismo, odontopediatría) sienten que la IA no captura su sector. Yolanda menciona publicaciones completamente irrelevantes para su marca.</p>
-        <p class="clientes">Clientes identificados: Ángel, Aikari, María (cancelación), Yolanda, Enrique, Laia.</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-alta">Alta frecuencia</span> 5. Comunicación y soporte deficiente</h3>
-        <p>Solicitudes que no se registran, días sin respuesta, múltiples interlocutores sin continuidad. Samuel lleva más de 20 propuestas sin recibir feedback. José tiene múltiples reclamaciones sin respuesta y acaba cancelando de forma agresiva. Karina ha solicitado la baja varias veces sin una respuesta clara.</p>
-        <p class="clientes">Clientes identificados: Karina, Samuel, José, María, Fran, Heidy, Enrique.</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-media">Frecuencia media</span> 6. Sorpresas en facturación</h3>
-        <p>Cobros inesperados, errores en la gestión de pagos y falta de transparencia sobre la política de cancelación (20 días de aviso). Miryam cancela principalmente por esto. Patricia se siente engañada por la forma en que se presentó la prueba gratuita y la suscripción recurrente posterior.</p>
-        <p class="clientes">Clientes identificados: Miryam, Patricia, Heidy, Fran, Karina.</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-media">Frecuencia media</span> 7. Limitaciones del producto</h3>
-        <p>La plataforma no gestiona LinkedIn (limitación explícita a Leticia), no permite cargar archivos desde ordenador (solo móvil), y tiene problemas sin resolver con el catalán (Laia lleva semanas esperando). Estas limitaciones reducen el valor percibido en clientes con necesidades específicas.</p>
-        <p class="clientes">Clientes identificados: Leticia, María (cancelación), Laia.</p>
-      </div>
-      <div class="concl-item">
-        <h3><span class="concl-freq freq-baja">Frecuencia baja</span> 8. Razones externas</h3>
-        <p>Cancelaciones no atribuibles al servicio: crisis económica personal (Jero), contratación de agencia con mayor inversión (Virginia), falta de tiempo por traslado o cambios vitales.</p>
-      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Análisis sobre <strong>${t} llamadas</strong> con <strong>${totalChurns} churns detectados</strong> en el período seleccionado. Basado en resúmenes IA de transcripciones.</p>
+      ${itemsHTML}
       <div class="pattern-box">
-        <h3>⚠️ Patrón crítico detectado en las transcripciones</h3>
-        <p>Fallo técnico o expectativa no cumplida → el cliente intenta comunicarse → sin respuesta clara o rápida → frustración → propuestas bloqueadas → percepción de que "nada funciona" → cancelación o amenaza de churn.<br/><br/>La mayoría de los churns no son instantáneos: los clientes dan señales durante semanas. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.</p>
+        <h3>⚠️ Patrón crítico detectado en el período</h3>
+        <p>La categoría dominante es <strong>${topCat}</strong>${top2&&top2!==topCat?' seguida de <strong>'+top2+'</strong>':''}. La mayoría de los churns no son instantáneos: los clientes dan señales durante semanas antes de cancelar. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.</p>
       </div>
-      <div class="rec-block"><h4>Recomendaciones (0–30 días)</h4><ul>
-        <li>Alerta temprana: sin propuestas aprobadas en 10+ días, sin cuentas vinculadas en la primera semana, sin abrir la app en 7 días.</li>
-        <li>Onboarding obligatorio en los primeros 3 días: la demo en vivo debe ser el inicio, no el rescate.</li>
-        <li>Proceso de cancelación estandarizado y claro que reduzca frustración.</li>
-      </ul></div>
-      <div class="rec-block"><h4>Recomendaciones (30–90 días)</h4><ul>
-        <li>Feedback estructurado por propuesta con opciones predefinidas dentro de la plataforma.</li>
-        <li>Quality Check mensual: cuentas vinculadas, propuestas sin acumular, contenido alineado al brief.</li>
-        <li>Email de aviso 5–7 días antes del cobro con resumen del servicio del mes.</li>
-      </ul></div>
     </div>
   </div>`;
 }

@@ -290,7 +290,7 @@ function getClientType(name){
 }
 const CAT_KW={
   'Facturación':      ['factura','cobro','precio','coste','dinero','tarifa','renovación','renovacion','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado','cargo incorrecto','cargo inesperado','me han cobrado de más','cobro incorrecto','cobro inesperado'],
-  'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz','vinculación','vinculacion','instagram no','facebook no','no se publica','no se conecta','problema técnico','problema tecnico','cuenta bloqueada','acceso bloqueado','retraso','no se activo','no inicio el servicio','web inactiva','dominio','reactivar'],
+  'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz','vinculación','vinculacion','instagram no','facebook no','no se publica','no se conecta','problema técnico','problema tecnico','cuenta bloqueada','acceso bloqueado','retraso','no se activo','no inicio el servicio','web inactiva','dominio','reactivar','contraseña','no puede acceder','no puedo acceder','dificultades para acceder','problema de acceso','bloqueado','bloqueo','descargar la aplicación','descargar aplicacion','no puede entrar','no puedo entrar','no abre','no descarga','problema con la app','problema con el teléfono','problema con el telefono','acceso a la aplicación','acceso a la aplicacion'],
   'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular perfiles','empezar','setup','primer mes','alta nueva','proceso de alta','completar integración','completar integracion','vincular facebook','vincular instagram','accesos pendientes','falta vincular','permisos en facebook','gestionar permisos'],
   'Sin resultados':   ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica'],
   'Contenido':        ['contenido','publicación','publicacion','post','copy','imagen','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
@@ -565,8 +565,8 @@ function procesarModjo(raw){
     const transcript=col(r,'Transcript','transcript','Transcripción','transcripcion');
     const summary=col(r,'Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen');
     const fechaStr=col(r,'Fecha','fecha','Date','date');
-    let owner=canonicalOwner(dueno);
-    if(!owner){for(const d of DUENOS){if(partic&&norm(partic).includes(norm(d))){owner=d;break;}}}
+    // Only include records where the owner column explicitly matches a known owner
+    const owner=canonicalOwner(dueno);
     if(!owner)continue;
     let cliente='';
     if(partic){const ps=partic.split(',').map(p=>p.replace(/[\[\]]/g,'').trim()).filter(Boolean);for(const p of ps){if(!canonicalOwner(p)){cliente=p;break;}}}

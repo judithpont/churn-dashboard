@@ -538,7 +538,7 @@ let filteredHS=[...HS_DATA],hsperiod='all',hsCurrentSub='insights';
 // ============================================================
 function norm(s){return(s||'').toLowerCase().trim().normalize('NFD').replace(/\p{Diacritic}/gu,'');}
 function col(row,...names){for(const n of names){for(const k of Object.keys(row)){if(norm(k)===norm(n)&&row[k]!==''&&row[k]!==undefined)return row[k];}}return'';}
-function canonicalOwner(s){const sn=norm(s||'');const map=[{k:['victor','ortega'],n:'Victor Ortega'},{k:['oscar','lopo'],n:'Óscar Lopo'},{k:['gonzalo','rosales'],n:'Gonzalo Rosales'},{k:['franco','ferretti'],n:'Franco Ferretti'},{k:['kamila','jimenez'],n:'Kamila Jiménez'},{k:['martina','benalcazar'],n:'Martina Benalcazar'}];for(const e of map){if(e.k.some(k=>sn.includes(norm(k))))return e.n;}return null;}
+function canonicalOwner(s){const sn=norm(s||'');const map=[{k:['victor','ortega'],n:'Victor Ortega'},{k:['oscar','lopo'],n:'Óscar Lopo'},{k:['gonzalo','rosales'],n:'Gonzalo Rosales'},{k:['franco','ferretti'],n:'Franco Ferretti'},{k:['kamila','jimenez'],n:'Kamila Jiménez'},{k:['martina','benalcazar'],n:'Martina Benalcazar'}];for(const e of map){if(e.k.every(k=>sn.includes(norm(k))))return e.n;}return null;}
 function detCat(t){
   const tn=norm(t||'');
   let best='Sin impacto real en su negocio',bestScore=0;
@@ -595,17 +595,39 @@ const PILL_COLORS=['pill-green','pill-orange','pill-blue','pill-purple','pill-gr
 // ============================================================
 // MODJO PROCESSING
 // ============================================================
-// Build name→HS company ID map from embedded HS_DATA for Modjo table links
-const NAME_TO_HS_ID=(function(){const m={};for(const r of HS_DATA){const n=norm(r.name||'');if(n)m[n]=r.id;}return m;})();
-function getHSLinkForRow(r){
-  // Try name-based match against HS_DATA companies
+// Cache for HubSpot lookups by contactId: {contactId → {url, ct}}
+const HS_LOOKUP_CACHE={};
+// Fetch company info for a contactId from Vercel serverless function
+async function fetchHSInfo(contactId){
+  if(!contactId)return{url:null,ct:''};
+  if(HS_LOOKUP_CACHE[contactId])return HS_LOOKUP_CACHE[contactId];
+  try{
+    const res=await fetch('/api/hs-lookup?contactId='+encodeURIComponent(contactId));
+    if(!res.ok)return{url:null,ct:''};
+    const data=await res.json();
+    const url=data.companyId?'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+data.companyId:null;
+    const result={url,ct:data.clientType||''};
+    HS_LOOKUP_CACHE[contactId]=result;
+    return result;
+  }catch(e){return{url:null,ct:''};}
+}
+// Returns {url, ct} — uses API lookup if contactId available, falls back to name matching
+function getHSInfoForRow(r){
   const cn=norm(r.cliente||'');
-  if(cn&&NAME_TO_HS_ID[cn])return'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+NAME_TO_HS_ID[cn];
-  // Partial match: cliente name contained in HS name or vice versa
-  for(const[n,id]of Object.entries(NAME_TO_HS_ID)){if(cn.length>4&&n.includes(cn))return'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+id;if(n.length>4&&cn.includes(n))return'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+id;}
-  // Fallback: link to contact record using contact ID
-  if(r.contactId)return'https://app-eu1.hubspot.com/contacts/25808060/record/0-1/'+r.contactId;
-  return null;
+  const base='https://app-eu1.hubspot.com/contacts/25808060/record/0-2/';
+  // If we have a cached API result for this contactId, use it
+  if(r.contactId&&HS_LOOKUP_CACHE[r.contactId])return HS_LOOKUP_CACHE[r.contactId];
+  // Fallback: name-based match against HS_DATA
+  for(const hsR of HS_DATA){
+    const hn=norm(hsR.name||'');
+    if(!hn)continue;
+    if(cn===hn||(cn.length>4&&hn.includes(cn))||(hn.length>4&&cn.includes(hn))){
+      const ct=HS_CLIENT_TYPE[hn]||HS_CLIENT_TYPE[cn]||getClientType(r.cliente);
+      return{url:base+hsR.id,ct};
+    }
+  }
+  // No match — still try client type by name
+  return{url:null,ct:getClientType(r.cliente)};
 }
 
 function procesarModjo(raw){
@@ -1472,21 +1494,37 @@ function toggleCase(uid){
   f.style.display=open?'none':'';
 }
 
+function modjoRowHTML(r,i,hsLink,ct){
+  const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};
+  const hasDetail=(r.displayText||'').trim().length>20;
+  const ctHTML=ct?`<span class="churn-badge" style="${colors[ct]||'background:#e0f2fe;color:#0369a1'}">${ct}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>';
+  return`<tr id="mrow${i}">
+    <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
+    <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
+    <td><span class="cat-badge">${r.categoria}</span></td>
+    <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
+    <td id="mct${i}">${ctHTML}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
+    <td id="mlink${i}">${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
+  </tr>
+  ${hasDetail?`<tr><td colspan="9"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+}
 function renderTablaModjo(){
+  const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};
   document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>{
-    const hasDetail=(r.displayText||'').trim().length>20;
-    const hsLink=getHSLinkForRow(r);
-    return`<tr>
-      <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
-      <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
-      <td><span class="cat-badge">${r.categoria}</span></td>
-      <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
-      <td>${(()=>{const ct=getClientType(r.cliente);const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};return ct?`<span class="churn-badge" style="${colors[ct]||'background:#e0f2fe;color:#0369a1'}">${ct}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>';})()}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
-      <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
-    </tr>
-    ${hasDetail?`<tr><td colspan="9"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+    const{url:hsLink,ct}=getHSInfoForRow(r);
+    return modjoRowHTML(r,i,hsLink,ct);
   }).join('');
+  // Async: for rows with contactId not yet cached, fetch from API and update in place
+  filteredModjo.forEach(async(r,i)=>{
+    if(!r.contactId||HS_LOOKUP_CACHE[r.contactId])return;
+    const{url,ct}=await fetchHSInfo(r.contactId);
+    if(!url&&!ct)return;
+    const ctEl=document.getElementById('mct'+i);
+    const linkEl=document.getElementById('mlink'+i);
+    if(ctEl&&ct)ctEl.innerHTML=ct?`<span class="churn-badge" style="${colors[ct]||'background:#e0f2fe;color:#0369a1'}">${ct}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>';
+    if(linkEl&&url)linkEl.innerHTML=`<a href="${url}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`;
+  });
 }
 
 function renderTablaHS(){

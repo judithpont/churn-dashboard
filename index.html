@@ -234,7 +234,7 @@
     <div class="table-wrap">
       <table><thead><tr>
         <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-        <th>Categoría</th><th>Churn</th><th>Client Type</th><th>Resumen IA</th>
+        <th>Categoría</th><th>Churn</th><th>Client Type</th><th>Resumen IA</th><th>Ver</th>
       </tr></thead><tbody id="tbodyModjo"></tbody></table>
     </div>
   </div>
@@ -289,119 +289,157 @@ function getClientType(name){
   return'';
 }
 const CAT_KW={
-  'Facturación':      ['factura','cobro','precio','coste','dinero','tarifa','renovación','renovacion','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado','cargo incorrecto','cargo inesperado','me han cobrado de más','cobro incorrecto','cobro inesperado'],
-  'Fallos técnicos':  ['error','fallo','bug','técnico','tecnico','no funciona','no carga','caída','caida','lento','desconect','sincroniz','vinculación','vinculacion','instagram no','facebook no','no se publica','no se conecta','problema técnico','problema tecnico','cuenta bloqueada','acceso bloqueado','retraso','no se activo','no inicio el servicio','web inactiva','dominio','reactivar','contraseña','no puede acceder','no puedo acceder','dificultades para acceder','problema de acceso','bloqueado','bloqueo','descargar la aplicación','descargar aplicacion','no puede entrar','no puedo entrar','no abre','no descarga','problema con la app','problema con el teléfono','problema con el telefono','acceso a la aplicación','acceso a la aplicacion'],
-  'Onboarding':       ['onboarding','no sabe','no entiende','cómo funciona','como funciona','configurar','vincular perfiles','empezar','setup','primer mes','alta nueva','proceso de alta','completar integración','completar integracion','vincular facebook','vincular instagram','accesos pendientes','falta vincular','permisos en facebook','gestionar permisos'],
-  'Sin resultados':   ['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no justifica'],
-  'Contenido':        ['contenido','publicación','publicacion','post','copy','imagen','genérico','generico','no encaja','marca','tono','estilo','chatgpt'],
-  'Soporte':          ['soporte','respuesta','no contesta','no responden','tarda','atención','atencion','ayuda','nadie','no atiende'],
-  'Limitaciones':     ['limitación','limitacion','no puede','no soporta','no permite','linkedin','idioma','catalán','catalan','móvil','movil','subir','adjuntar'],
-  'Razones externas': ['externo','personal','agencia','crisis','económ','econom','trasladar','tiempo','prioridad','presupuesto','otra empresa']
+  'Fallo en la plataforma':        ['error','fallo','bug','no funciona','no carga','caida','lento','desconect','sincroniz','vinculacion','instagram no','facebook no','no se publica','no se conecta','problema tecnico','cuenta bloqueada','acceso bloqueado','web inactiva','dominio','reactivar','contrasena','no puede acceder','no puedo acceder','bloqueado','bloqueo','no abre','no descarga','problema con la app','dificultades para acceder'],
+  'Cierre de venta forzado':       ['me dijeron que','me prometieron','no me explicaron','no sabia que','no me avisaron','me enganaron','prueba gratuita','periodo de prueba','mes gratis','no fue lo que me dijeron','no fue lo que me contaron','fui enganado','me vendieron mal','cierre de venta'],
+  'Mala comunicacion en ventas':   ['en ventas me dijeron','no es lo que me vendieron','expectativas','malentendido','no fue lo que esperaba','diferente a lo que me explicaron','se comprometieron a','no cumplieron lo prometido','no me explicaron bien','me dijeron que era diferente'],
+  'Problemas de calidad':          ['contenido','publicacion','post','copy','imagen','generico','no encaja','marca','tono','estilo','chatgpt','no refleja','no representa','no es mi marca','publicaciones no son','contenido no es'],
+  'Sin impacto real en su negocio':['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no veo impacto','no ha mejorado','no veo diferencia','no ha funcionado','no ha dado resultado','no ha cambiado','no noto mejoria'],
+  'Promesa irreal':                ['prometieron resultados','me dijeron que iba a conseguir','garantizaron','aseguraron','resultados garantizados','leads garantizados','clientes nuevos garantizados','promesa irreal','no cumplieron con lo prometido','expectativa irreal'],
+  'Negocio cerrado':               ['cerrar el negocio','cierro','cierra','cerre','quiebra','insolvencia','dejo el negocio','vendo el negocio','dejo de operar','ya no tengo negocio','me retiro','cambio de actividad','negocio cerrado'],
+  'Fuera del alcance del plan':    ['limitacion','no puede','no soporta','no permite','linkedin','idioma','catalan','movil','subir archivos','adjuntar','no incluye','no forma parte del plan','no esta en el plan','multicuenta','multi cuenta'],
+  'Problema de soporte':           ['soporte','respuesta','no contesta','no responden','tarda','atencion','ayuda','nadie','no atiende','mala atencion','no me hacen caso','no recibo respuesta','no hay respuesta','sin respuesta'],
+  'Fallo en el onboarding':        ['onboarding','no sabe','no entiende','como funciona','configurar','vincular perfiles','empezar','setup','primer mes','proceso de alta','completar integracion','vincular facebook','vincular instagram','no se como','no entiendo como','alta nueva'],
+  'No justifica precio':           ['factura','cobro','precio','coste','dinero','tarifa','renovacion','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado','cargo incorrecto','cargo inesperado','cobro incorrecto','cobro inesperado','muy caro','demasiado caro','no vale lo que cuesta','no merece la pena','no justifica el precio','recorte','econom']
 };
 
 // Detailed descriptions for Modjo insight cards
 const CAT_DESC={
-  'Fallos técnicos': {
+  'Fallo en la plataforma': {
     porque: 'La plataforma falla antes de que el cliente haya recibido valor real. El problema más crítico es la vinculación de redes sociales: si Instagram o Facebook no se conectan en los primeros días, el cliente pierde confianza de forma irreversible.',
     ejemplos: [
-      'Karina lleva semanas con las publicaciones sin publicarse — la vinculación con Instagram sigue fallando sin solución',
-      'Enrique: el sistema de pagos lanzó un error inesperado que generó una reclamación inmediata',
-      'Yolanda: publicaciones programadas que no aparecen en su perfil durante días sin explicación',
-      'Isabel: cuenta vinculada incorrectamente — nunca llegó a publicarse ningún contenido'
+      'Cuenta de Instagram desvinculada — las publicaciones no se publican desde hace semanas sin solución',
+      'Error inesperado en el sistema de pagos que generó una reclamación inmediata',
+      'Publicaciones programadas que no aparecen en el perfil del cliente durante días',
+      'Cuenta vinculada incorrectamente — nunca llegó a publicarse ningún contenido'
     ],
     accion: 'Checklist de vinculación en primeras 48h. Alertas automáticas si no hay publicaciones en 72h.'
   },
-  'Onboarding': {
-    porque: 'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación de contenido, por lo que el cliente no sabe qué hacer ni a quién acudir.',
+  'Cierre de venta forzado': {
+    porque: 'El cliente firmó sin entender completamente las condiciones. Falta de claridad sobre el periodo de prueba, la política de cancelación o los compromisos adquiridos en el momento del cierre.',
     ejemplos: [
-      'Isabel: lleva meses en la plataforma y todavía no sabe cómo solicitar un cambio en una publicación',
-      'Ángel: pregunta cómo funciona el proceso de aprobación después de varias semanas de alta',
-      'Joaquim: no ha vinculado sus cuentas correctamente — nadie le avisó de que era necesario',
-      'María (odontopediatría): no entiende qué incluye el plan ni cómo comunicarse con el equipo'
+      'Cliente que no sabía que contratar la prueba gratuita implicaba un compromiso posterior de pago',
+      'Cargo recibido sin aviso — el cliente pensaba que había cancelado antes del período de facturación',
+      'Vendedor que cerró sin explicar el preaviso de 20 días para cancelar',
+      'Cliente que firmó sin recibir la información completa sobre el contrato'
     ],
-    accion: 'Vídeo de onboarding de 3 min. Llamada de bienvenida obligatoria en los primeros 7 días.'
+    accion: 'Confirmación escrita de condiciones en el alta. Resumen de política de cancelación obligatorio.'
   },
-  'Sin resultados': {
-    porque: 'El cliente esperaba resultados tangibles (ventas, leads, seguidores) en un plazo corto y no los ha visto. En muchos casos la expectativa fue creada en ventas sin matizarse adecuadamente.',
+  'Mala comunicacion en ventas': {
+    porque: 'Las expectativas creadas en ventas no coinciden con la realidad del servicio. El cliente llega con promesas que el equipo de CS no puede cumplir, generando frustración desde el primer mes.',
     ejemplos: [
-      'Ángel: lleva meses sin ver conversión en ventas, que era su expectativa inicial al contratar',
-      'Solventana: sus publicaciones manuales generaban más tráfico que las de la plataforma',
-      'Samuel: ha enviado más de 20 propuestas de contenido sin ver mejora en su negocio',
-      'Virginia: no percibe diferencia desde que usa el servicio vs. antes de contratarlo'
+      'Cliente que esperaba resultados concretos en semanas basándose en lo que le dijeron en ventas',
+      'Funcionalidad prometida que no existe en la plataforma actual',
+      'El cliente compró un plan pensando que incluía algo que no estaba contemplado',
+      'Discrepancia entre lo que explicó el comercial y lo que entrega el equipo de CS'
     ],
-    accion: 'Comunicar métricas de alcance y consistencia desde el mes 1. Establecer expectativas realistas en ventas.'
+    accion: 'Alinear el discurso de ventas con la realidad del producto. Handoff estructurado ventas-CS.'
   },
-  'Contenido': {
+  'Problemas de calidad': {
     porque: 'El contenido generado es genérico y no refleja la identidad ni el sector del cliente. Los negocios de nicho sienten que la IA no captura su voz, su cliente objetivo ni su propuesta de valor.',
     ejemplos: [
-      'Yolanda: publicaciones completamente irrelevantes para su marca y sector',
-      'Laia: el contenido no respeta el tono ni el idioma (catalán) de su negocio',
-      'Aikari: un negocio muy específico de galletas personalizadas — el contenido parece de otra empresa',
-      'Enrique: lleva semanas pidiendo cambios en el estilo sin que se reflejen en las propuestas'
+      'Publicaciones completamente irrelevantes para la marca y el sector del cliente',
+      'Contenido que no respeta el tono ni el idioma local del negocio',
+      'Negocio muy específico cuyo contenido parece generado para otra empresa',
+      'Semanas pidiendo cambios de estilo sin que se reflejen en las propuestas'
     ],
     accion: 'Reforzar el brief inicial. Revisión humana obligatoria del primer mes de contenido.'
   },
-  'Soporte': {
-    porque: 'El cliente no recibe respuesta o la recibe tarde y de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
+  'Sin impacto real en su negocio': {
+    porque: 'El cliente no percibe ningún cambio en su negocio desde que usa el servicio. Sin métricas claras ni comunicación de resultados, la percepción de valor se deteriora rápidamente.',
     ejemplos: [
-      'Samuel: más de 20 propuestas enviadas sin recibir ningún feedback del equipo',
-      'José: múltiples reclamaciones sin respuesta — cancela de forma agresiva tras semanas de silencio',
-      'Karina: ha pedido la baja varias veces sin recibir una respuesta clara sobre el proceso',
-      'Fran: cada vez que llama habla con una persona diferente que no conoce su caso'
+      'Meses de uso sin ver conversión en ventas ni clientes nuevos',
+      'Publicaciones manuales del cliente generaban más tráfico que las de la plataforma',
+      'Más de 20 propuestas de contenido enviadas sin mejora percibida en el negocio',
+      'No hay diferencia perceptible entre antes y después de contratar el servicio'
     ],
-    accion: 'SLA de 24h para respuestas. Asignación de un interlocutor fijo por cliente.'
+    accion: 'Informe mensual automático de métricas. Llamada proactiva al mes 2 si no hay mejora detectable.'
   },
-  'Facturación': {
-    porque: 'El cliente se siente sorprendido o engañado por un cobro. Puede ser por falta de transparencia en la política de cancelación (20 días de preaviso), por errores en el cargo, o por malentendidos sobre la prueba gratuita.',
+  'Promesa irreal': {
+    porque: 'Se vendió el servicio con promesas que el producto no puede cumplir por diseño: leads garantizados, resultados en plazos muy cortos o métricas concretas no realistas.',
     ejemplos: [
-      'Miryam: cancela principalmente por un cobro inesperado — no sabía que el servicio era recurrente',
-      'Patricia: se siente engañada porque pensaba que la prueba gratuita no tenía compromiso posterior',
-      'Heidy: recibió un cargo después de pedir la baja — generó una reclamación formal',
-      'Karina: no entiende por qué le siguen cobrando si ya pidió la baja hace semanas'
+      'Se garantizaron leads en el primer mes — el cliente no obtuvo ninguno',
+      'Vendedor que prometió posicionamiento en Google sin que el plan lo incluya',
+      'Resultados asegurados que el modelo de negocio del cliente no puede generar con RRSS',
+      'Expectativa de crecimiento de seguidores que no es parte del alcance del servicio'
     ],
-    accion: 'Clarificar la política de cancelación en el alta. Confirmación de baja por email en 24h.'
+    accion: 'Eliminar garantías de resultados del discurso de ventas. Establecer expectativas medibles y honestas.'
   },
-  'Limitaciones': {
+  'Negocio cerrado': {
+    porque: 'El cliente se va porque ha cerrado su negocio o ha dejado de operar. No es atribuible al servicio, pero puede anticiparse con señales de riesgo.',
+    ejemplos: [
+      'Cliente que cierra su negocio por insolvencia',
+      'Cambio de actividad profesional — el servicio ya no aplica a su nueva situación',
+      'Venta o traspaso del negocio al que estaba asociado el servicio',
+      'Jubilación o cambio de situación personal que lleva al cierre'
+    ],
+    accion: 'Registrar motivo en HubSpot. Ofrecer pausa de cuenta como alternativa al churn definitivo.'
+  },
+  'Fuera del alcance del plan': {
     porque: 'La plataforma no soporta algo que el cliente necesita específicamente: LinkedIn, idiomas distintos del castellano, carga de archivos desde ordenador, o gestión multi-cuenta.',
     ejemplos: [
-      'Leticia: necesita gestionar LinkedIn y la plataforma no lo permite — limitación explícita confirmada',
-      'Laia: lleva semanas esperando soporte en catalán sin solución',
-      'María (cancelación): necesita subir archivos desde el ordenador y solo funciona desde móvil',
-      'Cliente sin nombre: necesita gestionar múltiples cuentas y la plataforma no lo soporta'
+      'Necesita gestionar LinkedIn y la plataforma no lo permite — limitación explícita confirmada',
+      'Lleva semanas esperando soporte en catalán sin solución',
+      'Necesita subir archivos desde el ordenador y solo funciona desde móvil',
+      'Necesita gestionar múltiples cuentas y la plataforma no lo soporta'
     ],
     accion: 'Comunicar limitaciones del producto ANTES de vender. Roadmap público de mejoras.'
   },
-  'Razones externas': {
-    porque: 'El cliente se va por motivos que no están relacionados con el servicio: crisis económica, contratación de agencia externa, cierre del negocio o cambio de situación personal.',
+  'Problema de soporte': {
+    porque: 'El cliente no recibe respuesta o la recibe tarde y de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
     ejemplos: [
-      'Cliente que cierra su negocio por insolvencia — no atribuible al servicio',
-      'Cliente que decide contratar una agencia local con gestión más personalizada',
-      'Recorte de presupuesto por crisis sectorial — el marketing digital es lo primero que elimina'
+      'Más de 20 mensajes enviados sin recibir feedback del equipo',
+      'Múltiples reclamaciones sin respuesta — cancela de forma agresiva tras semanas de silencio',
+      'Ha pedido la baja varias veces sin recibir una respuesta clara sobre el proceso',
+      'Cada vez que llama habla con una persona diferente que no conoce su caso'
     ],
-    accion: 'Estos churns no son prevenibles, pero pueden anticiparse con señales de riesgo (morosidad, inactividad).'
+    accion: 'SLA de respuesta de 24h documentado y medido. Asignar un interlocutor fijo por cliente.'
+  },
+  'Fallo en el onboarding': {
+    porque: 'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación, por lo que el cliente no sabe qué hacer ni a quién acudir.',
+    ejemplos: [
+      'Lleva meses en la plataforma y todavía no sabe cómo solicitar un cambio en una publicación',
+      'Pregunta cómo funciona el proceso de aprobación después de varias semanas de alta',
+      'No ha vinculado sus cuentas correctamente — nadie le avisó de que era necesario',
+      'No entiende qué incluye el plan ni cómo comunicarse con el equipo'
+    ],
+    accion: 'Vídeo de onboarding de 3 min. Llamada de bienvenida obligatoria en los primeros 7 días.'
+  },
+  'No justifica precio': {
+    porque: 'El cliente cancela principalmente por motivos económicos: el servicio es demasiado caro para el valor percibido, hay un cobro inesperado, o simplemente no cabe en su presupuesto actual.',
+    ejemplos: [
+      'Cancela por un cobro inesperado — no sabía que el servicio era recurrente',
+      'Recibió un cargo después de pedir la baja — generó una reclamación formal',
+      'Recorte de presupuesto en marketing — el servicio es lo primero que elimina',
+      'Considera que el precio no justifica los resultados obtenidos hasta ahora'
+    ],
+    accion: 'Clarificar política de cancelación en el alta. Ofrecer plan de menor coste antes del churn definitivo.'
   }
 };
 
 // Tooltip content for Modjo categories
 const CAT_TIP={
-  'Fallos técnicos':
-    '<strong>Fallos técnicos</strong>Problemas que impiden usar el servicio correctamente.<br>· Publicaciones que no se publican a tiempo<br>· Cuentas de Instagram/Facebook que no se vinculan<br>· Plataforma lenta o con errores de carga<br>· Cuentas no conectadas correctamente',
-  'Onboarding':
-    '<strong>Onboarding deficiente</strong>El cliente no entiende cómo funciona el servicio.<br>· "No sé cómo pedir que cambiéis una publicación"<br>· "¿Cómo funciona el proceso de aprobación?"<br>· Lleva semanas y aún no ha vinculado sus cuentas',
-  'Sin resultados':
-    '<strong>Sin resultados</strong>No ve retorno ni mejora en su negocio.<br>· "Llevo 3 meses y no he conseguido clientes nuevos"<br>· "Mis publicaciones tenían más alcance antes"<br>· "No justifica lo que pago"',
-  'Contenido':
-    '<strong>Problemas de contenido</strong>Las propuestas no encajan con la marca.<br>· "Parece generado por ChatGPT, no encaja"<br>· Contenido genérico que no refleja el sector<br>· No captura el tono ni el estilo de la marca',
-  'Soporte':
-    '<strong>Soporte deficiente</strong>No recibe respuesta o atención adecuada.<br>· "Mandé un mensaje hace 5 días y nadie contestó"<br>· Cada vez habla con una persona diferente<br>· Propuestas acumuladas sin feedback durante semanas',
-  'Facturación':
-    '<strong>Facturación</strong>Sorpresa o conflicto con un cobro.<br>· "No sabía que cancelar requería avisar con 20 días"<br>· "Pensaba que era una prueba gratuita"<br>· Cargo inesperado que genera reclamación',
-  'Limitaciones':
-    '<strong>Limitaciones del producto</strong>La plataforma no puede algo que el cliente necesita.<br>· "Necesito gestionar LinkedIn y no podéis"<br>· No permite subir archivos desde el ordenador<br>· Problemas con idioma catalán sin resolver',
-  'Razones externas':
-    '<strong>Razones externas</strong>Se va por motivos ajenos al servicio.<br>· Crisis económica, recorte de gastos<br>· Ha contratado una agencia externa<br>· Traslado o cambio de situación vital',
-  'Sin resultados':
-    '<strong>Sin resultados / Sin categoría</strong>No encaja en otra categoría específica.<br>· No menciona problemas concretos<br>· La transcripción es muy corta<br>· Seguimiento general sin motivo claro'
+  'Fallo en la plataforma':
+    '<strong>Fallo en la plataforma</strong>Errores técnicos que impiden usar el servicio.<br>· Instagram/Facebook no vinculados<br>· Publicaciones que no se publican<br>· Plataforma lenta o con errores de acceso',
+  'Cierre de venta forzado':
+    '<strong>Cierre de venta forzado</strong>El cliente firmó sin entender las condiciones.<br>· "No sabía que tenía compromiso de pago"<br>· Prueba gratuita que derivó en cobro inesperado<br>· Política de cancelación no explicada en el cierre',
+  'Mala comunicacion en ventas':
+    '<strong>Mala comunicación en ventas</strong>Expectativas creadas que no coinciden con el servicio.<br>· "En ventas me dijeron algo diferente"<br>· Funcionalidades prometidas que no existen<br>· Discrepancia entre lo vendido y lo entregado',
+  'Problemas de calidad':
+    '<strong>Problemas de calidad</strong>El contenido no encaja con la marca del cliente.<br>· "Parece generado por ChatGPT"<br>· Contenido genérico que no refleja el sector<br>· No captura el tono ni el estilo de la marca',
+  'Sin impacto real en su negocio':
+    '<strong>Sin impacto real en su negocio</strong>No percibe mejora ni retorno desde que usa el servicio.<br>· "Llevo 3 meses y no he conseguido clientes nuevos"<br>· "No veo diferencia con antes de contratar"<br>· Engagement y alcance sin mejorar',
+  'Promesa irreal':
+    '<strong>Promesa irreal</strong>Se vendió con garantías que el producto no puede cumplir.<br>· "Me garantizaron leads en el primer mes"<br>· Resultados asegurados que no se han materializado<br>· Expectativas de crecimiento no realistas',
+  'Negocio cerrado':
+    '<strong>Negocio cerrado</strong>El cliente cierra o deja de operar su negocio.<br>· Insolvencia o quiebra<br>· Venta o traspaso del negocio<br>· Cambio de actividad o jubilación',
+  'Fuera del alcance del plan':
+    '<strong>Fuera del alcance del plan</strong>La plataforma no cubre lo que el cliente necesita.<br>· "Necesito gestionar LinkedIn y no podéis"<br>· No permite subir archivos desde el ordenador<br>· Sin soporte en catalán u otros idiomas',
+  'Problema de soporte':
+    '<strong>Problema de soporte</strong>No recibe respuesta o atención adecuada.<br>· "Mandé un mensaje hace días y nadie contestó"<br>· Cada vez habla con una persona diferente<br>· Sin interlocutor fijo ni SLA claro',
+  'Fallo en el onboarding':
+    '<strong>Fallo en el onboarding</strong>El cliente no entiende cómo funciona el servicio tras el alta.<br>· "¿Cómo funciona el proceso de aprobación?"<br>· Semanas sin vincular cuentas — nadie le avisó<br>· Sin llamada de bienvenida ni guía de uso',
+  'No justifica precio':
+    '<strong>No justifica precio</strong>El servicio es demasiado caro para el valor percibido.<br>· Cobro inesperado o error en el cargo<br>· Recorte de presupuesto en marketing<br>· "No vale lo que cuesta dados los resultados"'
 };
 
 const CHURN_KW=['churn','churna','churned','se va','se fue','cancela','cancelo','canceló','baja','dar de baja','no renueva','rescinde','termina contrato','no continúa','no continua'];
@@ -503,7 +541,7 @@ function col(row,...names){for(const n of names){for(const k of Object.keys(row)
 function canonicalOwner(s){const sn=norm(s||'');const map=[{k:['victor','ortega'],n:'Victor Ortega'},{k:['oscar','lopo'],n:'Óscar Lopo'},{k:['gonzalo','rosales'],n:'Gonzalo Rosales'},{k:['franco','ferretti'],n:'Franco Ferretti'},{k:['kamila','jimenez'],n:'Kamila Jiménez'},{k:['martina','benalcazar'],n:'Martina Benalcazar'}];for(const e of map){if(e.k.some(k=>sn.includes(norm(k))))return e.n;}return null;}
 function detCat(t){
   const tn=norm(t||'');
-  let best='Sin resultados',bestScore=0;
+  let best='Sin impacto real en su negocio',bestScore=0;
   for(const[c,kws]of Object.entries(CAT_KW)){
     let score=0;
     for(const k of kws){
@@ -557,6 +595,19 @@ const PILL_COLORS=['pill-green','pill-orange','pill-blue','pill-purple','pill-gr
 // ============================================================
 // MODJO PROCESSING
 // ============================================================
+// Build name→HS company ID map from embedded HS_DATA for Modjo table links
+const NAME_TO_HS_ID=(function(){const m={};for(const r of HS_DATA){const n=norm(r.name||'');if(n)m[n]=r.id;}return m;})();
+function getHSLinkForRow(r){
+  // Try name-based match against HS_DATA companies
+  const cn=norm(r.cliente||'');
+  if(cn&&NAME_TO_HS_ID[cn])return'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+NAME_TO_HS_ID[cn];
+  // Partial match: cliente name contained in HS name or vice versa
+  for(const[n,id]of Object.entries(NAME_TO_HS_ID)){if(cn.length>4&&n.includes(cn))return'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+id;if(n.length>4&&cn.includes(n))return'https://app-eu1.hubspot.com/contacts/25808060/record/0-2/'+id;}
+  // Fallback: link to contact record using contact ID
+  if(r.contactId)return'https://app-eu1.hubspot.com/contacts/25808060/record/0-1/'+r.contactId;
+  return null;
+}
+
 function procesarModjo(raw){
   const rows=[],seen=new Set();
   for(const r of raw){
@@ -565,6 +616,7 @@ function procesarModjo(raw){
     const transcript=col(r,'Transcript','transcript','Transcripción','transcripcion');
     const summary=col(r,'Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen');
     const fechaStr=col(r,'Fecha','fecha','Date','date');
+    const contactId=col(r,'HubSpot Contact ID','hubspot contact id','hubspot_contact_id','Contact ID','contact id','ContactId','contactid');
     // Only include records where the owner column explicitly matches a known owner
     const owner=canonicalOwner(dueno);
     if(!owner)continue;
@@ -577,7 +629,7 @@ function procesarModjo(raw){
     const catText=summary||combined;
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
     if(seen.has(key))continue;seen.add(key);
-    rows.push({owner,cliente,categoria:detCat(catText),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||''});
+    rows.push({owner,cliente,categoria:detCat(catText),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
   }
   return rows;
 }
@@ -667,14 +719,17 @@ function modjoConclHTML(){
   function freqLabel(n){const p=n/totalChurns*100;return p>=30?'Muy alta frecuencia':p>=15?'Alta frecuencia':p>=7?'Frecuencia media':'Frecuencia baja';}
   // Category descriptions for conclusions
   const CAT_CONCL={
-    'Fallos técnicos':'Problemas técnicos que impiden usar el servicio correctamente: publicaciones que no se publican, vinculación fallida con Instagram/Facebook, carga lenta o errores de conexión. Cuando el cliente no puede usar la plataforma desde el inicio, la confianza se pierde de forma irreversible.',
-    'Contenido':'Las propuestas generadas no reflejan la identidad ni el sector del cliente. Negocios de nicho sienten que la IA no captura su voz ni su propuesta de valor. El brief inicial es insuficiente para garantizar personalización real.',
-    'Soporte':'El cliente no recibe respuesta o la recibe tarde, de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
-    'Sin resultados':'El cliente no percibe resultados tangibles (ventas, leads, alcance) y siente que no justifica la inversión. En muchos casos la expectativa fue creada en ventas sin matizarse adecuadamente.',
-    'Onboarding':'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación de contenido.',
-    'Facturación':'Cobros inesperados, falta de transparencia sobre la política de cancelación (20 días de preaviso) o errores en el cargo generan reclamaciones y pérdida de confianza.',
-    'Limitaciones':'La plataforma no soporta algo que el cliente necesita: LinkedIn, idiomas distintos del castellano, carga de archivos desde ordenador, o gestión multi-cuenta.',
-    'Razones externas':'Cancelaciones no atribuibles al servicio: crisis económica, contratación de agencia externa, cierre del negocio o cambio de situación personal.',
+    'Fallo en la plataforma':'Errores técnicos que impiden usar el servicio correctamente: publicaciones que no se publican, vinculación fallida con Instagram/Facebook, carga lenta o errores de acceso. Cuando el cliente no puede usar la plataforma desde el inicio, la confianza se pierde de forma irreversible.',
+    'Cierre de venta forzado':'El cliente firmó sin entender completamente las condiciones. Falta de claridad sobre el periodo de prueba, la política de cancelación o los compromisos adquiridos en el momento del cierre genera reclamaciones y sensación de engaño.',
+    'Mala comunicacion en ventas':'Las expectativas creadas en ventas no coinciden con la realidad del servicio. El cliente llega con promesas que el equipo de CS no puede cumplir, generando frustración desde el primer mes.',
+    'Problemas de calidad':'Las propuestas generadas no reflejan la identidad ni el sector del cliente. Negocios de nicho sienten que la IA no captura su voz ni su propuesta de valor. El brief inicial es insuficiente para garantizar personalización real.',
+    'Sin impacto real en su negocio':'El cliente no percibe resultados tangibles (ventas, leads, alcance) y siente que el servicio no justifica la inversión. Sin métricas ni comunicación de resultados, la percepción de valor se deteriora.',
+    'Promesa irreal':'Se vendió el servicio con garantías que el producto no puede cumplir: leads garantizados, resultados en plazos muy cortos o métricas no realistas. Genera churns estructurales difíciles de retener.',
+    'Negocio cerrado':'Cancelaciones no atribuibles al servicio: el cliente cierra o deja de operar su negocio. No es prevenible, pero puede anticiparse con señales de riesgo como impago o inactividad.',
+    'Fuera del alcance del plan':'La plataforma no soporta algo que el cliente necesita: LinkedIn, idiomas distintos del castellano, carga de archivos desde ordenador, o gestión multi-cuenta.',
+    'Problema de soporte':'El cliente no recibe respuesta o la recibe tarde, de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
+    'Fallo en el onboarding':'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación de contenido, por lo que el cliente no sabe qué hacer ni a quién acudir.',
+    'No justifica precio':'Cobros inesperados, falta de transparencia sobre la política de cancelación (20 días de preaviso), errores en el cargo o simplemente el precio no justifica el valor percibido.',
   };
   const itemsHTML=sorted.map(([cat,data],i)=>{
     const uniqueClients=[...new Set(data.clients)];
@@ -908,14 +963,17 @@ function renderModjoKPI(id){
 // MODJO RECOMMENDATIONS (dynamic, based on filtered period)
 // ============================================================
 const MODJO_RECOM_MAP={
-  'Facturación':      {icon:'💳',area:'Ventas / Operaciones',priority:'alta',action:'Clarificar la política de cancelación (20 días de preaviso) en el momento del alta, por escrito y con confirmación explícita del cliente. Enviar email de confirmación de baja en menos de 24h.',kpi:'Reducir reclamaciones y disputas de cobro'},
-  'Fallos técnicos':  {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS obligatorio en las primeras 48h del alta. Alerta automática si Instagram/Facebook no están conectados a los 3 días. Protocolo de escalado técnico en menos de 4h.',kpi:'Eliminar fallos de vinculación en onboarding'},
-  'Onboarding':       {icon:'🚀',area:'CS / Producto',priority:'alta',action:'Vídeo de onboarding de 3 minutos enviado el día 1. Llamada de bienvenida obligatoria en los primeros 7 días. Checklist de activación visible en el dashboard del cliente.',kpi:'Reducir churn en el primer mes'},
-  'Sin resultados':   {icon:'📈',area:'CS / Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) enviado al cliente. Llamada proactiva al mes 2 si no hay mejora detectable vs. baseline.',kpi:'Aumentar retención meses 2-3'},
-  'Contenido':        {icon:'✏️',area:'CS / Contenido',priority:'media',action:'Brief personalizado mínimo de 10 preguntas antes de activar la cuenta. Revisión humana obligatoria del primer mes de contenido. Proceso de feedback simplificado: aprobar/rechazar con un clic.',kpi:'Reducir Personalization Gap — contenido que no encaja'},
-  'Soporte':          {icon:'🎧',area:'Soporte / CS',priority:'media',action:'SLA de respuesta de 24h documentado y medido semanalmente. Asignar un interlocutor fijo por cliente durante los primeros 3 meses. Registro obligatorio de todas las incidencias.',kpi:'El tipo de churn más prevenible — reducir al 0%'},
-  'Limitaciones':     {icon:'🔎',area:'Producto',priority:'media',action:'Comunicar proactivamente el roadmap de producto al onboarding. Para limitaciones conocidas (LinkedIn, catalán, móvil), registrar en HubSpot y agrupar para priorización de producto.',kpi:'Reducir churn por limitaciones no comunicadas'},
-  'Razones externas': {icon:'🌍',area:'CS',priority:'baja',action:'Ofrecer pausa de cuenta de 1-3 meses como alternativa al churn definitivo. Registrar motivo específico en HubSpot. Campaña de reactivación a los 3 meses.',kpi:'Convertir churns externos en pausas recuperables'},
+  'Fallo en la plataforma':        {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS obligatorio en las primeras 48h del alta. Alerta automática si Instagram/Facebook no están conectados a los 3 días. Protocolo de escalado técnico en menos de 4h.',kpi:'Eliminar fallos de vinculación en el primer mes'},
+  'Cierre de venta forzado':       {icon:'⚠️',area:'Ventas / Operaciones',priority:'alta',action:'Confirmación escrita de condiciones de contrato en el alta. Resumen de política de cancelación (20 días de preaviso) enviado por email el día 1. Revisión de los scripts de cierre de ventas.',kpi:'Reducir reclamaciones por cierres sin información suficiente'},
+  'Mala comunicacion en ventas':   {icon:'📢',area:'Ventas / CS',priority:'alta',action:'Handoff estructurado ventas-CS con resumen de lo prometido al cliente. Alinear el discurso de ventas con la realidad del producto. Auditoría trimestral de promesas hechas en cierres.',kpi:'Reducir gap entre expectativas y entrega real'},
+  'Problemas de calidad':          {icon:'✏️',area:'CS / Contenido',priority:'media',action:'Brief personalizado mínimo de 10 preguntas antes de activar la cuenta. Revisión humana obligatoria del primer mes de contenido. Proceso de feedback simplificado: aprobar/rechazar con un clic.',kpi:'Reducir Personalization Gap — contenido que no encaja'},
+  'Sin impacto real en su negocio':{icon:'📈',area:'CS / Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) enviado al cliente. Llamada proactiva al mes 2 si no hay mejora detectable vs. baseline.',kpi:'Aumentar retención meses 2-3 comunicando valor'},
+  'Promesa irreal':                {icon:'🎯',area:'Ventas',priority:'alta',action:'Eliminar garantías de resultados del discurso de ventas. Establecer expectativas medibles y honestas desde el primer contacto. Formación de ventas sobre qué puede y no puede prometer el servicio.',kpi:'Reducir churns por expectativas incumplidas'},
+  'Negocio cerrado':               {icon:'🏢',area:'CS',priority:'baja',action:'Registrar motivo específico en HubSpot. Ofrecer pausa de cuenta de 1-3 meses como alternativa al churn definitivo. Campaña de reactivación a los 6 meses para negocios que reabrieron.',kpi:'Convertir churns por cierre en pausas recuperables'},
+  'Fuera del alcance del plan':    {icon:'🔎',area:'Producto',priority:'media',action:'Comunicar proactivamente el roadmap de producto en el onboarding. Para limitaciones conocidas (LinkedIn, catalán, móvil), registrar en HubSpot y agrupar para priorización de producto.',kpi:'Reducir churn por limitaciones no comunicadas'},
+  'Problema de soporte':           {icon:'🎧',area:'Soporte / CS',priority:'media',action:'SLA de respuesta de 24h documentado y medido semanalmente. Asignar un interlocutor fijo por cliente durante los primeros 3 meses. Registro obligatorio de todas las incidencias.',kpi:'El tipo de churn más prevenible — reducir al 0%'},
+  'Fallo en el onboarding':        {icon:'🚀',area:'CS / Producto',priority:'alta',action:'Vídeo de onboarding de 3 minutos enviado el día 1. Llamada de bienvenida obligatoria en los primeros 7 días. Checklist de activación visible en el dashboard del cliente.',kpi:'Reducir churn en el primer mes'},
+  'No justifica precio':           {icon:'💳',area:'Ventas / Operaciones',priority:'alta',action:'Clarificar la política de cancelación (20 días de preaviso) en el momento del alta. Ofrecer plan de menor coste como alternativa antes de la baja definitiva. Identificar señales de riesgo de impago antes del churn.',kpi:'Reducir reclamaciones y disputas de cobro'},
 };
 const MODJO_RECOM_COLOR={alta:'#ef4444',media:'#f59e0b',baja:'#22c55e'};
 const MODJO_RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad Baja'};
@@ -1221,22 +1279,28 @@ function renderHSInsights(){
 // ============================================================
 // Maps Modjo categories to related HubSpot reasons
 const PATTERN_MAP=[
-  {modjo:'Fallos técnicos', hs:['Poor CX / Platform Issues'], icon:'🔧', label:'Fallos técnicos / Plataforma',
+  {modjo:'Fallo en la plataforma', hs:['Poor CX / Platform Issues'], icon:'🔧', label:'Fallo en la plataforma',
    concl:'Los fallos técnicos son un driver documentado en ambas fuentes. Cada día sin resolver la vinculación de RRSS genera una llamada de soporte y un riesgo de baja.'},
-  {modjo:'Sin resultados', hs:['Does not see impact on their business','Unrealistic Promise'], icon:'📈', label:'Sin resultados / Expectativas no cumplidas',
-   concl:'La expectativa de resultados rápidos no se gestiona en ventas ni durante el servicio. Un cliente que no ve impacto en 60 días tiene alta probabilidad de darse de baja.'},
-  {modjo:'Contenido', hs:['Quality Issues'], icon:'✏️', label:'Calidad de contenido / Personalización',
+  {modjo:'Cierre de venta forzado', hs:['Forced Sales Closing'], icon:'⚠️', label:'Cierre de venta forzado',
+   concl:'El cliente no entendió completamente las condiciones al firmar. La política de cancelación y los compromisos deben quedar clarísimos en el momento del cierre.'},
+  {modjo:'Mala comunicacion en ventas', hs:['Sales Miscommunication'], icon:'📢', label:'Mala comunicación en ventas',
+   concl:'Las expectativas creadas en ventas no coinciden con la realidad del servicio. El handoff ventas-CS debe incluir un resumen explícito de lo prometido al cliente.'},
+  {modjo:'Problemas de calidad', hs:['Quality Issues'], icon:'✏️', label:'Problemas de calidad / Contenido',
    concl:'El brief inicial es insuficiente. El cliente no siente que el contenido le representa, especialmente en negocios de nicho. Crítico en los primeros 30 días.'},
-  {modjo:'Soporte', hs:['Support or Service Issues'], icon:'🎧', label:'Soporte y comunicación',
-   concl:'El soporte es el tipo de churn más prevenible y suele ser el peor documentado. Sin continuidad ni SLA claro, la frustración acumulada termina en baja.'},
-  {modjo:'Onboarding', hs:['Forced Sales Closing','Sales Miscommunication'], icon:'🚀', label:'Onboarding / Expectativas en ventas',
-   concl:'Los problemas de onboarding en Modjo y los cierres forzados en HubSpot tienen la misma raíz: el cliente no entiende bien el producto antes ni después de contratar.'},
-  {modjo:'Facturación', hs:['Financial / Budget Constraints'], icon:'💳', label:'Facturación / Presupuesto',
-   concl:'Sorpresas en cobros y restricciones presupuestarias comparten origen: falta de transparencia sobre costes y política de cancelación desde el inicio.'},
-  {modjo:'Limitaciones', hs:['Product Does Not Fit'], icon:'🔎', label:'Limitaciones del producto',
+  {modjo:'Sin impacto real en su negocio', hs:['Does not see impact on their business'], icon:'📈', label:'Sin impacto real en el negocio',
+   concl:'Sin métricas ni comunicación de resultados, la percepción de valor se deteriora. Un cliente que no ve impacto en 60 días tiene alta probabilidad de darse de baja.'},
+  {modjo:'Promesa irreal', hs:['Unrealistic Promise'], icon:'🎯', label:'Promesa irreal / Expectativa no cumplida',
+   concl:'Las garantías de resultados en ventas generan churns estructurales. Eliminar promesas no sostenibles del discurso de ventas es la única solución a largo plazo.'},
+  {modjo:'Negocio cerrado', hs:['Business Closed','External / Personal Reasons'], icon:'🏢', label:'Negocio cerrado / Razones externas',
+   concl:'Churns no atribuibles al servicio. Ofrecer pausa de cuenta puede convertir bajas definitivas en pausas recuperables y facilitar la reactivación futura.'},
+  {modjo:'Fuera del alcance del plan', hs:['Product Does Not Fit'], icon:'🔎', label:'Fuera del alcance del plan',
    concl:'Clientes con necesidades que el producto no cubre. Mejorar la cualificación en ventas evitaría este churn estructural.'},
-  {modjo:'Razones externas', hs:['External / Personal Reasons'], icon:'🌍', label:'Razones externas',
-   concl:'Churns no atribuibles al servicio. Ofrecer pausa de cuenta puede convertir bajas definitivas en pausas recuperables.'},
+  {modjo:'Problema de soporte', hs:['Support or Service Issues'], icon:'🎧', label:'Problema de soporte',
+   concl:'El soporte es el tipo de churn más prevenible y suele ser el peor documentado. Sin continuidad ni SLA claro, la frustración acumulada termina en baja.'},
+  {modjo:'Fallo en el onboarding', hs:['Forced Sales Closing','Sales Miscommunication'], icon:'🚀', label:'Fallo en el onboarding',
+   concl:'Los problemas de onboarding en Modjo y los cierres forzados en HubSpot tienen la misma raíz: el cliente no entiende bien el producto antes ni después de contratar.'},
+  {modjo:'No justifica precio', hs:['Financial / Budget Constraints'], icon:'💳', label:'No justifica precio / Presupuesto',
+   concl:'Sorpresas en cobros y restricciones presupuestarias comparten origen: falta de transparencia sobre costes y política de cancelación desde el inicio.'},
 ];
 
 function renderPatternAnalysis(){
@@ -1411,6 +1475,7 @@ function toggleCase(uid){
 function renderTablaModjo(){
   document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>{
     const hasDetail=(r.displayText||'').trim().length>20;
+    const hsLink=getHSLinkForRow(r);
     return`<tr>
       <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
@@ -1418,8 +1483,9 @@ function renderTablaModjo(){
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
       <td>${(()=>{const ct=getClientType(r.cliente);const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};return ct?`<span class="churn-badge" style="${colors[ct]||'background:#e0f2fe;color:#0369a1'}">${ct}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>';})()}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
+      <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>
-    ${hasDetail?`<tr><td colspan="8"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+    ${hasDetail?`<tr><td colspan="9"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
   }).join('');
 }
 

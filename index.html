@@ -1648,23 +1648,19 @@ function refreshData(){
   });
 }
 
-window.addEventListener('load',function(){
-  // Hide spinner immediately — never block on CSV
-  document.getElementById('loadingDiv').style.display='none';
-  // Show UI — HubSpot data is already embedded
-  initFilters();applyModjoFilters();try{render();}catch(e){console.warn('render error:',e);}
-  // Load Modjo CSV in background
-  document.getElementById('lastUpdate').textContent='Cargando Modjo…';
-  Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
-    complete:function(res){
-      allModjo=procesarModjo(res.data);filteredModjo=allModjo;
-      const dates=allModjo.filter(r=>r.fecha).map(r=>r.fecha);
-      if(dates.length){const mx=new Date(Math.max(...dates));document.getElementById('lastUpdate').textContent='Modjo: '+mx.toLocaleDateString('es-ES')+' · HubSpot: '+HS_DATA.length+' registros';}
-      else{document.getElementById('lastUpdate').textContent='HubSpot: '+HS_DATA.length+' registros';}
-      applyModjoFilters();render();
-    },
-    error:function(err){document.getElementById('lastUpdate').textContent='Error cargando Modjo: '+err.message;}
-  });
+// Run immediately — no event needed, PapaParse already loaded from <head>
+document.getElementById('loadingDiv').style.display='none';
+initFilters();applyModjoFilters();try{render();}catch(e){console.warn('render error:',e);}
+document.getElementById('lastUpdate').textContent='Cargando Modjo…';
+Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
+  complete:function(res){
+    allModjo=procesarModjo(res.data);filteredModjo=allModjo;
+    const dates=allModjo.filter(r=>r.fecha).map(r=>r.fecha);
+    if(dates.length){const mx=new Date(Math.max(...dates));document.getElementById('lastUpdate').textContent='Modjo: '+mx.toLocaleDateString('es-ES')+' · HubSpot: '+HS_DATA.length+' registros';}
+    else{document.getElementById('lastUpdate').textContent='HubSpot: '+HS_DATA.length+' registros';}
+    applyModjoFilters();render();
+  },
+  error:function(err){document.getElementById('lastUpdate').textContent='Error cargando Modjo: '+err.message;}
 });
 </script>
 </body>

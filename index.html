@@ -1649,9 +1649,10 @@ function refreshData(){
 }
 
 window.addEventListener('load',function(){
-  // Show UI immediately — HubSpot data is already embedded
-  initFilters();applyModjoFilters();render();
+  // Hide spinner immediately — never block on CSV
   document.getElementById('loadingDiv').style.display='none';
+  // Show UI — HubSpot data is already embedded
+  initFilters();applyModjoFilters();try{render();}catch(e){console.warn('render error:',e);}
   // Load Modjo CSV in background
   document.getElementById('lastUpdate').textContent='Cargando Modjo…';
   Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,

@@ -1217,11 +1217,74 @@ function renderHSInsights(){
 }
 
 // ============================================================
-// CROSS-SOURCE PATTERN ANALYSIS
+// CROSS-SOURCE PATTERN ANALYSIS (dynamic, based on filtered period)
 // ============================================================
+// Maps Modjo categories to related HubSpot reasons
+const PATTERN_MAP=[
+  {modjo:'Fallos técnicos', hs:['Poor CX / Platform Issues'], icon:'🔧', label:'Fallos técnicos / Plataforma',
+   concl:'Los fallos técnicos son un driver documentado en ambas fuentes. Cada día sin resolver la vinculación de RRSS genera una llamada de soporte y un riesgo de baja.'},
+  {modjo:'Sin resultados', hs:['Does not see impact on their business','Unrealistic Promise'], icon:'📈', label:'Sin resultados / Expectativas no cumplidas',
+   concl:'La expectativa de resultados rápidos no se gestiona en ventas ni durante el servicio. Un cliente que no ve impacto en 60 días tiene alta probabilidad de darse de baja.'},
+  {modjo:'Contenido', hs:['Quality Issues'], icon:'✏️', label:'Calidad de contenido / Personalización',
+   concl:'El brief inicial es insuficiente. El cliente no siente que el contenido le representa, especialmente en negocios de nicho. Crítico en los primeros 30 días.'},
+  {modjo:'Soporte', hs:['Support or Service Issues'], icon:'🎧', label:'Soporte y comunicación',
+   concl:'El soporte es el tipo de churn más prevenible y suele ser el peor documentado. Sin continuidad ni SLA claro, la frustración acumulada termina en baja.'},
+  {modjo:'Onboarding', hs:['Forced Sales Closing','Sales Miscommunication'], icon:'🚀', label:'Onboarding / Expectativas en ventas',
+   concl:'Los problemas de onboarding en Modjo y los cierres forzados en HubSpot tienen la misma raíz: el cliente no entiende bien el producto antes ni después de contratar.'},
+  {modjo:'Facturación', hs:['Financial / Budget Constraints'], icon:'💳', label:'Facturación / Presupuesto',
+   concl:'Sorpresas en cobros y restricciones presupuestarias comparten origen: falta de transparencia sobre costes y política de cancelación desde el inicio.'},
+  {modjo:'Limitaciones', hs:['Product Does Not Fit'], icon:'🔎', label:'Limitaciones del producto',
+   concl:'Clientes con necesidades que el producto no cubre. Mejorar la cualificación en ventas evitaría este churn estructural.'},
+  {modjo:'Razones externas', hs:['External / Personal Reasons'], icon:'🌍', label:'Razones externas',
+   concl:'Churns no atribuibles al servicio. Ofrecer pausa de cuenta puede convertir bajas definitivas en pausas recuperables.'},
+];
+
 function renderPatternAnalysis(){
   const el=document.getElementById('patternAnalysis');
   if(!el)return;
+  // Use allModjo (unfiltered) so Modjo data is always available regardless of Modjo's period filter
+  const modjoSource=allModjo&&allModjo.length?allModjo:filteredModjo;
+  const mTotal=modjoSource.filter(r=>r.esChurn).length||1;
+  const hsTotal=filteredHS.length||1;
+  // Build Modjo category churn counts
+  const mCat={};
+  modjoSource.forEach(r=>{if(r.esChurn)mCat[r.categoria]=(mCat[r.categoria]||0)+1;});
+  // Build HubSpot reason counts
+  const hsCat={};
+  filteredHS.forEach(r=>{if(r.churn_reason)hsCat[r.churn_reason]=(hsCat[r.churn_reason]||0)+1;});
+  // Only show patterns where at least one source has data in the period
+  const activePatterns=PATTERN_MAP.filter(p=>{
+    const mCount=mCat[p.modjo]||0;
+    const hsCount=p.hs.reduce((s,k)=>s+(hsCat[k]||0),0);
+    return mCount>0||hsCount>0;
+  }).sort((a,b)=>{
+    const aM=mCat[a.modjo]||0, aH=a.hs.reduce((s,k)=>s+(hsCat[k]||0),0);
+    const bM=mCat[b.modjo]||0, bH=b.hs.reduce((s,k)=>s+(hsCat[k]||0),0);
+    return(bM+bH)-(aM+aH);
+  });
+  if(!activePatterns.length){el.innerHTML='';return;}
+  const itemsHTML=activePatterns.map((p,i)=>{
+    const mCount=mCat[p.modjo]||0;
+    const mPct=Math.round(mCount/mTotal*100);
+    const hsCount=p.hs.reduce((s,k)=>s+(hsCat[k]||0),0);
+    const hsPct=Math.round(hsCount/hsTotal*100);
+    const mClients=[...new Set(modjoSource.filter(r=>r.esChurn&&r.categoria===p.modjo).map(r=>r.cliente))].slice(0,3).join(', ');
+    const hsLabels=p.hs.map(k=>HS_REASON[k]?HS_REASON[k].es:k).join(' + ');
+    const mPart=mCount>0
+      ?`<strong>Modjo detecta</strong>: <strong style="color:#ef4444">${mCount} churns</strong> (${mPct}% del total Modjo)${mClients?` — ${mClients}${mCount>3?'…':''}`:''}.`
+      :`<strong>Modjo</strong>: sin casos en el período.`;
+    const hsPart=hsCount>0
+      ?`<strong>HubSpot registra</strong>: <strong style="color:#ef4444">${hsCount} churns</strong> (${hsPct}% del total HubSpot) como "${hsLabels}".`
+      :`<strong>HubSpot</strong>: sin casos registrados en el período.`;
+    return`<div class="concl-item">
+      <h3>${p.icon} Patrón ${i+1}: ${p.label}</h3>
+      <p>${mPart}<br/>${hsPart}<br/><strong>Conclusión</strong>: ${p.concl}</p>
+    </div>`;
+  }).join('');
+  // Dynamic summary line
+  const topPattern=activePatterns[0];
+  const topMCount=mCat[topPattern.modjo]||0;
+  const topHsCount=topPattern.hs.reduce((s,k)=>s+(hsCat[k]||0),0);
   el.innerHTML=`
   <div class="concl-section" style="margin-top:24px">
     <div class="concl-header" onclick="toggleConcl(this)" style="background:#f0fdf4">
@@ -1230,34 +1293,10 @@ function renderPatternAnalysis(){
     </div>
     <div class="concl-body">
       <div class="pattern-box" style="background:#eff6ff;border-radius:8px;padding:14px 16px;margin-bottom:16px">
-        <h3 style="color:#1d4ed8">📞 Modjo (llamadas) vs 📋 HubSpot (CRM)</h3>
-        <p style="color:#1e40af">Las llamadas de Modjo revelan el <em>cómo</em> (qué dicen los clientes en vivo), mientras que HubSpot registra el <em>qué</em> (razón formal de baja). Combinarlos da una visión completa del problema.</p>
+        <h3 style="color:#1d4ed8">📞 Modjo (llamadas) vs 📋 HubSpot (CRM) — período filtrado</h3>
+        <p style="color:#1e40af">Modjo revela el <em>cómo</em> (qué dicen los clientes en llamadas), HubSpot registra el <em>qué</em> (razón formal de baja en CRM). El patrón dominante del período es <strong>${topPattern.label}</strong> con ${topMCount} churns en Modjo y ${topHsCount} en HubSpot.</p>
       </div>
-      <div class="concl-item">
-        <h3>🔄 Patrón 1: Fallos técnicos (Modjo) = Plataforma / CX (HubSpot)</h3>
-        <p><strong>Modjo detecta</strong>: publicaciones que no se publican, vinculación fallida con Instagram/Facebook, errores de pagos — mencionados en llamadas de Karina, Enrique, Patricia, Leticia, Isabel, Yolanda, Heidy.<br/><strong>HubSpot registra</strong>: 19 churns como "Poor CX / Platform Issues", con sub-motivo dominante "Connection RRSS Failure" (4 casos).<br/><strong>Conclusión</strong>: Los fallos técnicos son un driver de churn real y documentado en ambas fuentes. La cifra de HubSpot (19) probablemente subestima el problema real dado el 37% sin documentar.</p>
-      </div>
-      <div class="concl-item">
-        <h3>🔄 Patrón 2: Bajo valor percibido (Modjo) = Sin impacto + Promesa irreal (HubSpot)</h3>
-        <p><strong>Modjo detecta</strong>: Ángel lleva meses sin ver conversión, Solventana dice que sus publicaciones manuales generaban más tráfico, María (odontopediatría), Virginia, Samuel no ven resultados.<br/><strong>HubSpot registra</strong>: 17 casos "Does Not See Impact" + 13 "Unrealistic Promise" = 30 churns (11% del total).<br/><strong>Conclusión</strong>: La expectativa de resultados rápidos y mensurables no se gestiona ni en ventas ni durante el servicio. Crítico para el producto: un cliente que no ve resultados en 60 días tiene altísima probabilidad de darse de baja.</p>
-      </div>
-      <div class="concl-item">
-        <h3>🔄 Patrón 3: Calidad/personalización (Modjo) = Problemas de calidad (HubSpot)</h3>
-        <p><strong>Modjo detecta</strong>: contenido genérico sin reflejo del negocio, Yolanda con publicaciones irrelevantes, negocios de nicho (galletas publicitarias, electromagnetismo) que sienten que la IA no captura su sector.<br/><strong>HubSpot registra</strong>: 23 casos "Quality Issues" con sub-motivo dominante "Personalization Gap" (4 casos).<br/><strong>Conclusión</strong>: El brief inicial es insuficiente. El cliente no siente que el contenido le representa. Esto es especialmente crítico en los primeros 30 días.</p>
-      </div>
-      <div class="concl-item">
-        <h3>🔄 Patrón 4: Comunicación/soporte (Modjo) = Soporte (HubSpot)</h3>
-        <p><strong>Modjo detecta</strong>: solicitudes que no se registran, días sin respuesta, múltiples interlocutores sin continuidad — Samuel, José, Karina, Fran, Heidy, Enrique afectados.<br/><strong>HubSpot registra</strong>: 15 casos "Support or Service Issues", pero con <em>cero sub-motivos documentados</em> — el grupo menos analizado de todos.<br/><strong>Conclusión</strong>: Los problemas de soporte son el tipo de churn <em>más prevenible</em> y el peor documentado. Un SLA de 24h y la obligatoriedad de documentar sub-motivos serían las acciones de mayor impacto inmediato.</p>
-      </div>
-      <div class="pattern-box" style="margin-top:8px">
-        <h3>🎯 Recomendaciones prioritarias para Revenue Ops</h3>
-        <p>
-          <strong>1. Documentación obligatoria</strong>: El 37% de churns sin motivo en HubSpot hace imposible el análisis sistemático. Debe ser requisito antes de confirmar la baja.<br/>
-          <strong>2. Early Warning en ventas</strong>: Los patrones de "expectativas desalineadas" (cierre forzado + promesa irreal + mala comunicación = 34% del total) se generan en ventas, no en el servicio. Revisar el proceso de cualificación y el discurso de producto.<br/>
-          <strong>3. Onboarding crítico (días 1-30)</strong>: Tanto Modjo como HubSpot muestran que los clientes que no entienden la plataforma o no ven personalización en el primer mes tienen probabilidad de churn muy alta.<br/>
-          <strong>4. Escalado técnico proactivo</strong>: Los fallos de vinculación de RRSS deben resolverse en máximo 48h. Cada día sin solución genera una llamada de soporte y un riesgo de baja documentado en Modjo.
-        </p>
-      </div>
+      ${itemsHTML}
     </div>
   </div>`;
 }

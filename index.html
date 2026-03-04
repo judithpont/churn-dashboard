@@ -1047,9 +1047,10 @@ function renderModjoInsights(){
   const cc={};cats.forEach(c=>{cc[c]={total:0,churn:0};});
   filteredModjo.forEach(r=>{if(cc[r.categoria]){cc[r.categoria].total++;if(r.esChurn)cc[r.categoria].churn++;}});
   const sorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].churn-cc[a].churn);
+  const chartSorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].total-cc[a].total);
   const maxC=Math.max(...cats.map(c=>cc[c].total),1);
   const totalFiltered=filteredModjo.length||1;
-  document.getElementById('chartModjo').innerHTML=sorted.map(c=>`
+  document.getElementById('chartModjo').innerHTML=chartSorted.map(c=>`
     <div class="chart-bar-row">
       <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</div>
       <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%">${cc[c].total}</div></div>

@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Dashboard de Churn</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     :root{--bg:#f2f5eb;--accent:#85D630;--card:#fff;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--danger:#ef4444;--warning:#f59e0b;--success:#22c55e;}
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -273,6 +272,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
 // ============================================================
 // MODJO CONFIG
@@ -1648,7 +1648,7 @@ function refreshData(){
   });
 }
 
-// Run immediately — no event needed, PapaParse already loaded from <head>
+// Run immediately — PapaParse loaded just above
 document.getElementById('loadingDiv').style.display='none';
 initFilters();applyModjoFilters();try{render();}catch(e){console.warn('render error:',e);}
 document.getElementById('lastUpdate').textContent='Cargando Modjo…';

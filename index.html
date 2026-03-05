@@ -604,8 +604,177 @@ const AC_IDS=new Set(Object.values(AC_DATA));
 const HS_IDS=new Set(HS_DATA.map(r=>String(r.id)));
 // ContactId → CompanyId map (for cases where name match fails but contactId is known)
 const CONTACT_TO_COMPANY={
-  "669380036820":"380741570765", // Raul Pardo Garcia → raul airam
-  "46527974886":"19766047975"   // Noelia Gonzales → NICOLE VALERIA VENTURA GONZALES
+  "1164101":"7579941079",  // Jose Luís SANCHEZ MARTIN
+  "125335119051":"55770642655",  // Rosa Carbonell
+  "126411492589":"197297521898",  // Ana Isabelle Garcia Plata
+  "1283751":"7582682307",  // Mari Domínguez
+  "131908821225":"60139755749",  // Julia Muñiz Amorín
+  "13282432488":"11803831792",  // NACHO JAUREGUI
+  "135446280378":"62078003444",  // Sergi Verges
+  "14850864348":"6873302264",  // Casa Karibay | Tienda de Reposteria en Madrid & Cursos
+  "158873342178":"77300416746",  // Tim Ingarfield
+  "1601851":"298800428233",  // Lluís Valentí Bohigas
+  "168554689782":"82315587816",  // Gustavo Jimenez
+  "1709951":"197227548866",  // JOSE RODRIGUEZ MORENO
+  "17481548992":"12244191679",  // Chiara Loda
+  "180262612161":"85395736791",  // Karina Zabala
+  "1802701":"7886692594",  // Esther Alcantara Martin
+  "1938351":"8767056589",  // Renata Da Silva Dos Santos
+  "19596478177":"256677364984",  // TOMAS NAVARRO LOPEZ
+  "19952860921":"12457242092",  // Paula Jarque Azañedo
+  "200616099034":"99766974712",  // ARANZAZU DURÁ SERRANO
+  "2029251":"8917317574",  // Peter Schwenzer
+  "2157551":"9095352270",  // Roberto Perez Gaston
+  "2165101":"39008372948",  // Luisina Garcia
+  "2179451":"400844990670",  // Ricard Esquirol
+  "229345237216":"114480281796",  // Estela Vallejo Martinez
+  "240374565054":"121666177273",  // JUAN LUIS MUELA DE LOS REYES
+  "240553064661":"121845687501",  // CAROLINA VALLEJO
+  "2523001":"9802774498",  // Mery Ortiz
+  "2660051":"10190813422",  // Henrietta Fielden
+  "266467752166":"135181065431",  // ALVARO SEÑAS DIAZ
+  "269855228090":"136893704398",  // Josep Batllori
+  "271785986297":"138616745153",  // Christian Alvarado Grille
+  "2747401":"242232367342",  // NANCY CORTES MUÑOZ
+  "283727049951":"146320675037",  // Laura Llopart
+  "290756080877":"149643386088",  // Jesus Castillo
+  "300998179016":"158582821077",  // Julio Benito
+  "30339843282":"361695100146",  // Sara Cruz
+  "309451":"6582048965",  // Hedda Olsson
+  "309920802040":"163565008100",  // CARLOS JOSE SOLANO GUERRERO
+  "310096691437":"163308567771",  // Constancia Ayala Zelada
+  "312062086383":"163236025564",  // OSCAR GARCIA GARCIA
+  "312994811093":"38990429395",  // Pilar Gil
+  "312994815169":"140747531481",  // Marco Quevedo
+  "322235879665":"171736971474",  // Rosario Carrasco Delgado
+  "331571804363":"174577704167",  // Katherin Vidal
+  "334556415213":"175622062302",  // Arancha Fernández Galán
+  "338151":"5998803411",  // Arturo Reñasco
+  "342622377169":"179874820321",  // Mario Redondo Piñas
+  "342911699160":"197227599053",  // Alvaro Fernandez Garcia
+  "342933288167":"10341625041",  // Darys Darys
+  "342933315784":"13626284002",  // Eduardo Torrecilla Insagurbe
+  "342976851179":"197264734423",  // DIANA VALERO
+  "343065798886":"6582052559",  // PEDRO ALMEIDA
+  "346025038014":"197231188156",  // ASSOCIACIO LA CARPA ESPAI CULTURAL CALVET DIAZ
+  "346060298475":"197227579589",  // Rosa Sanchez
+  "350435640534":"184683410645",  // Carlos Lázaro Lázaro
+  "354806938830":"192750547178",  // Jenny Massiel Alvarado Nuñez
+  "358983830758":"189391368423",  // Laura JR
+  "35932134126":"14653759449",  // Carolina Colón
+  "364239261904":"149643386088",  // Lorena Castillo García
+  "374647733490":"198966568129",  // Miguel Canal Herranz
+  "376818946264":"199583324402",  // Aitor Aurtenetxe Ormaetxe
+  "384048739576":"203954634977",  // Beatriz Soriano Polo
+  "384740678843":"204445407418",  // José Signes
+  "38567489475":"361205104846",  // Oxana Ivantez
+  "413736151269":"221632028898",  // Dario Cuesta Jimenez
+  "426652554441":"229385501917",  // JUAN CARLOS BOCH SALCEDO
+  "43110362333":"17986099161",  // ANTONIO ROMERO ORTIZ
+  "438006397144":"163575831776",  // David Ruiz
+  "439313381607":"149643386088",  // Celeste Castillo
+  "4413050327":"10856958924",  // Carmen Vázquez Guerrero
+  "442784882936":"237756952824",  // MARYORY EGLEED LAMADRID ORTIZ
+  "445163399374":"238954976448",  // Pilar Moreno
+  "446537614524":"237694230751",  // Dionicio Chamba
+  "448009424095":"221632028898",  // Carmen Ability Room
+  "450798231767":"216437730515",  // Roser Boj
+  "457132621020":"220064494790",  // Huáscar Ezcurra
+  "460610629855":"247871776969",  // Purificación Fernández Alcántara
+  "464027351251":"11350069694",  // Mecha Cima
+  "46527974886":"19766047975",
+  "472674009282":"256103278783",  // MIHAELA MUNTEAN
+  "47799899354":"401758819571",  // Loli Padilla
+  "478687049953":"258931009748",  // Oscar Sanchez
+  "485522932929":"214076387566",  // Guellin /Wellin (Su mujer Luz)
+  "486970820815":"192322765002",  // Linda Falone Kapche Kamgo
+  "487503903976":"264495957199",  // Loli Perez
+  "494508472548":"268384136394",  // Daniela Cruz garcia
+  "495101":"6266760165",  // raquel esteban
+  "504831333572":"277108343994",  // Ana Martinez Galan
+  "534001":"6582033363",  // Miguel Sansuste (Marido de Carina)
+  "536601":"6284930031",  // Club de Tenis y Padel Holycan Fresno Fresno
+  "547301436614":"314158566592",  // YANIRA ROJAS - POSIBLE SAAS
+  "552295250159":"40094912711",  // LUIS ROBERTO TRIVELLINI
+  "554312380647":"308720697563",  // Carla Marsá Palacios
+  "565044560068":"315176213737",  // Carlos Parrales
+  "565371550958":"44310110403",  // Bruno Donizeti Da Silva
+  "576784835819":"8910856688",  // Sandra Info
+  "588601":"6319815866",  // Héctor Martínez
+  "590641226961":"331509347525",
+  "599059150041":"338682499273",  // ORNELLA POLIDORI
+  "605441047761":"386332071110",  // Aikari
+  "609085831354":"337235163322",  // Blanca López López
+  "609467699435":"12043480015",  // David Rodriguez-Pastrana Parareda
+  "610669966532":"344446256353",  // Santiago Proaño
+  "610759907569":"344162742461",  // Roda Illan
+  "611794434239":"345248567545",  // Lucas Rodríguez Puime
+  "614200762592":"344103536864",  // David Canet
+  "632411734212":"378502587587",  // PILAR MARTINEZ
+  "632472676549":"356027646188",  // Meritxell Martinez Bellafont
+  "632525933786":"356535898303",  // Ana María Gallego Muñoz
+  "632782958783":"359510383842",  // YARA YARA
+  "632857569500":"356755765494",  // Mayte Pontes
+  "632933241069":"356825061605",  // Vanina Tejedor
+  "637003554015":"360263953650",  // Frander Medina
+  "641130698966":"361939693767",  // Frank Acevedo
+  "642425852141":"363488277700",  // YULI AYOVI
+  "646899353845":"49061085409",  // Nacho Espinosa Molinero
+  "647698859205":"366193370361",  // Juan Luis sanchez ponce
+  "648524396759":"366753430751",  // Sara Parrabera
+  "653375026416":"371040638201",  // Sergio Muñoz
+  "653376908479":"366756827331",  // JEFFERSON LENIN CALLE CASTILLO
+  "656237491433":"402533476577",  // CARLOS SAIZ
+  "656732408012":"370913876216",  // Joaquin Jorda
+  "660097025272":"378594157761",  // Lucia Erriquez
+  "665365594326":"334459649239",  // NINES JONES TARI
+  "667136890060":"378845139191",  // Yago M. Osset
+  "667481858279":"379805883602",  // Carlos Montoya
+  "667545964772":"379450076395",  // Ines Lillo
+  "667924615396":"379804124377",  // Agustin Mas Bonamusa
+  "668062738668":"379972572352",  // Alejandro Moreno Sanchez
+  "668365085921":"380274197725",  // Froyla Álvarez
+  "669097741507":"380283725032",  // Juan Leon
+  "669267038455":"380582228167",  // Albert Montoro
+  "669380036820":"380741570765",
+  "669404257529":"380861182189",  // Agustín Egea Sánchez
+  "670713985245":"387025462460",  // David Marquez sanchez
+  "670755696872":"381058542831",  // Margarita Vega lopez
+  "670891747553":"381067700468",  // Luis Limón
+  "670999872735":"381526655169",  // Aleix NADAL
+  "673096848609":"386122083563",  // Adriana Calvo
+  "674748204246":"384104160478",  // María Cardona Ferrer
+  "678244982980":"386394770619",  // Carla Blanch
+  "680329441494":"389060140265",  // Lorena Braxton
+  "680540643528":"388761591013",  // Lina Samboni J.
+  "680640404689":"386710047976",  // Juan Amati
+  "681226285250":"385775439070",  // Juan Antonio Méndez Pérez
+  "683059260645":"389119297735",  // VICTOR ESCOBAR
+  "684059515072":"389192640707",  // Begoña Lopez garcia
+  "684682968252":"390369905901",  // Pilar Real garcía
+  "685190565078":"392797386959",  // Catherina Van haxleden Houwert
+  "691888403705":"401252410608",  // Luzi Zipitria Pacheco
+  "692913584347":"44968123606",  // Jose Isael Puente Arias
+  "692914609361":"396326252780",  // JOSE CERRO
+  "693219660016":"394890437863",  // LILIANA MOYA
+  "693245412598":"394444488951",  // Francisco Aguilar
+  "694004824295":"400845657306",  // Toni Salva
+  "701518078153":"400244071652",  // Jagoba Vizuete
+  "701919880428":"60471897288",  // ISAAC BETETA JORDAN
+  "702528386288":"400240368852",  // CINTIA Y AYELÉN CARDAMOMO
+  "702557299901":"400636386538",  // Juan Antonio Lorente Martínez
+  "707188986051":"403239056620",  // MIGUEL CERVERA
+  "710362751188":"407296218299",  // Gloria Territorio Sherpa
+  "710551":"12673231338",  // Francisco Murcia Gomez
+  "711834284280":"378386665682",  // Lidia Gutiérrez
+  "712451":"6582043086",  // Esther centre dau
+  "715025912055":"412536116466",  // María Oyola
+  "723161736405":"387895704769",  // Oscar Asiain
+  "73991676100":"26201094353",  // JOSÉ MARÍA TOLEDANO VILLAMIL
+  "9421817573":"10061401321",  // Alexandro
+  "950251":"7020416211",  // Livane JOUANLANNE
+  "951251":"7021391587",  // David RISCO HOYOS
+  "955302":"7029217724"  // ÁNGEL MORALES CANO
 };
 // Word-overlap match: returns true if all significant words (>4 chars) of 'a' appear in 'b'
 // Catches cases like "Monica Bolanos Martin" vs "Monica Maria Bolanos Martin"

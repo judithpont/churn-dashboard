@@ -603,7 +603,10 @@ const NAME_TO_HS_ID=(function(){const m={};for(const r of HS_DATA){const n=norm(
 const AC_IDS=new Set(Object.values(AC_DATA));
 const HS_IDS=new Set(HS_DATA.map(r=>String(r.id)));
 // ContactId → CompanyId map (for cases where name match fails but contactId is known)
-const CONTACT_TO_COMPANY={"669380036820":"380741570765"};
+const CONTACT_TO_COMPANY={
+  "669380036820":"380741570765", // Raul Pardo Garcia → raul airam
+  "46527974886":"19766047975"   // Noelia Gonzales → NICOLE VALERIA VENTURA GONZALES
+};
 // Word-overlap match: returns true if all significant words (>4 chars) of 'a' appear in 'b'
 // Catches cases like "Monica Bolanos Martin" vs "Monica Maria Bolanos Martin"
 function wOverlap(a,b){const aw=a.split(' ').filter(w=>w.length>4);if(aw.length<2)return false;const bs=new Set(b.split(' ').filter(w=>w.length>4));return aw.every(w=>bs.has(w));}

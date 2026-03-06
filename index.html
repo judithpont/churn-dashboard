@@ -215,7 +215,7 @@
     <div class="table-wrap">
       <table><thead><tr>
         <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-        <th>Categoría</th><th style="width:140px">Subcategoría</th><th>Churn</th><th>Client Type</th><th>Resumen IA</th><th>Ver</th>
+        <th>Categoría</th><th style="width:220px">Subcategoría</th><th>Churn</th><th>Client Type</th><th>Ver</th>
       </tr></thead><tbody id="tbodyModjo"></tbody></table>
     </div>
   </div>
@@ -1771,13 +1771,12 @@ function renderTablaModjo(){
       <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria}</span></td>
-      <td style="max-width:140px">${(()=>{const subs=(r.subcategorias&&r.subcategorias[0]!=='Otros'?r.subcategorias:r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);if(!subs.length)return'<span style="color:#9ca3af;font-size:11px">–</span>';const shown=subs.slice(0,2);const extra=subs.length-2;return shown.map(s=>`<span class="cat-badge" style="background:#f3e8ff;color:#7c3aed;font-size:10px;padding:1px 5px;margin-right:2px;white-space:nowrap">${s}</span>`).join('')+(extra>0?`<span style="font-size:10px;color:#9ca3af">+${extra}</span>`:'');})()}</td>
+      <td style="width:220px">${(()=>{const subs=(r.subcategorias&&r.subcategorias[0]!=='Otros'?r.subcategorias:r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);if(!subs.length)return'<span style="color:#9ca3af;font-size:11px">–</span>';return'<div style="display:flex;flex-direction:column;gap:3px">'+subs.map(s=>`<span class="cat-badge" style="background:#f3e8ff;color:#7c3aed;font-size:10px;padding:2px 6px;white-space:nowrap;display:inline-block;width:fit-content">${s}</span>`).join('')+'</div>';})()}</td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
       <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>
-    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+    ${hasDetail?`<tr><td colspan="9"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
   }).join('');
 }
 

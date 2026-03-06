@@ -76,20 +76,14 @@
     .pill-purple{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe;}
     .pill-gray{background:var(--bg);color:var(--muted);border-color:var(--border);}
     .sub-note{margin-top:8px;font-size:11px;color:#374151;line-height:1.6;background:#f9fafb;border-radius:6px;padding:8px;border-left:3px solid var(--accent);}
+    .note-short{display:block;}.note-full{display:none;}.note-expanded .note-short{display:none;}.note-expanded .note-full{display:block;}
+    .note-toggle{margin-top:4px;font-size:10px;color:var(--accent);cursor:pointer;font-weight:600;background:none;border:none;padding:0;}
     /* Info tooltip — JS-positioned */
     .info-wrap{position:relative;display:inline-flex;align-items:center;vertical-align:middle;}
     .info-btn{width:16px;height:16px;border-radius:50%;background:#e5e7eb;color:var(--muted);font-size:9px;font-weight:700;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
     /* Tooltip — positioned by JS */
     .tooltip-box{display:none;position:fixed;background:#1a1a1a;color:#fff;font-size:11px;padding:10px 13px;border-radius:8px;width:250px;z-index:9999;line-height:1.6;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.3);}
     .tooltip-box strong{color:var(--accent);display:block;margin-bottom:4px;font-size:12px;}
-    /* Owners */
-    .owners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .owner-card{background:#fff;border-radius:12px;padding:20px;border:2px solid var(--border);}
-    .owner-name{font-size:15px;font-weight:700;margin-bottom:4px;}
-    .owner-meta{font-size:12px;color:var(--muted);margin-bottom:12px;}
-    .owner-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-    .owner-stat-val{font-size:20px;font-weight:800;}
-    .owner-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;text-align:center;}
     /* Table */
     .table-wrap{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:auto;}
     table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -134,7 +128,7 @@
     .loading{text-align:center;padding:60px;color:var(--muted);}
     .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}.insights-grid{grid-template-columns:1fr 1fr;}.owners-grid{grid-template-columns:1fr;}}
+    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}.insights-grid{grid-template-columns:1fr 1fr;}}
     .refresh-btn{padding:7px 14px;background:var(--accent);color:#1a1a1a;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
     .refresh-btn:hover{opacity:.85;}
     .refresh-btn:disabled{opacity:.5;cursor:not-allowed;}
@@ -159,14 +153,6 @@
   <div class="main-tab" onclick="switchMain('tabla-hs')">Tabla HubSpot</div>
 </div>
 
-<div class="sub-tabs" id="subTabsRow" style="display:none">
-  <div class="sub-tab active" onclick="switchSub('insights')">Insights</div>
-  <div class="sub-tab" onclick="switchSub('owners')">Owners</div>
-</div>
-<div class="sub-tabs" id="subTabsRowHS" style="display:none">
-  <div class="sub-tab active" onclick="switchHSSub('insights')">Insights</div>
-  <div class="sub-tab" onclick="switchHSSub('owners')">Owners</div>
-</div>
 
 <div class="filter-bar" id="filterModjo" style="display:none">
   <input type="text" class="search-input" id="fSearch" placeholder="🔍 Buscar empresa…" oninput="applyModjoFilters()"/>
@@ -178,7 +164,8 @@
     <option value="no">Sin churn</option>
   </select>
   <div class="period-btns">
-    <button class="period-btn m-period active" onclick="setModjoPeriod('7d',this)">7d</button>
+    <button class="period-btn m-period active" onclick="setModjoPeriod('month',this)">Este mes</button>
+    <button class="period-btn m-period" onclick="setModjoPeriod('7d',this)">7d</button>
     <button class="period-btn m-period" onclick="setModjoPeriod('30d',this)">30d</button>
     <button class="period-btn m-period" onclick="setModjoPeriod('90d',this)">90d</button>
     <button class="period-btn m-period" onclick="setModjoPeriod('all',this)">Todo</button>
@@ -195,10 +182,11 @@
   <select id="fHSReason" onchange="applyHSFilters()"><option value="">Todos los motivos</option></select>
   <select id="fHSOwner" onchange="applyHSFilters()"><option value="">Todos los owners</option></select>
   <div class="period-btns">
-    <button class="period-btn hs-period active" onclick="setHSPeriod('all',this)">Todo</button>
+    <button class="period-btn hs-period active" onclick="setHSPeriod('month',this)">Este mes</button>
     <button class="period-btn hs-period" onclick="setHSPeriod('7d',this)">7d</button>
     <button class="period-btn hs-period" onclick="setHSPeriod('30d',this)">30d</button>
     <button class="period-btn hs-period" onclick="setHSPeriod('90d',this)">90d</button>
+    <button class="period-btn hs-period" onclick="setHSPeriod('all',this)">Todo</button>
   </div>
   <div class="date-inputs">
     <input type="date" id="hsDFrom" onchange="applyHSFilters()"/>
@@ -223,26 +211,13 @@
     <div id="recomModjo"></div>
   </div>
 
-  <div id="viewModjoOwners" style="display:none">
-    <div class="kpi-row" id="kpiRowModjoOwners"></div>
-    <div class="section-title">Rendimiento por owner</div>
-    <div class="owners-grid" id="ownersGrid"></div>
-    <div id="conclModjoOwners"></div>
-  </div>
-
   <div id="viewTablaModjo" style="display:none">
     <div class="table-wrap">
       <table><thead><tr>
         <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-        <th>Categoría</th><th>Churn</th><th>Client Type</th><th>Resumen IA</th><th>Ver</th>
+        <th>Categoría</th><th>Subcategoría</th><th>Churn</th><th>Client Type</th><th>Resumen IA</th><th>Ver</th>
       </tr></thead><tbody id="tbodyModjo"></tbody></table>
     </div>
-  </div>
-
-  <div id="viewHSOwners" style="display:none">
-    <div class="kpi-row" id="kpiRowHSOwners"></div>
-    <div class="section-title">Rendimiento por Product Success Owner</div>
-    <div id="hsOwnersGrid"></div>
   </div>
 
   <div id="viewHSInsights" style="display:none">
@@ -301,6 +276,102 @@ const CAT_KW={
   'Fallo en el onboarding':        ['onboarding','no sabe','no entiende','como funciona','configurar','vincular perfiles','empezar','setup','primer mes','proceso de alta','completar integracion','vincular facebook','vincular instagram','no se como','no entiendo como','alta nueva'],
   'No justifica precio':           ['factura','cobro','precio','coste','dinero','tarifa','renovacion','error de pago','error en el cobro','fallo en el pago','no me han cobrado','me han cobrado','cargo incorrecto','cargo inesperado','cobro incorrecto','cobro inesperado','muy caro','demasiado caro','no vale lo que cuesta','no merece la pena','no justifica el precio','recorte','econom']
 };
+
+// ============================================================
+// SUBCATEGORY KEYWORDS — hierarchical classification
+// ============================================================
+const SUB_CAT_KW={
+  'Problemas de calidad':{
+    'Contenido genérico / no personalizado':['contenido generico','no personaliz','no refleja','no representa','no es mi marca','contenido no es','no encaja','tono','estilo','chatgpt','contenido automatico'],
+    'Publicaciones con errores':['publicacion','post','copy','error en la publicacion','publicaciones no son','contenido incorrecto','texto incorrecto','equivocad'],
+    'Respuestas a reseñas automáticas':['resena','review','opinion','respuesta automatic','responder resena','google review'],
+    'Imágenes IA no representan el negocio':['foto artificial','imagen artificial','imagenes generadas','ia genera','fotos de ia','inteligencia artificial','stock','foto generic'],
+    'Calidad baja de imágenes':['foto','imagen','galeria','calidad','mala','baja','borrosa','pixelada'],
+    'Diseño web insatisfactorio':['diseno','web','pagina','no gusta','cambiar','mejorar','feo','plantilla','template'],
+    'Menú/carta desactualizada':['menu','carta','producto','desactualiz','no actualiz','viejo','antiguo','cambiar menu','actualizar carta'],
+    'Frecuencia de publicaciones insuficiente':['frecuencia','pocas publicacion','solo una vez','publicacion mensual','publicaciones al mes','mas publicacion','mas post','diario','todos los dias']
+  },
+  'Fallo en la plataforma':{
+    'Error conexión Instagram':['instagram','vincul','integr','enlaz','permiso','conexion instagram','instagram no','no se conecta instagram'],
+    'Error conexión Facebook':['facebook','vincul facebook','integr facebook','enlaz facebook','permiso facebook','facebook no','conexion facebook'],
+    'Problemas dominio/hosting/DNS':['dominio','dns','hosting','ssl','certificado','web inactiva','servidor'],
+    'Errores de plugins':['plugin','elementor','jet engine','defender','wordpress'],
+    'Configuración email fallida':['email','correo','configur','no llega','smtp','bandeja'],
+    'Google Maps/Business':['google maps','my business','google business','ficha','perfil google'],
+    'Errores en la app / verificación':['app','verificacion','codigo','no abre','descarga','problema con la app','dificultades para acceder'],
+    'Sistema reservas/calendario':['reserv','calendario','agenda','sincroniz','cita','booking']
+  },
+  'Sin impacto real en su negocio':{
+    'No incrementa reservas/pedidos':['reserv','pedido','cita','no ha aument','no gener','no lleg','sin reserv','sin pedido'],
+    'Sin mejora en SEO/Google':['seo','google','posicion','indexa','busqued','aparec','posicionamiento'],
+    'Sin aumento de visibilidad/seguidores':['visibilidad','alcance','seguidores','no aument','no crec','bajo','poco','engagement','interaccion'],
+    'No genera ventas ni clientes':['no genera venta','no trae cliente','no ha generado','sin venta','no vendo','sin resultado','no resultado','no consigo','no sirve'],
+    'Sin tráfico web':['trafico','visita','web','pagina','sitio','no llega','nadie entra']
+  },
+  'Fallo en el onboarding':{
+    'No entiende la plataforma':['no sabe','no entiende','confus','no me explicaron','no se como','no entiendo como','como funciona'],
+    'Especificaciones incompletas':['especificacion','formulario','informacion inicial','datos inicial','completar','briefing','brief'],
+    'Retraso en activación':['activacion','activar','alta','retraso','demora','tard','pendiente','proceso de alta','alta nueva'],
+    'Expectativas mal alineadas':['expectativa','esperaba','pensaba que','creia que','diferente'],
+    'Primera llamada deficiente':['primer','primera','llamada','contacto','sesion','setup','empezar','onboarding']
+  },
+  'Problema de soporte':{
+    'Falta de seguimiento proactivo':['seguimiento','follow up','follow-up','falt','no','sin','poco','proactiv','contacto'],
+    'Tiempos de respuesta lentos':['demora','tardaron','tarda','lento','tiempo de espera','mucho tiempo','semana','dias'],
+    'Sin respuesta del equipo':['no responde','sin respuesta','no contesta','no me responde','no atiende','nadie','no recibo respuesta','no hay respuesta','mala atencion']
+  },
+  'Fuera del alcance del plan':{
+    'Campañas publicitarias no incluidas':['meta ads','campana','publicidad','anuncio','ads','facebook ads','google ads'],
+    'Mantenimiento web no incluido':['web','pagina','sitio','mantenimiento','actualizacion','modificacion','cambio web'],
+    'Más frecuencia de la incluida':['mas publicacion','mas post','mas contenido','mas frecuencia','diario','todos los dias','cada dia'],
+    'Contenido en idiomas no cubiertos':['idioma','lengua','traduccion','traducir','catalan','ingles','frances','euskera','gallego'],
+    'Funcionalidad no soportada':['linkedin','movil','subir archivos','adjuntar','multicuenta','multi cuenta','no puede','no soporta','no permite','limitacion']
+  },
+  'No justifica precio':{
+    'Limitaciones de presupuesto':['presupuesto','no puede pagar','dinero','economic','ajust','recorte','dificultad economica'],
+    'Relación calidad-precio insuficiente':['no vale','no justifica','valor','relacion calidad','no merece','no compensa'],
+    'Dudas sobre renovación/permanencia':['renov','renovacion','permanencia','contrato','compromiso','preaviso','cancelacion'],
+    'Errores de cobro/facturación':['cobr','factur','pago','doble','error','incorrect','no autoriza','cargo incorrecto','cargo inesperado','cobro incorrecto','cobro inesperado','error de pago','error en el cobro','fallo en el pago'],
+    'Competencia ofrece mejor precio':['competen','otra empresa','otro servicio','mas barato','alternativa'],
+    'Percepción de precio alto':['caro','costoso','precio alto','mucho dinero','muy caro','demasiado caro']
+  },
+  'Cierre de venta forzado':{
+    'Prueba gratuita no explicada':['prueba gratuita','periodo de prueba','mes gratis','trial'],
+    'Condiciones de contrato no claras':['no sabia que','no me avisaron','no me explicaron','contrato','condiciones','permanencia'],
+    'Cargo sin consentimiento':['me enganaron','fui enganado','me vendieron mal','cierre de venta','me dijeron que','me prometieron','cargo sin','no autorice']
+  },
+  'Mala comunicacion en ventas':{
+    'Expectativas vs. servicio desalineadas':['expectativas','no fue lo que esperaba','diferente a lo que me explicaron','no es lo que me vendieron','malentendido'],
+    'Promesas no cumplidas':['se comprometieron a','no cumplieron lo prometido','prometieron','me dijeron que era diferente','no me explicaron bien','en ventas me dijeron'],
+    'Confusión sobre frecuencia':['publicacion diaria','todos los dias','cada dia','frecuencia','cuantas publicaciones']
+  },
+  'Promesa irreal':{
+    'Resultados garantizados':['prometieron resultados','garantizaron','resultados garantizados','leads garantizados','clientes nuevos garantizados'],
+    'Plazos irreales':['me dijeron que iba a conseguir','aseguraron','promesa irreal','no cumplieron con lo prometido','expectativa irreal','rapido','inmediato']
+  },
+  'Negocio cerrado':{
+    'Cierre definitivo':['cerrar el negocio','cierro','cierra','cerre','quiebra','insolvencia','negocio cerrado'],
+    'Cambio de actividad':['dejo el negocio','vendo el negocio','dejo de operar','ya no tengo negocio','me retiro','cambio de actividad','traspaso']
+  }
+};
+
+function detSubCat(t,cat){
+  const subs=SUB_CAT_KW[cat];
+  if(!subs)return'Otros';
+  const tn=norm(t||'');
+  let best='Otros',bestScore=0;
+  for(const[sub,kws]of Object.entries(subs)){
+    let score=0;
+    for(const k of kws){
+      const nk=norm(k);
+      const weight=k.includes(' ')?3:1;
+      let pos=0;
+      while((pos=tn.indexOf(nk,pos))!==-1){score+=weight;pos+=nk.length;}
+    }
+    if(score>bestScore){bestScore=score;best=sub;}
+  }
+  return best;
+}
 
 // Detailed descriptions for Modjo insight cards
 const CAT_DESC={
@@ -528,10 +599,53 @@ const AUTO_KW={
 };
 
 // ============================================================
+// HUBSPOT ↔ MODJO CONSISTENCY MAP
+// Maps HubSpot churn_reason_saas → Modjo category + subcategory equivalents
+// ============================================================
+const HS_TO_MODJO={
+  'Forced Sales Closing':          {cat:'Cierre de venta forzado'},
+  'Sales Miscommunication':        {cat:'Mala comunicacion en ventas'},
+  'Quality Issues':                {cat:'Problemas de calidad'},
+  'Poor CX / Platform Issues':     {cat:'Fallo en la plataforma'},
+  'Does not see impact on their business':{cat:'Sin impacto real en su negocio'},
+  'Support or Service Issues':     {cat:'Problema de soporte'},
+  'Business Closed':               {cat:'Negocio cerrado'},
+  'Unrealistic promise':           {cat:'Promesa irreal'},
+  'Outside The Scope of the Plan': {cat:'Fuera del alcance del plan'},
+  'Onboarding Failure':            {cat:'Fallo en el onboarding'},
+  'WTP < Cost':                    {cat:'No justifica precio'}
+};
+// Map HubSpot sub-reasons to Modjo sub-categories for consistent hierarchy
+const HS_SUB_TO_MODJO={
+  'Low Commitment / Buyer\'s Remorse':'Condiciones de contrato no claras',
+  'Payment vs. Delivery Misalignment':'Cargo sin consentimiento',
+  'Free Trial Misunderstanding':'Prueba gratuita no explicada',
+  'High-Touch Expectation':'Expectativas vs. servicio desalineadas',
+  'Personalization Gap':'Contenido genérico / no personalizado',
+  'Connection RRSS Failure':'Error conexión Instagram',
+  'Web Delivery Delay':'Diseño web insatisfactorio',
+  'Lack of Budget':'Limitaciones de presupuesto',
+  'Insolvency':'Cierre definitivo',
+  'Traditional Agency-Style Expectation':'Expectativas vs. servicio desalineadas',
+  'Content Not Aligned':'Contenido genérico / no personalizado',
+  'Bugs':'Errores en la app / verificación',
+  'No Perceived Value':'No genera ventas ni clientes',
+  'LinkedIn Not Supported':'Funcionalidad no soportada',
+  'Multi-Account Need':'Funcionalidad no soportada'
+};
+// Enrich HS records with Modjo-equivalent category and subcategory for display
+function hsToModjoCat(hsReason){return(HS_TO_MODJO[hsReason]||{}).cat||'';}
+function hsToModjoSub(hsSub){
+  if(!hsSub)return'';
+  const parts=hsSub.split(/\s*\+\s*/).map(p=>p.trim()).filter(Boolean);
+  return parts.map(p=>HS_SUB_TO_MODJO[p]||p).join(' + ');
+}
+
+// ============================================================
 // STATE
 // ============================================================
-let allModjo=[],filteredModjo=[],currentMain='modjo',currentSub='insights',modjoperiod='7d';
-let filteredHS=[...HS_DATA],hsperiod='all',hsCurrentSub='insights';
+let allModjo=[],filteredModjo=[],currentMain='modjo',modjoperiod='month';
+let filteredHS=[...HS_DATA],hsperiod='month';
 
 // ============================================================
 // UTILS
@@ -840,7 +954,8 @@ function procesarModjo(raw){
     const catText=summary||combined;
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
     if(seen.has(key))continue;seen.add(key);
-    rows.push({owner,cliente,categoria:detCat(catText),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
+    const cat=detCat(catText);
+    rows.push({owner,cliente,categoria:cat,subcategoria:detSubCat(catText,cat),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
   }
   return rows;
 }
@@ -853,8 +968,9 @@ function applyModjoFilters(){
   const fS=(document.getElementById('fSearch').value||'').toLowerCase().trim();
   const dF=document.getElementById('dFrom').value?new Date(document.getElementById('dFrom').value):null;
   const dT=document.getElementById('dTo').value?new Date(document.getElementById('dTo').value):null;
-  let pF=null;const now=new Date();
-  if(modjoperiod==='7d'){pF=new Date(now);pF.setDate(now.getDate()-7);}
+  let pF=null,pT=null;const now=new Date();
+  if(modjoperiod==='month'){pF=new Date(now.getFullYear(),now.getMonth(),1);pT=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59);}
+  else if(modjoperiod==='7d'){pF=new Date(now);pF.setDate(now.getDate()-7);}
   else if(modjoperiod==='30d'){pF=new Date(now);pF.setDate(now.getDate()-30);}
   else if(modjoperiod==='90d'){pF=new Date(now);pF.setDate(now.getDate()-90);}
   filteredModjo=allModjo.filter(r=>{
@@ -863,7 +979,7 @@ function applyModjoFilters(){
     if(fC&&r.categoria!==fC)return false;
     if(fCh==='si'&&!r.esChurn)return false;
     if(fCh==='no'&&r.esChurn)return false;
-    if(r.fecha){if(pF&&r.fecha<pF)return false;if(dF&&r.fecha<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}}
+    if(r.fecha){if(pF&&r.fecha<pF)return false;if(pT&&r.fecha>pT)return false;if(dF&&r.fecha<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}}
     return true;
   });
   renderModjo();
@@ -879,8 +995,9 @@ function applyHSFilters(){
   const fHS=(document.getElementById('fHSSearch').value||'').toLowerCase().trim();
   const dF=document.getElementById('hsDFrom').value?new Date(document.getElementById('hsDFrom').value):null;
   const dT=document.getElementById('hsDTo').value?new Date(document.getElementById('hsDTo').value):null;
-  let pF=null;const now=new Date();
-  if(hsperiod==='7d'){pF=new Date(now);pF.setDate(now.getDate()-7);}
+  let pF=null,pT=null;const now=new Date();
+  if(hsperiod==='month'){pF=new Date(now.getFullYear(),now.getMonth(),1);pT=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59);}
+  else if(hsperiod==='7d'){pF=new Date(now);pF.setDate(now.getDate()-7);}
   else if(hsperiod==='30d'){pF=new Date(now);pF.setDate(now.getDate()-30);}
   else if(hsperiod==='90d'){pF=new Date(now);pF.setDate(now.getDate()-90);}
   filteredHS=HS_DATA.filter(r=>{
@@ -888,23 +1005,13 @@ function applyHSFilters(){
     if(fR&&r.churn_reason!==fR)return false;
     if(fHSO&&(r.owner||'')!==fHSO)return false;
     const d=parseDate(r.churn_date);
-    if(d){if(pF&&d<pF)return false;if(dF&&d<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(d>dt)return false;}}
+    if(d){if(pF&&d<pF)return false;if(pT&&d>pT)return false;if(dF&&d<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(d>dt)return false;}}
     return true;
   });
   renderHS();
 }
 function setHSPeriod(p,btn){hsperiod=p;document.querySelectorAll('.hs-period').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyHSFilters();}
-function switchHSSub(tab){
-  hsCurrentSub=tab;
-  document.querySelectorAll('#subTabsRowHS .sub-tab').forEach((t,i)=>t.classList.toggle('active',['insights','owners'][i]===tab));
-  render();
-}
-function updateHSSubTabCounts(){
-  const tabs=document.querySelectorAll('#subTabsRowHS .sub-tab');
-  if(tabs[0])tabs[0].textContent=`Insights (${filteredHS.length})`;
-  const owners=new Set(filteredHS.map(r=>r.owner||'Sin asignar'));
-  if(tabs[1])tabs[1].textContent=`Owners (${owners.size})`;
-}
+
 
 // ============================================================
 // MODJO CONCLUSIONS (based on transcripts)
@@ -947,10 +1054,18 @@ function modjoConclHTML(){
     const clientStr=uniqueClients.slice(0,6).join(', ')+(uniqueClients.length>6?`… y ${uniqueClients.length-6} más`:'');
     const churnRate=data.total?Math.round(data.churn/data.total*100):0;
     const desc=CAT_CONCL[cat]||'';
+    // Subcategory pills for conclusions
+    const subCounts=buildModjoSubCounts(cat).filter(([s])=>s!=='Otros').slice(0,4);
+    const subPills=subCounts.length?`<div class="sub-pills" style="margin-top:8px">${subCounts.map(([s,n],si)=>`<span class="sub-pill ${PILL_COLORS[si%PILL_COLORS.length]}">${s} <strong>${n}</strong></span>`).join('')}</div>`:'';
+    // Top subcategory insight
+    const topSub=subCounts[0];
+    const subInsight=topSub?`<div class="sub-note">📊 <strong>Submotivo principal:</strong> "${topSub[0]}" con ${topSub[1]} menciones (${Math.round(topSub[1]/data.total*100)}% de esta categoría). ${subCounts.length>1?`Seguido de "${subCounts[1][0]}" (${subCounts[1][1]}).`:''}</div>`:'';
     return`<div class="concl-item">
       <h3><span class="concl-freq ${freqClass(data.churn)}">${freqLabel(data.churn)}</span> ${i+1}. ${cat}</h3>
       <p style="font-size:12px;color:var(--muted);margin-bottom:6px"><strong>${data.churn} churns</strong> de ${data.total} llamadas en el período (${churnRate}% tasa) — ${Math.round(data.churn/totalChurns*100)}% del churn total.</p>
       ${desc?`<p>${desc}</p>`:''}
+      ${subPills}
+      ${subInsight}
       ${clientStr?`<p class="clientes">Clientes en el período: ${clientStr}.</p>`:''}
     </div>`;
   }).join('');
@@ -1220,6 +1335,7 @@ function renderModjoRecomendaciones(){
           <span style="font-size:11px;color:var(--muted)">· ${data.churn} churns (${pct}% del total) · Área: ${rec.area}</span>
         </div>
         ${topClients?`<p style="font-size:12px;color:var(--muted);margin-bottom:8px">Casos en el período: ${topClients}${data.churn>2?'…':''}</p>`:''}
+        ${(()=>{const sc=buildModjoSubCounts(cat).filter(([s])=>s!=='Otros').slice(0,3);return sc.length?`<div class="sub-pills" style="margin-bottom:8px">${sc.map(([s,n],si)=>`<span class="sub-pill ${PILL_COLORS[si%PILL_COLORS.length]}">${s} <strong>${n}</strong></span>`).join('')}</div>`:''})()}
         <p style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:6px">${rec.action}</p>
         <div style="font-size:11px;color:#15803d;background:#f0fdf4;padding:4px 8px;border-radius:6px;display:inline-block"><strong>Objetivo:</strong> ${rec.kpi}</div>
       </div>
@@ -1238,6 +1354,17 @@ function renderModjoRecomendaciones(){
   </div>`;
 }
 
+// Build sub-category counts for a given Modjo category from filtered data
+function buildModjoSubCounts(cat){
+  const cnt={};
+  filteredModjo.filter(r=>r.categoria===cat).forEach(r=>{
+    const s=r.subcategoria||'Otros';
+    cnt[s]=(cnt[s]||0)+1;
+  });
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+}
+function toggleModjoSub(idx){const el=document.getElementById('msc'+idx);if(el)el.classList.toggle('open');}
+
 function renderModjoInsights(){
   const cats=Object.keys(CAT_KW);
   const cc={};cats.forEach(c=>{cc[c]={total:0,churn:0};});
@@ -1246,20 +1373,35 @@ function renderModjoInsights(){
   const chartSorted=cats.filter(c=>cc[c].total>0).sort((a,b)=>cc[b].total-cc[a].total);
   const maxC=Math.max(...cats.map(c=>cc[c].total),1);
   const totalFiltered=filteredModjo.length||1;
-  document.getElementById('chartModjo').innerHTML=chartSorted.map(c=>`
-    <div class="chart-bar-row">
-      <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</div>
-      <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%">${cc[c].total}</div></div>
-      <div class="chart-bar-count">${cc[c].churn>0?`<span style="color:#ef4444">${cc[c].churn}</span>`:''}</div>
-      <div style="width:42px;text-align:right;font-size:11px;font-weight:600;color:var(--muted)">${Math.round(cc[c].total/totalFiltered*100)}%</div>
-    </div>`).join('');
+  // Chart with expandable subcategories
+  document.getElementById('chartModjo').innerHTML=chartSorted.map((c,idx)=>{
+    const subCounts=buildModjoSubCounts(c);
+    const subMax=subCounts.length?subCounts[0][1]:1;
+    const subHTML=subCounts.filter(([s])=>s!=='Otros').map(([s,n])=>`
+      <div class="sub-bar-row">
+        <div class="sub-bar-label" title="${s}">${s}</div>
+        <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${Math.max(n/subMax*100,10)}%">${n}</div></div>
+      </div>`).join('');
+    return`<div>
+      <div class="chart-bar-row" style="cursor:pointer" onclick="toggleModjoSub(${idx})">
+        <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%">${cc[c].total}</div></div>
+        <div class="chart-bar-count">${cc[c].churn>0?`<span style="color:#ef4444">${cc[c].churn}</span>`:''}</div>
+        <div style="width:42px;text-align:right;font-size:11px;font-weight:600;color:var(--muted)">${Math.round(cc[c].total/totalFiltered*100)}%</div>
+      </div>
+      <div class="sub-chart" id="msc${idx}">${subHTML}</div>
+    </div>`;
+  }).join('');
+  // Insight cards with subcategory pills
   document.getElementById('insightsModjo').innerHTML=chartSorted.map(c=>{
     const rows=filteredModjo.filter(r=>r.categoria===c),ch=rows.filter(r=>r.esChurn);
-    // Skip categories with no data in the current period
     if(rows.length===0)return'';
     const names=[...new Set(ch.map(r=>r.cliente))].slice(0,3).join(', ');
     const desc=CAT_DESC[c];
-    // Real examples from current filtered data (prefer churn records, fallback to all)
+    // Subcategory pills
+    const subCounts=buildModjoSubCounts(c).filter(([s])=>s!=='Otros').slice(0,5);
+    const subPillsHTML=subCounts.length?`<div class="sub-pills">${subCounts.map(([s,n],i)=>`<span class="sub-pill ${PILL_COLORS[i%PILL_COLORS.length]}">${s} <strong>${n}</strong></span>`).join('')}</div>`:'';
+    // Real examples
     const sampleRecs=(ch.length?ch:rows).filter(r=>(r.displayText||'').trim().length>20).slice(0,3);
     const realExamples=sampleRecs.map((r,ri)=>{
       const full=(r.displayText||'').trim();
@@ -1289,27 +1431,12 @@ function renderModjoInsights(){
       <div class="insight-count">${rows.length}</div>
       <div class="insight-sub">${ch.length} churns detectados</div>
       ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${names}${ch.length>3?'…':''}</div>`:''}
+      ${subPillsHTML}
       ${exHTML}
     </div>`;}).join('');
   document.getElementById('conclModjo').innerHTML=modjoConclHTML();
   renderModjoRecomendaciones();
 }
-function renderModjoOwners(){
-  renderModjoKPI('kpiRowModjoOwners');
-  document.getElementById('ownersGrid').innerHTML=DUENOS.map(owner=>{
-    const rows=filteredModjo.filter(r=>r.owner===owner),c=rows.filter(r=>r.esChurn).length;
-    const rate=rows.length?Math.round(c/rows.length*100):0,bc=rate>=50?'#ef4444':rate>=25?'#f59e0b':'#22c55e';
-    const topC=Object.entries(rows.reduce((a,r)=>{a[r.categoria]=(a[r.categoria]||0)+1;return a;},{})).sort((a,b)=>b[1]-a[1])[0];
-    return`<div class="owner-card" style="border-color:${bc}">
-      <div class="owner-name">${owner}</div><div class="owner-meta">${topC?'Top: '+topC[0]:'Sin datos'}</div>
-      <div class="owner-stats">
-        <div class="owner-stat"><div class="owner-stat-val">${rows.length}</div><div class="owner-stat-lbl">Llamadas</div></div>
-        <div class="owner-stat"><div class="owner-stat-val" style="color:#ef4444">${c}</div><div class="owner-stat-lbl">Churns</div></div>
-        <div class="owner-stat"><div class="owner-stat-val" style="color:${bc}">${rate}%</div><div class="owner-stat-lbl">Tasa</div></div>
-      </div></div>`;}).join('');
-  document.getElementById('conclModjoOwners').innerHTML=modjoConclHTML();
-}
-
 // ============================================================
 // HUBSPOT RENDER
 // ============================================================
@@ -1456,7 +1583,7 @@ function renderHSInsights(){
   }).join('');
 
   // Insight cards
-  document.getElementById('insightsHS').innerHTML=sorted.map(([k,recs])=>{
+  document.getElementById('insightsHS').innerHTML=sorted.map(([k,recs],cardIdx)=>{
     const v=recs.length;
     const info=HS_REASON[k];
     const label=info?info.es:k;
@@ -1466,11 +1593,17 @@ function renderHSInsights(){
     const subCounts=buildSubCounts(k).slice(0,4);
     const pills=subCounts.map(([s,n],i)=>`<span class="sub-pill ${PILL_COLORS[i]}">${s} <strong>${n}</strong></span>`).join('');
     const noteRec=recs.find(r=>r.conclusion&&r.conclusion.length>20)||recs.find(r=>r.note&&r.note.length>20);
-    const noteSample=noteRec?(noteRec.conclusion||noteRec.note||'').substring(0,130):'';
+    const noteFullText=noteRec?(noteRec.conclusion||noteRec.note||''):'';
     const names=[...new Set(recs.map(r=>r.name))].slice(0,2).join(', ');
     // For sin motivo card — show auto-groups
     const isNoReason=k==='Sin motivo registrado';
     const autoHTML=isNoReason?`<div class="sub-pills">${Object.entries(autoGroups).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([g,n],i)=>`<span class="sub-pill ${PILL_COLORS[i]}">${g} <strong>${n}</strong></span>`).join('')}</div>`:'';
+    const needsToggle=noteFullText.length>130;
+    const noteHTML=noteFullText&&!isNoReason?`
+      <div class="sub-note" id="note_hs${cardIdx}">
+        <span class="note-short">"${noteFullText.substring(0,130)}${needsToggle?'':''}"</span>
+        ${needsToggle?`<span class="note-full">"${noteFullText}"</span><button class="note-toggle" onclick="toggleNote('hs${cardIdx}')">Ver más ▼</button>`:''}
+      </div>`:'';
     return`<div class="insight-card">
       <div class="insight-card-header">
         <span class="insight-cat">${mkInfo(tip)} ${label}</span>
@@ -1480,7 +1613,7 @@ function renderHSInsights(){
       <div class="insight-sub">${pct}% del total · ${v} empresas</div>
       ${isNoReason?autoHTML:pills?`<div class="sub-pills">${pills}</div>`:''}
       ${names&&!isNoReason?`<div style="font-size:11px;color:var(--muted);margin-top:6px">Ej: ${names}${v>2?'…':''}</div>`:''}
-      ${noteSample&&!isNoReason?`<div class="sub-note">"${noteSample}${noteSample.length>=130?'…':''}"</div>`:''}
+      ${noteHTML}
     </div>`;}).join('');
 
   document.getElementById('conclHS').innerHTML=hsConclHTML();
@@ -1580,96 +1713,6 @@ function renderPatternAnalysis(){
 }
 
 // ============================================================
-// HUBSPOT OWNERS (Product Success Owner)
-// ============================================================
-function renderHSOwners(){
-  const ownerMap={};
-  filteredHS.forEach(r=>{
-    const o=r.owner||'Sin asignar';
-    if(!ownerMap[o])ownerMap[o]={total:0,sinMotivo:0,reasons:{}};
-    ownerMap[o].total++;
-    if(!r.churn_reason)ownerMap[o].sinMotivo++;
-    else ownerMap[o].reasons[r.churn_reason]=(ownerMap[o].reasons[r.churn_reason]||0)+1;
-  });
-  const owners=Object.entries(ownerMap).sort((a,b)=>b[1].total-a[1].total);
-  const grand=filteredHS.length||1;
-  const realOwners=owners.filter(([o])=>o!=='Sin asignar');
-  const sinAsignar=ownerMap['Sin asignar']||{total:0,sinMotivo:0};
-
-  // KPI row
-  document.getElementById('kpiRowHSOwners').innerHTML=`
-    <div class="kpi-card kpi-churn"><div class="kpi-label">Total churns</div><div class="kpi-value">${filteredHS.length}</div><div class="kpi-sub">período actual</div></div>
-    <div class="kpi-card"><div class="kpi-label">Product Success Owners</div><div class="kpi-value" style="color:#8b5cf6">${realOwners.length}</div><div class="kpi-sub">con datos registrados</div></div>
-    <div class="kpi-card kpi-rate"><div class="kpi-label">Sin owner asignado</div><div class="kpi-value">${sinAsignar.total}</div><div class="kpi-sub">${Math.round(sinAsignar.total/grand*100)}% del total</div></div>
-    <div class="kpi-card kpi-ok"><div class="kpi-label">Mayor carga</div><div class="kpi-value" style="font-size:20px;font-weight:700">${realOwners[0]?realOwners[0][0].split(' ')[0]:'–'}</div><div class="kpi-sub">${realOwners[0]?realOwners[0][1].total+' churns':''}</div></div>`;
-
-  // Comparison chart — full width
-  const maxV=Math.max(...realOwners.map(([,d])=>d.total),1);
-  const chartSection=`
-  <div class="chart-section" style="margin-bottom:24px">
-    <div class="section-title">Comparativa de churns por owner</div>
-    <div class="chart-bars" style="margin-top:16px">
-      ${realOwners.map(([o,d])=>{
-        const pct=Math.round(d.total/grand*100);
-        const undocPct=d.total?Math.round(d.sinMotivo/d.total*100):0;
-        const barColor=undocPct>50?'#ef4444':undocPct>30?'#f59e0b':'var(--accent)';
-        const undocLabel=undocPct>0?`<span style="color:${undocPct>40?'#ef4444':'#f59e0b'};font-weight:600">${undocPct}% sin doc</span>`:`<span style="color:#22c55e">✓ documentado</span>`;
-        return`<div class="chart-bar-row">
-          <div class="chart-bar-label" style="width:170px;font-size:13px;font-weight:500">${o.split(' ').slice(0,2).join(' ')}</div>
-          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(d.total/maxV*100,4)}%;background:${barColor}">${d.total}</div></div>
-          <div style="width:130px;text-align:right;font-size:11px;padding-left:8px">${pct}% del total · ${undocLabel}</div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
-
-  // Owner cards — clean design
-  const cardsHTML=realOwners.map(([o,data])=>{
-    const topReasons=Object.entries(data.reasons).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    const pct=Math.round(data.total/grand*100);
-    const undocPct=data.total?Math.round(data.sinMotivo/data.total*100):0;
-    const accentColor=pct>=20?'#ef4444':pct>=15?'#f59e0b':'var(--accent)';
-    return`<div class="owner-card" style="border-top:3px solid ${accentColor}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-        <div>
-          <div class="owner-name">${o}</div>
-          <div class="owner-meta" style="margin-bottom:0">${data.total} churns · ${pct}% del total</div>
-        </div>
-        <div style="font-size:24px;font-weight:800;color:${accentColor};line-height:1">${data.total}</div>
-      </div>
-      <div style="height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-bottom:12px">
-        <div style="height:100%;width:${Math.min(pct*4,100)}%;background:${accentColor};border-radius:2px"></div>
-      </div>
-      ${undocPct>0?`<div style="font-size:11px;background:#fef3c7;border-radius:6px;padding:5px 8px;margin-bottom:10px;display:flex;justify-content:space-between">
-        <span style="color:#92400e">⚠️ Sin documentar</span>
-        <strong style="color:#d97706">${data.sinMotivo} (${undocPct}%)</strong>
-      </div>`:''}
-      ${topReasons.length?`<div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Top motivos</div>
-      <div style="display:flex;flex-direction:column;gap:5px">${topReasons.map(([k,n],i)=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-          <span style="color:var(--text)">${HS_REASON[k]?HS_REASON[k].es:k}</span>
-          <span style="background:var(--bg);border-radius:10px;padding:1px 7px;font-weight:700;font-size:11px">${n}</span>
-        </div>`).join('')}</div>`:'<div style="font-size:11px;color:var(--muted);font-style:italic">Sin motivos registrados</div>'}
-    </div>`;
-  }).join('');
-
-  // Sin asignar — separate warning card
-  const sinCard=sinAsignar.total>0?`
-    <div class="owner-card" style="border-top:3px solid #ef4444;background:#fff5f5;grid-column:1/-1;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
-      <div style="flex:1;min-width:200px">
-        <div class="owner-name" style="color:#dc2626">⚠️ Sin asignar</div>
-        <div class="owner-meta">${sinAsignar.total} churns · ${Math.round(sinAsignar.total/grand*100)}% del total</div>
-      </div>
-      <div style="flex:2;min-width:200px;font-size:13px;color:#7f1d1d;line-height:1.6">
-        ${sinAsignar.sinMotivo>0?`<strong>${sinAsignar.sinMotivo} de ${sinAsignar.total}</strong> churns sin owner ni motivo documentado.`:''}
-        Estos registros no tienen Product Success Owner asignado en HubSpot. Asignarlos mejoraría la trazabilidad del churn.
-      </div>
-    </div>`:'' ;
-
-  document.getElementById('hsOwnersGrid').innerHTML=`${chartSection}<div class="owners-grid" style="margin-top:8px">${cardsHTML}${sinCard}</div>`;
-}
-
-// ============================================================
 // TOGGLE SUB-CHART
 // ============================================================
 function toggleSubChart(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
@@ -1678,6 +1721,7 @@ function toggleSubChart(id){const el=document.getElementById(id);if(el)el.classL
 // TABLE RENDERS
 // ============================================================
 function toggleXI(id){const el=document.getElementById('xi_'+id);if(el)el.classList.toggle('open');}
+function toggleNote(id){const el=document.getElementById('note_'+id);if(!el)return;const expanded=el.classList.toggle('note-expanded');el.querySelector('.note-toggle').textContent=expanded?'Ver menos ▲':'Ver más ▼';}
 function toggleCase(uid){
   const s=document.getElementById(uid+'_short'),f=document.getElementById(uid+'_full');
   if(!s||!f)return;
@@ -1695,12 +1739,13 @@ function renderTablaModjo(){
       <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria}</span></td>
+      <td><span class="cat-badge" style="background:#f3e8ff;color:#7c3aed">${r.subcategoria||'–'}</span></td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>
       <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>
-    ${hasDetail?`<tr><td colspan="9"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
   }).join('');
 }
 
@@ -1731,29 +1776,18 @@ function renderModjo(){if(currentMain==='modjo'||currentMain==='tabla-modjo')ren
 function renderHS(){if(currentMain==='hubspot'||currentMain==='tabla-hs')render();}
 
 function render(){
-  ['viewModjoInsights','viewModjoOwners','viewTablaModjo','viewHSInsights','viewHSOwners','viewTablaHS'].forEach(v=>document.getElementById(v).style.display='none');
+  ['viewModjoInsights','viewTablaModjo','viewHSInsights','viewTablaHS'].forEach(v=>document.getElementById(v).style.display='none');
   document.getElementById('filterModjo').style.display='none';
   document.getElementById('filterHS').style.display='none';
-  document.getElementById('subTabsRow').style.display='none';
-  document.getElementById('subTabsRowHS').style.display='none';
   if(currentMain==='modjo'){
     document.getElementById('filterModjo').style.display='flex';
-    document.getElementById('subTabsRow').style.display='flex';
-    if(currentSub==='insights'){document.getElementById('viewModjoInsights').style.display='block';renderModjoExecSummary();renderModjoKPI('kpiRowModjo');renderModjoInsights();}
-    else{document.getElementById('viewModjoOwners').style.display='block';renderModjoOwners();}
+    document.getElementById('viewModjoInsights').style.display='block';renderModjoExecSummary();renderModjoKPI('kpiRowModjo');renderModjoInsights();
   }else if(currentMain==='tabla-modjo'){
     document.getElementById('filterModjo').style.display='flex';
     document.getElementById('viewTablaModjo').style.display='block';renderTablaModjo();
   }else if(currentMain==='hubspot'){
     document.getElementById('filterHS').style.display='flex';
-    document.getElementById('subTabsRowHS').style.display='flex';
-    updateHSSubTabCounts();
-    document.querySelectorAll('#subTabsRowHS .sub-tab').forEach((t,i)=>t.classList.toggle('active',['insights','owners'][i]===hsCurrentSub));
-    if(hsCurrentSub==='insights'){
-      document.getElementById('viewHSInsights').style.display='block';renderHSKPI();renderHSExecSummary();renderHSTrend();renderHSInsights();
-    } else {
-      document.getElementById('viewHSOwners').style.display='block';renderHSOwners();
-    }
+    document.getElementById('viewHSInsights').style.display='block';renderHSKPI();renderHSExecSummary();renderHSTrend();renderHSInsights();
   }else if(currentMain==='tabla-hs'){
     document.getElementById('filterHS').style.display='flex';
     document.getElementById('viewTablaHS').style.display='block';renderTablaHS();
@@ -1763,11 +1797,11 @@ function switchMain(tab){
   currentMain=tab;
   const tabs=['modjo','tabla-modjo','hubspot','tabla-hs'];
   document.querySelectorAll('.main-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
-  render();
-}
-function switchSub(tab){
-  currentSub=tab;
-  document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',['insights','owners'][i]===tab));
+  // Reset period to current month on every tab switch
+  modjoperiod='month';
+  hsperiod='month';
+  document.querySelectorAll('.m-period').forEach(b=>b.classList.toggle('active',b.textContent==='Este mes'));
+  document.querySelectorAll('.hs-period').forEach(b=>b.classList.toggle('active',b.textContent==='Este mes'));
   render();
 }
 

@@ -1627,12 +1627,14 @@ function renderHSInsights(){
         ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
       </li>`;
     }).join('');
+    const hsRec=HS_RECOM_MAP[k];
     const exHTML=`
       <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
         ${tip&&tip!==`<strong>${label}</strong>`?`<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">¿Por qué ocurre?</div>
         <p style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:8px">${tip.replace(/<[^>]+>/g,'')}</p>`:''}
         ${realExamples?`<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Casos del período</div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">${realExamples}</ul>`:''}
+        ${hsRec?`<div style="margin-top:8px;background:#f0fdf4;border-radius:6px;padding:6px 8px;font-size:11px;color:#15803d"><strong>Acción:</strong> ${hsRec.action}</div>`:''}
       </div>`;
     return`<div class="insight-card">
       <div class="insight-card-header">

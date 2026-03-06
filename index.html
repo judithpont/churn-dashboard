@@ -202,7 +202,7 @@
     <div id="execSummaryModjo"></div>
     <div class="kpi-row" id="kpiRowModjo"></div>
     <div class="chart-section">
-      <div class="section-title">Distribución por categoría</div>
+      <div class="section-title">Distribución por categoría — haz clic en la barra para submotivos</div>
       <div class="chart-bars" id="chartModjo"></div>
     </div>
     <div class="section-title">Detalle por categoría</div>
@@ -371,6 +371,24 @@ function detSubCat(t,cat){
     if(score>bestScore){bestScore=score;best=sub;}
   }
   return best;
+}
+function detSubCats(t,cat){
+  const subs=SUB_CAT_KW[cat];
+  if(!subs)return['Otros'];
+  const tn=norm(t||'');
+  const found=[];
+  for(const[sub,kws]of Object.entries(subs)){
+    let score=0;
+    for(const k of kws){
+      const nk=norm(k);
+      const weight=k.includes(' ')?3:1;
+      let pos=0;
+      while((pos=tn.indexOf(nk,pos))!==-1){score+=weight;pos+=nk.length;}
+    }
+    if(score>0)found.push([sub,score]);
+  }
+  if(!found.length)return['Otros'];
+  return found.sort((a,b)=>b[1]-a[1]).map(([s])=>s);
 }
 
 // Detailed descriptions for Modjo insight cards
@@ -955,7 +973,7 @@ function procesarModjo(raw){
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
     if(seen.has(key))continue;seen.add(key);
     const cat=detCat(catText);
-    rows.push({owner,cliente,categoria:cat,subcategoria:detSubCat(catText,cat),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
+    rows.push({owner,cliente,categoria:cat,subcategoria:detSubCat(catText,cat),subcategorias:detSubCats(catText,cat),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
   }
   return rows;
 }
@@ -1582,7 +1600,7 @@ function renderHSInsights(){
       <div class="sub-chart" id="hsc${idx}">${subHTML}</div>`;
   }).join('');
 
-  // Insight cards
+  // Insight cards — same structure as Modjo "Detalle por categoría"
   document.getElementById('insightsHS').innerHTML=sorted.map(([k,recs],cardIdx)=>{
     const v=recs.length;
     const info=HS_REASON[k];
@@ -1590,30 +1608,42 @@ function renderHSInsights(){
     const tip=info?info.tip:`<strong>${label}</strong>`;
     const badgeCls=info?info.badge:'badge-neutral';
     const pct=Math.round(v/total*100);
-    const subCounts=buildSubCounts(k).slice(0,4);
-    const pills=subCounts.map(([s,n],i)=>`<span class="sub-pill ${PILL_COLORS[i]}">${s} <strong>${n}</strong></span>`).join('');
-    const noteRec=recs.find(r=>r.conclusion&&r.conclusion.length>20)||recs.find(r=>r.note&&r.note.length>20);
-    const noteFullText=noteRec?(noteRec.conclusion||noteRec.note||''):'';
-    const names=[...new Set(recs.map(r=>r.name))].slice(0,2).join(', ');
-    // For sin motivo card — show auto-groups
+    const subCounts=buildSubCounts(k).slice(0,5);
+    const pills=subCounts.map(([s,n],i)=>`<span class="sub-pill ${PILL_COLORS[i%PILL_COLORS.length]}">${s} <strong>${n}</strong></span>`).join('');
     const isNoReason=k==='Sin motivo registrado';
     const autoHTML=isNoReason?`<div class="sub-pills">${Object.entries(autoGroups).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([g,n],i)=>`<span class="sub-pill ${PILL_COLORS[i]}">${g} <strong>${n}</strong></span>`).join('')}</div>`:'';
-    const needsToggle=noteFullText.length>130;
-    const noteHTML=noteFullText&&!isNoReason?`
-      <div class="sub-note" id="note_hs${cardIdx}">
-        <span class="note-short">"${noteFullText.substring(0,130)}${needsToggle?'':''}"</span>
-        ${needsToggle?`<span class="note-full">"${noteFullText}"</span><button class="note-toggle" onclick="toggleNote('hs${cardIdx}')">Ver más ▼</button>`:''}
-      </div>`:'';
+    const names=[...new Set(recs.map(r=>r.name))].slice(0,3).join(', ');
+    // Real case examples (same pattern as Modjo)
+    const sampleRecs=recs.filter(r=>((r.conclusion||r.note||'')).trim().length>20).slice(0,3);
+    const realExamples=sampleRecs.map((r,ri)=>{
+      const full=(r.conclusion||r.note||'').trim();
+      const preview=full.substring(0,90);
+      const hasMore=full.length>90;
+      const uid=`hsc_${cardIdx}_${ri}`;
+      return`<li style="font-size:11px;color:#4b5563;line-height:1.6;padding:6px 8px;background:#f9fafb;border-radius:6px;cursor:pointer" onclick="toggleCase('${uid}')">
+        <span style="color:var(--accent);font-weight:700;margin-right:4px">·</span>
+        <strong>${r.name||'–'}:</strong>
+        <span id="${uid}_short"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
+        ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
+      </li>`;
+    }).join('');
+    const exHTML=`
+      <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+        ${tip&&tip!==`<strong>${label}</strong>`?`<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">¿Por qué ocurre?</div>
+        <p style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:8px">${tip.replace(/<[^>]+>/g,'')}</p>`:''}
+        ${realExamples?`<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Casos del período</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">${realExamples}</ul>`:''}
+      </div>`;
     return`<div class="insight-card">
       <div class="insight-card-header">
         <span class="insight-cat">${mkInfo(tip)} ${label}</span>
         <span class="insight-badge ${badgeCls}">${pct}%</span>
       </div>
       <div class="insight-count">${v}</div>
-      <div class="insight-sub">${pct}% del total · ${v} empresas</div>
+      <div class="insight-sub">${v} empresas · ${pct}% del total</div>
+      ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${names}${v>3?'…':''}</div>`:''}
       ${isNoReason?autoHTML:pills?`<div class="sub-pills">${pills}</div>`:''}
-      ${names&&!isNoReason?`<div style="font-size:11px;color:var(--muted);margin-top:6px">Ej: ${names}${v>2?'…':''}</div>`:''}
-      ${noteHTML}
+      ${(sampleRecs.length||tip&&tip!==`<strong>${label}</strong>`)?exHTML:''}
     </div>`;}).join('');
 
   document.getElementById('conclHS').innerHTML=hsConclHTML();
@@ -1739,7 +1769,7 @@ function renderTablaModjo(){
       <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria}</span></td>
-      <td><span class="cat-badge" style="background:#f3e8ff;color:#7c3aed">${r.subcategoria||'–'}</span></td>
+      <td>${(r.subcategorias&&r.subcategorias[0]!=='Otros'?r.subcategorias:r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]).map(s=>`<span class="cat-badge" style="background:#f3e8ff;color:#7c3aed;margin-right:3px">${s}</span>`).join('')||'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.displayText||'').substring(0,80)}${(r.displayText||'').length>80?'…':''}</td>

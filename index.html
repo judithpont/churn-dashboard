@@ -157,7 +157,7 @@
 <div class="filter-bar" id="filterModjo" style="display:none">
   <input type="text" class="search-input" id="fSearch" placeholder="🔍 Buscar empresa…" oninput="applyModjoFilters()"/>
   <select id="fOwner" onchange="applyModjoFilters()"><option value="">Todos los owners</option></select>
-  <select id="fCat" onchange="applyModjoFilters()"><option value="">Todas las categorías</option></select>
+  <select id="fCat" onchange="applyModjoFilters()"><option value="">Todos los motivos</option></select>
   <select id="fChurn" onchange="applyModjoFilters()">
     <option value="">Churn + No churn</option>
     <option value="si">Solo churn</option>
@@ -202,10 +202,10 @@
     <div id="execSummaryModjo"></div>
     <div class="kpi-row" id="kpiRowModjo"></div>
     <div class="chart-section">
-      <div class="section-title">Distribución por categoría — haz clic en la barra para submotivos</div>
+      <div class="section-title">Distribución por motivo — haz clic en la barra para submotivos</div>
       <div class="chart-bars" id="chartModjo"></div>
     </div>
-    <div class="section-title">Detalle por categoría</div>
+    <div class="section-title">Detalle por motivo</div>
     <div class="insights-grid" id="insightsModjo"></div>
     <div id="conclModjo"></div>
     <div id="recomModjo"></div>
@@ -1077,7 +1077,7 @@ function modjoConclHTML(){
     const subPills=subCounts.length?`<div class="sub-pills" style="margin-top:8px">${subCounts.map(([s,n],si)=>`<span class="sub-pill ${PILL_COLORS[si%PILL_COLORS.length]}">${s} <strong>${n}</strong></span>`).join('')}</div>`:'';
     // Top subcategory insight
     const topSub=subCounts[0];
-    const subInsight=topSub?`<div class="sub-note">📊 <strong>Submotivo principal:</strong> "${topSub[0]}" con ${topSub[1]} menciones (${Math.round(topSub[1]/data.total*100)}% de esta categoría). ${subCounts.length>1?`Seguido de "${subCounts[1][0]}" (${subCounts[1][1]}).`:''}</div>`:'';
+    const subInsight=topSub?`<div class="sub-note">📊 <strong>Submotivo principal:</strong> "${topSub[0]}" con ${topSub[1]} menciones (${Math.round(topSub[1]/data.total*100)}% de este motivo). ${subCounts.length>1?`Seguido de "${subCounts[1][0]}" (${subCounts[1][1]}).`:''}</div>`:'';
     return`<div class="concl-item">
       <h3><span class="concl-freq ${freqClass(data.churn)}">${freqLabel(data.churn)}</span> ${i+1}. ${cat}</h3>
       <p style="font-size:12px;color:var(--muted);margin-bottom:6px"><strong>${data.churn} churns</strong> de ${data.total} llamadas en el período (${churnRate}% tasa) — ${Math.round(data.churn/totalChurns*100)}% del churn total.</p>
@@ -1100,7 +1100,7 @@ function modjoConclHTML(){
       ${itemsHTML}
       <div class="pattern-box">
         <h3>⚠️ Patrón crítico detectado en el período</h3>
-        <p>La categoría dominante es <strong>${topCat}</strong>${top2&&top2!==topCat?' seguida de <strong>'+top2+'</strong>':''}. La mayoría de los churns no son instantáneos: los clientes dan señales durante semanas antes de cancelar. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.</p>
+        <p>El motivo dominante es <strong>${topCat}</strong>${top2&&top2!==topCat?' seguido de <strong>'+top2+'</strong>':''}. La mayoría de los churns no son instantáneos: los clientes dan señales durante semanas antes de cancelar. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.</p>
       </div>
     </div>
   </div>`;
@@ -1159,7 +1159,7 @@ function hsConclHTML(){
       </div>`:''}
       <div class="pattern-box" style="margin-top:16px">
         <h3>⚠️ Patrón crítico — HubSpot CRM</h3>
-        <p>Los motivos con mayor volumen comparten una raíz común: <strong>la expectativa del cliente no se alineó con lo que el servicio ofrece</strong>. Esto ocurre principalmente en el proceso de ventas. El sub-motivo transversal más frecuente en múltiples categorías es <strong>"High-Touch Expectation"</strong>: el cliente esperaba atención personalizada y continua que el modelo APP/IA no proporciona por diseño.</p>
+        <p>Los motivos con mayor volumen comparten una raíz común: <strong>la expectativa del cliente no se alineó con lo que el servicio ofrece</strong>. Esto ocurre principalmente en el proceso de ventas. El sub-motivo transversal más frecuente en múltiples motivos es <strong>"High-Touch Expectation"</strong>: el cliente esperaba atención personalizada y continua que el modelo APP/IA no proporciona por diseño.</p>
       </div>
     </div>
   </div>`;
@@ -1284,11 +1284,11 @@ function renderModjoExecSummary(){
     <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#85D630;font-weight:700;margin-bottom:8px">Executive Summary — Llamadas Modjo</div>
     <div style="font-size:15px;line-height:1.7;margin-bottom:12px">
       Se analizaron <strong style="color:#fff">${t} llamadas</strong> en el período, de las cuales <strong style="color:#ef4444">${c} son churns</strong> — una tasa del <strong style="color:#f59e0b">${rate}%</strong>.
-      ${top3.length?`Las 3 categorías con más churns representan el <strong style="color:#85D630">${top3pctOfChurn}%</strong> del churn total: ${top3Labels}.`:''}
+      ${top3.length?`Los 3 motivos con más churns representan el <strong style="color:#85D630">${top3pctOfChurn}%</strong> del churn total: ${top3Labels}.`:''}
       ${topOwner?`El owner con más churns en el período es <strong style="color:#fff">${topOwner[0]}</strong> (${topOwner[1]} churns).`:''}
     </div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;margin-top:4px">
-      <div><div style="font-size:11px;color:#9ca3af">Prioridad 1</div><div style="font-size:13px;color:#fff;font-weight:600">${top3[0]?`Reducir churns en categoría ${top3[0]}`:'Revisar categorías principales'}</div></div>
+      <div><div style="font-size:11px;color:#9ca3af">Prioridad 1</div><div style="font-size:13px;color:#fff;font-weight:600">${top3[0]?`Reducir churns en motivo ${top3[0]}`:'Revisar motivos principales'}</div></div>
       <div><div style="font-size:11px;color:#9ca3af">Prioridad 2</div><div style="font-size:13px;color:#fff;font-weight:600">Documentar 100% de llamadas de churn</div></div>
       <div><div style="font-size:11px;color:#9ca3af">Prioridad 3</div><div style="font-size:13px;color:#fff;font-weight:600">Compartir insights con equipo de ventas y producto</div></div>
     </div>
@@ -1842,7 +1842,7 @@ function switchMain(tab){
 function initFilters(){
   document.getElementById('fOwner').innerHTML='<option value="">Todos los owners</option>'+DUENOS.map(d=>`<option value="${d}">${d}</option>`).join('');
   const cats=Object.keys(CAT_KW);
-  document.getElementById('fCat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  document.getElementById('fCat').innerHTML='<option value="">Todos los motivos</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
   const reasons=[...new Set(HS_DATA.map(r=>r.churn_reason).filter(Boolean))].sort();
   document.getElementById('fHSReason').innerHTML='<option value="">Todos los motivos</option>'+reasons.map(r=>{const i=HS_REASON[r];return`<option value="${r}">${i?i.es:r}</option>`;}).join('');
   const hsOwners=[...new Set(HS_DATA.map(r=>r.owner).filter(Boolean))].sort();

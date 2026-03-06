@@ -394,114 +394,114 @@ function detSubCats(t,cat){
 // Detailed descriptions for Modjo insight cards
 const CAT_DESC={
   'Fallo en la plataforma': {
-    porque: 'La plataforma falla antes de que el cliente haya recibido valor real. El problema más crítico es la vinculación de redes sociales: si Instagram o Facebook no se conectan en los primeros días, el cliente pierde confianza de forma irreversible.',
+    porque: 'La plataforma falla antes de que el cliente haya recibido valor real. El problema más crítico es la vinculación de redes sociales: si Instagram o Facebook no se conectan en los primeros días, el cliente pierde confianza de forma irreversible. Al ser un producto self-serve, el cliente no tiene a quién acudir cuando algo no funciona, lo que agrava el impacto.',
     ejemplos: [
       'Cuenta de Instagram desvinculada — las publicaciones no se publican desde hace semanas sin solución',
       'Error inesperado en el sistema de pagos que generó una reclamación inmediata',
       'Publicaciones programadas que no aparecen en el perfil del cliente durante días',
       'Cuenta vinculada incorrectamente — nunca llegó a publicarse ningún contenido'
     ],
-    accion: 'Checklist de vinculación en primeras 48h. Alertas automáticas si no hay publicaciones en 72h.'
+    accion: 'Checklist de vinculación guiado en la app en primeras 48h. Alerta automática in-app si no hay publicaciones en 72h. FAQ de errores comunes de vinculación accesible desde el primer paso del alta.'
   },
   'Cierre de venta forzado': {
-    porque: 'El cliente firmó sin entender completamente las condiciones. Falta de claridad sobre el periodo de prueba, la política de cancelación o los compromisos adquiridos en el momento del cierre.',
+    porque: 'El cliente firmó sin entender completamente las condiciones. En un modelo self-serve, la falta de claridad sobre el período de prueba, la política de cancelación o los compromisos adquiridos genera reclamaciones y bajas tempranas difíciles de revertir.',
     ejemplos: [
       'Cliente que no sabía que contratar la prueba gratuita implicaba un compromiso posterior de pago',
       'Cargo recibido sin aviso — el cliente pensaba que había cancelado antes del período de facturación',
       'Vendedor que cerró sin explicar el preaviso de 20 días para cancelar',
       'Cliente que firmó sin recibir la información completa sobre el contrato'
     ],
-    accion: 'Confirmación escrita de condiciones en el alta. Resumen de política de cancelación obligatorio.'
+    accion: 'Pantalla de confirmación explícita de condiciones antes del alta. Email automático con resumen de condiciones y política de cancelación. Aviso in-app 5 días antes de cualquier cargo recurrente.'
   },
   'Mala comunicacion en ventas': {
-    porque: 'Las expectativas creadas en ventas no coinciden con la realidad del servicio. El cliente llega con promesas que el equipo de CS no puede cumplir, generando frustración desde el primer mes.',
+    porque: 'Las expectativas creadas en ventas no coinciden con lo que el producto realmente entrega en self-serve. El cliente llega esperando un servicio de agencia y encuentra una herramienta de IA autónoma, generando frustración desde el primer mes.',
     ejemplos: [
       'Cliente que esperaba resultados concretos en semanas basándose en lo que le dijeron en ventas',
       'Funcionalidad prometida que no existe en la plataforma actual',
       'El cliente compró un plan pensando que incluía algo que no estaba contemplado',
-      'Discrepancia entre lo que explicó el comercial y lo que entrega el equipo de CS'
+      'Discrepancia entre lo que explicó el comercial y lo que entrega la plataforma'
     ],
-    accion: 'Alinear el discurso de ventas con la realidad del producto. Handoff estructurado ventas-CS.'
+    accion: 'Demo interactiva del producto antes del cierre para que el cliente experimente el flujo real. Email automatizado post-venta con "qué esperar en los primeros 30 días". Alinear el discurso de ventas con la propuesta self-serve.'
   },
   'Problemas de calidad': {
-    porque: 'El contenido generado es genérico y no refleja la identidad ni el sector del cliente. Los negocios de nicho sienten que la IA no captura su voz, su cliente objetivo ni su propuesta de valor.',
+    porque: 'El contenido generado es genérico y no refleja la identidad ni el sector del cliente. En un modelo sin intervención humana, la calidad depende completamente del brief inicial: si este es pobre, el output de la IA no mejora sin que el propio cliente lo corrija.',
     ejemplos: [
       'Publicaciones completamente irrelevantes para la marca y el sector del cliente',
       'Contenido que no respeta el tono ni el idioma local del negocio',
       'Negocio muy específico cuyo contenido parece generado para otra empresa',
       'Semanas pidiendo cambios de estilo sin que se reflejen en las propuestas'
     ],
-    accion: 'Reforzar el brief inicial. Revisión humana obligatoria del primer mes de contenido.'
+    accion: 'Brief guiado con ejemplos visuales en el alta. Flujo de feedback in-app para rechazar y regenerar propuestas. Recordatorio automático para completar el brief si hay campos vacíos.'
   },
   'Sin impacto real en su negocio': {
-    porque: 'El cliente no percibe ningún cambio en su negocio desde que usa el servicio. Sin métricas claras ni comunicación de resultados, la percepción de valor se deteriora rápidamente.',
+    porque: 'El cliente no percibe ningún cambio en su negocio desde que usa el servicio. En self-serve, sin nadie que comunique resultados de forma proactiva, la percepción de valor se deteriora en silencio hasta que el cliente decide cancelar.',
     ejemplos: [
       'Meses de uso sin ver conversión en ventas ni clientes nuevos',
       'Publicaciones manuales del cliente generaban más tráfico que las de la plataforma',
       'Más de 20 propuestas de contenido enviadas sin mejora percibida en el negocio',
       'No hay diferencia perceptible entre antes y después de contratar el servicio'
     ],
-    accion: 'Informe mensual automático de métricas. Llamada proactiva al mes 2 si no hay mejora detectable.'
+    accion: 'Informe mensual automático de métricas directamente en la app y por email. Notificación in-app al mes 2 si el engagement no mejora, con sugerencias accionables de mejora del brief. Dashboard de resultados visible desde el primer acceso.'
   },
   'Promesa irreal': {
-    porque: 'Se vendió el servicio con promesas que el producto no puede cumplir por diseño: leads garantizados, resultados en plazos muy cortos o métricas concretas no realistas.',
+    porque: 'Se vendió el servicio con promesas que la plataforma self-serve no puede cumplir: leads garantizados, atención personalizada o resultados en plazos no realistas. El cliente llega con expectativas de agencia y encuentra una herramienta autónoma.',
     ejemplos: [
       'Se garantizaron leads en el primer mes — el cliente no obtuvo ninguno',
       'Vendedor que prometió posicionamiento en Google sin que el plan lo incluya',
       'Resultados asegurados que el modelo de negocio del cliente no puede generar con RRSS',
       'Expectativa de crecimiento de seguidores que no es parte del alcance del servicio'
     ],
-    accion: 'Eliminar garantías de resultados del discurso de ventas. Establecer expectativas medibles y honestas.'
+    accion: 'Eliminar garantías de resultados del discurso de ventas. Página de "qué incluye y qué no incluye" visible antes del alta. Expectativas de resultados realistas y medibles en los materiales de venta.'
   },
   'Negocio cerrado': {
-    porque: 'El cliente se va porque ha cerrado su negocio o ha dejado de operar. No es atribuible al servicio, pero puede anticiparse con señales de riesgo.',
+    porque: 'El cliente se va porque ha cerrado su negocio o ha dejado de operar. No es atribuible al servicio, pero en self-serve no hay señales de riesgo visibles y el churn llega sin previo aviso.',
     ejemplos: [
       'Cliente que cierra su negocio por insolvencia',
       'Cambio de actividad profesional — el servicio ya no aplica a su nueva situación',
       'Venta o traspaso del negocio al que estaba asociado el servicio',
       'Jubilación o cambio de situación personal que lleva al cierre'
     ],
-    accion: 'Registrar motivo en HubSpot. Ofrecer pausa de cuenta como alternativa al churn definitivo.'
+    accion: 'Opción de pausa de cuenta visible en el flujo de cancelación como alternativa al churn definitivo. Encuesta automática de salida para registrar el motivo real.'
   },
   'Fuera del alcance del plan': {
-    porque: 'La plataforma no soporta algo que el cliente necesita específicamente: LinkedIn, idiomas distintos del castellano, carga de archivos desde ordenador, o gestión multi-cuenta.',
+    porque: 'La plataforma no soporta algo que el cliente necesita específicamente: LinkedIn, idiomas distintos del castellano, carga de archivos, o gestión multi-cuenta. En self-serve, el cliente descubre estas limitaciones solo después de haber contratado.',
     ejemplos: [
       'Necesita gestionar LinkedIn y la plataforma no lo permite — limitación explícita confirmada',
       'Lleva semanas esperando soporte en catalán sin solución',
       'Necesita subir archivos desde el ordenador y solo funciona desde móvil',
       'Necesita gestionar múltiples cuentas y la plataforma no lo soporta'
     ],
-    accion: 'Comunicar limitaciones del producto ANTES de vender. Roadmap público de mejoras.'
+    accion: 'Sección "Esto no incluye el plan" visible antes del alta. Roadmap público de funcionalidades en desarrollo. Filtro de compatibilidad en el onboarding para detectar casos fuera de alcance antes del cobro.'
   },
   'Problema de soporte': {
-    porque: 'El cliente no recibe respuesta o la recibe tarde y de personas distintas cada vez. La falta de continuidad y el SLA incumplido generan frustración acumulada que termina en baja.',
+    porque: 'El cliente no recibe respuesta o la recibe tarde. En un modelo self-serve, el soporte debe ser ágil y resolutivo sin necesitar escalado humano: si el cliente no puede resolver sus dudas de forma autónoma, la frustración lleva directamente a la baja.',
     ejemplos: [
       'Más de 20 mensajes enviados sin recibir feedback del equipo',
       'Múltiples reclamaciones sin respuesta — cancela de forma agresiva tras semanas de silencio',
       'Ha pedido la baja varias veces sin recibir una respuesta clara sobre el proceso',
-      'Cada vez que llama habla con una persona diferente que no conoce su caso'
+      'Cada vez que escribe recibe una respuesta genérica que no resuelve su problema'
     ],
-    accion: 'SLA de respuesta de 24h documentado y medido. Asignar un interlocutor fijo por cliente.'
+    accion: 'Centro de ayuda self-serve con búsqueda por problema. Respuesta automática de confirmación en menos de 2h. SLA de resolución de 24h medido y visible. Flujo de cancelación claro y autogestionable desde la cuenta.'
   },
   'Fallo en el onboarding': {
-    porque: 'El cliente no entiende el producto después de la compra. El proceso de alta no transmite con claridad cómo funciona el flujo de aprobación, por lo que el cliente no sabe qué hacer ni a quién acudir.',
+    porque: 'El cliente no entiende el producto después de la compra. En self-serve, si el onboarding no guía al cliente de forma completamente autónoma hasta que publica su primer contenido, la probabilidad de churn en los primeros 30 días se dispara.',
     ejemplos: [
       'Lleva meses en la plataforma y todavía no sabe cómo solicitar un cambio en una publicación',
       'Pregunta cómo funciona el proceso de aprobación después de varias semanas de alta',
       'No ha vinculado sus cuentas correctamente — nadie le avisó de que era necesario',
-      'No entiende qué incluye el plan ni cómo comunicarse con el equipo'
+      'No entiende qué incluye el plan ni cómo usar la plataforma de forma autónoma'
     ],
-    accion: 'Vídeo de onboarding de 3 min. Llamada de bienvenida obligatoria en los primeros 7 días.'
+    accion: 'Flujo de onboarding guiado paso a paso hasta la primera publicación aprobada. Vídeos cortos in-app por cada acción clave. Recordatorio automático si el cliente no completa el onboarding en 72h.'
   },
   'No justifica precio': {
-    porque: 'El cliente cancela principalmente por motivos económicos: el servicio es demasiado caro para el valor percibido, hay un cobro inesperado, o simplemente no cabe en su presupuesto actual.',
+    porque: 'El cliente cancela principalmente por percepción de bajo valor: el servicio es caro para lo que recibe de forma autónoma, hay un cobro inesperado, o simplemente no cabe en su presupuesto. En self-serve, sin nadie que defienda el valor, el precio es lo primero que se cuestiona.',
     ejemplos: [
       'Cancela por un cobro inesperado — no sabía que el servicio era recurrente',
       'Recibió un cargo después de pedir la baja — generó una reclamación formal',
       'Recorte de presupuesto en marketing — el servicio es lo primero que elimina',
       'Considera que el precio no justifica los resultados obtenidos hasta ahora'
     ],
-    accion: 'Clarificar política de cancelación en el alta. Ofrecer plan de menor coste antes del churn definitivo.'
+    accion: 'Aviso automático antes de cada renovación con resumen de valor generado. Opción de downgrade o pausa visible antes del botón de cancelar. Política de cancelación clara y autogestionable desde la cuenta.'
   }
 };
 
@@ -524,9 +524,9 @@ const CAT_TIP={
   'Fuera del alcance del plan':
     '<strong>Fuera del alcance del plan</strong>La plataforma no cubre lo que el cliente necesita.<br>· "Necesito gestionar LinkedIn y no podéis"<br>· No permite subir archivos desde el ordenador<br>· Sin soporte en catalán u otros idiomas',
   'Problema de soporte':
-    '<strong>Problema de soporte</strong>No recibe respuesta o atención adecuada.<br>· "Mandé un mensaje hace días y nadie contestó"<br>· Cada vez habla con una persona diferente<br>· Sin interlocutor fijo ni SLA claro',
+    '<strong>Problema de soporte</strong>El cliente no puede resolver sus dudas de forma autónoma y no recibe respuesta ágil.<br>· "Mandé un mensaje hace días y nadie contestó"<br>· Sin centro de ayuda self-serve accesible, cada duda requiere contacto humano<br>· Acción: centro de ayuda con búsqueda y SLA de respuesta de 24h medido',
   'Fallo en el onboarding':
-    '<strong>Fallo en el onboarding</strong>El cliente no entiende cómo funciona el servicio tras el alta.<br>· "¿Cómo funciona el proceso de aprobación?"<br>· Semanas sin vincular cuentas — nadie le avisó<br>· Sin llamada de bienvenida ni guía de uso',
+    '<strong>Fallo en el onboarding</strong>El cliente no llega a activarse de forma autónoma en la plataforma.<br>· "¿Cómo funciona el proceso de aprobación?"<br>· Semanas sin vincular cuentas — sin guía in-app que lo detecte<br>· Acción: onboarding guiado paso a paso y recordatorio automático a las 72h si no completa la activación',
   'No justifica precio':
     '<strong>No justifica precio</strong>El servicio es demasiado caro para el valor percibido.<br>· Cobro inesperado o error en el cargo<br>· Recorte de presupuesto en marketing<br>· "No vale lo que cuesta dados los resultados"'
 };
@@ -541,68 +541,68 @@ const HS_DATA=[{"id":"396417534153","name":"Alejandro Peláez Rodríguez","churn
 const HS_REASON={
   'Forced Sales Closing':{
     es:'Cierre de venta forzado', badge:'badge-danger',
-    tip:'<strong>Cierre de venta forzado</strong>El cliente fue presionado para contratar sin estar convencido.<br>Suele asociarse a clientes con baja convicción inicial que terminan cancelando pronto.',
-    desc:'El cliente firmó sin estar completamente convencido, con frecuencia por presión comercial o porque no entendió bien el producto. El sub-motivo más frecuente es "Low Commitment / Buyer\'s Remorse" (8 casos): el cliente nunca estuvo realmente comprometido.',
+    tip:'<strong>Cierre de venta forzado</strong>El cliente firmó sin entender bien las condiciones del servicio self-serve.<br>· Baja convicción desde el inicio — esperaba más acompañamiento humano<br>· Cobro inesperado tras prueba gratuita no bien explicada<br>· Acción: confirmación explícita de condiciones en el alta y aviso automático antes del primer cargo.',
+    desc:'El cliente firmó sin estar completamente convencido o sin entender que Plinng es una plataforma self-serve, no una agencia. El sub-motivo más frecuente es baja convicción inicial: el cliente nunca estuvo realmente comprometido con el modelo de producto.',
     subs:['Arrepentimiento / baja convicción (8)','Cobro sin entrega esperada (3)','Falta de presupuesto (2)','Confusión sobre el precio (1)','Cambio a competidor antes de pagar (1)']
   },
   'Sales Miscommunication':{
     es:'Mala comunicación en ventas', badge:'badge-danger',
-    tip:'<strong>Mala comunicación en ventas</strong>El cliente recibió información incorrecta o incompleta durante la venta.',
-    desc:'La expectativa del cliente no coincidió con lo que el servicio realmente ofrece. Incluye malentendidos sobre la prueba gratuita, el precio o el modelo de producto (APP/IA vs. agencia tradicional).',
+    tip:'<strong>Mala comunicación en ventas</strong>El cliente entró esperando un servicio distinto al modelo self-serve de Plinng.<br>· Expectativa de atención personalizada tipo agencia<br>· Rechazo al modelo APP/IA cuando lo descubre en uso<br>· Acción: demo interactiva del flujo real antes del cierre y email automático con "qué esperar en los primeros 30 días".',
+    desc:'La expectativa del cliente no coincidió con lo que Plinng realmente ofrece como plataforma self-serve. Incluye malentendidos sobre la prueba gratuita, el precio o el modelo de producto (APP/IA autónoma vs. agencia con gestión humana).',
     subs:['Malentendido prueba gratuita (1)','Baja convicción / arrepentimiento (2)','Expectativa de atención personalizada (2)','Rechazo al modelo APP/IA (2)','Confusión sobre precio/plan (1)']
   },
   'Quality Issues':{
     es:'Problemas de calidad', badge:'badge-danger',
-    tip:'<strong>Problemas de calidad</strong>El contenido o servicio entregado no cumple la calidad esperada.',
-    desc:'El sub-motivo dominante es "Personalization Gap" (4 casos): el contenido es genérico y no refleja el negocio ni el sector del cliente. También aparecen fallos en la entrega de la web y errores repetidos en las correcciones.',
+    tip:'<strong>Problemas de calidad</strong>El contenido generado por la IA no refleja la identidad del negocio del cliente.<br>· Brief inicial insuficiente — la IA no tiene datos para personalizar<br>· El cliente no sabe cómo mejorar el brief de forma autónoma<br>· Acción: brief guiado obligatorio en el alta y flujo de feedback in-app para regenerar propuestas.',
+    desc:'El sub-motivo dominante es la falta de personalización: el contenido es genérico porque el brief inicial es pobre y el cliente no sabe cómo mejorarlo de forma autónoma. En un modelo self-serve sin revisión humana, un brief deficiente se traduce directamente en churn.',
     subs:['Falta de personalización (4)','Expectativa de atención personalizada (2)','Web no entregada en plazo (2)','Contenido no alineado al sector (2)','Bugs funcionales (1)']
   },
   'Poor CX / Platform Issues':{
     es:'Fallos de plataforma / CX', badge:'badge-danger',
-    tip:'<strong>Fallos de plataforma / CX</strong>Errores técnicos o mala experiencia de uso con la plataforma.',
-    desc:'El problema más recurrente es "Connection RRSS Failure" (4 casos): las cuentas de Instagram/Facebook no se vinculan correctamente. Le siguen problemas de personalización, retrasos en entregas y publicaciones que no se ejecutan según el calendario.',
+    tip:'<strong>Fallos de plataforma / CX</strong>Errores técnicos que bloquean al cliente antes de recibir valor real.<br>· Vinculación de Instagram/Facebook fallida sin guía clara<br>· Publicaciones que no se ejecutan sin alerta automática<br>· Acción: checklist de vinculación guiado y alerta automática in-app si no hay publicaciones en 72h.',
+    desc:'El problema más recurrente es el fallo de vinculación de redes sociales. Al ser self-serve, el cliente no sabe cómo resolverlo sin ayuda. Le siguen retrasos en entregas y publicaciones que no se ejecutan sin notificación.',
     subs:['Fallo de vinculación RRSS (4)','Falta de personalización (3)','Retrasos en entrega (2)','Publicaciones no ejecutadas (2)','Fallo de Maya en onboarding (2)']
   },
   'Does not see impact on their business':{
     es:'Sin impacto en su negocio', badge:'badge-warning',
-    tip:'<strong>Sin impacto en su negocio</strong>El cliente no percibe resultados tangibles para su negocio.',
-    desc:'El cliente lleva semanas o meses usando el servicio sin ver conversión en ventas, leads o alcance. En varios casos hay solapamiento con el Kit Digital activo, lo que reduce el valor diferencial percibido.',
+    tip:'<strong>Sin impacto en su negocio</strong>El cliente no percibe resultados desde el uso autónomo de la plataforma.<br>· Sin dashboard de métricas visible, el valor pasa desapercibido<br>· Nadie comunica los resultados de forma proactiva en self-serve<br>· Acción: informe automático mensual y notificación in-app si el engagement no mejora al mes 2.',
+    desc:'El cliente lleva semanas o meses usando la plataforma de forma autónoma sin percibir ningún impacto en su negocio. En self-serve, sin nadie que comunique resultados, la percepción de valor se deteriora en silencio.',
     subs:['Valor no percibido (1)','Malentendido prueba gratuita (1)','Solapamiento con Kit Digital (1)','Expectativa de atención personalizada (1)']
   },
   'Support or Service Issues':{
     es:'Problemas de soporte', badge:'badge-warning',
-    tip:'<strong>Problemas de soporte</strong>El cliente no recibe respuesta o atención adecuada.',
-    desc:'Patrón frecuente: el cliente envía mensajes o solicitudes de cambio y no recibe respuesta durante días. También aparece el patrón de hablar con distintos agentes sin continuidad. En este grupo, ningún registro tiene sub-motivo documentado.',
+    tip:'<strong>Problemas de soporte</strong>El cliente no puede resolver sus problemas de forma autónoma y no recibe respuesta ágil.<br>· Sin centro de ayuda self-serve accesible, cada duda requiere contacto humano<br>· Flujo de cancelación poco claro<br>· Acción: centro de ayuda con búsqueda, confirmación automática de tickets y baja autogestionable.',
+    desc:'El cliente envía mensajes o solicitudes sin recibir respuesta ágil. En un modelo self-serve, el soporte debe resolverse sin escalado humano: si el cliente no puede encontrar la solución por sí mismo, la frustración se acumula hasta la baja.',
     subs:[]
   },
   'Business Closed':{
     es:'Negocio cerrado', badge:'badge-neutral',
-    tip:'<strong>Negocio cerrado</strong>El cliente ha cerrado o pausado definitivamente su negocio.',
-    desc:'El cliente cancela porque su negocio ha dejado de operar. El sub-motivo más frecuente es "Insolvency" (2 casos): cierre por problemas económicos. No es atribuible al servicio.',
+    tip:'<strong>Negocio cerrado</strong>El cliente ha cerrado o dejado de operar su negocio.<br>· No atribuible al servicio — churn inevitable<br>· Acción: opción de pausa de cuenta en el flujo de cancelación y encuesta automática de salida.',
+    desc:'El cliente cancela porque su negocio ha dejado de operar. No es atribuible al servicio. En self-serve, el único lever es facilitar una pausa de cuenta como alternativa al churn definitivo y capturar el motivo con una encuesta automática.',
     subs:['Insolvencia (2)','Disolución de empresa (1)']
   },
   'Unrealistic promise':{
     es:'Promesa irreal', badge:'badge-danger',
-    tip:'<strong>Promesa irreal</strong>Se prometió al cliente algo que el servicio no puede cumplir.',
-    desc:'El cliente esperaba resultados que el servicio no puede garantizar (ventas directas, atención tipo agencia). "Traditional Agency-Style Expectation" (2 casos): el cliente esperaba un servicio de community manager personalizado, no una plataforma APP/IA.',
+    tip:'<strong>Promesa irreal</strong>Se vendió Plinng como un servicio con atención humana que la plataforma self-serve no ofrece.<br>· Expectativa de community manager dedicado vs. herramienta de IA autónoma<br>· Leads o ventas garantizadas que ninguna herramienta self-serve puede asegurar<br>· Acción: eliminar garantías de resultados y mostrar "qué incluye y qué no" antes del alta.',
+    desc:'El cliente esperaba resultados o niveles de servicio que Plinng, como plataforma self-serve, no puede ofrecer: atención personalizada tipo agencia, leads garantizados o crecimiento de seguidores asegurado.',
     subs:['Expectativa de servicio tipo agencia (2)','Rechazo al modelo de producto (1)','Rechazo al modelo APP/IA (1)','Expectativa de atención personalizada (1)','Web no entregada en plazo (1)']
   },
   'Outside The Scope of the Plan':{
     es:'Fuera del alcance del plan', badge:'badge-warning',
-    tip:'<strong>Fuera del alcance</strong>El cliente necesita algo que el plan contratado no incluye.',
-    desc:'El cliente requiere funcionalidades o niveles de servicio que van más allá de lo que el plan ofrece: cambios diarios, gestión de LinkedIn, servicio personalizado tipo legacy.',
+    tip:'<strong>Fuera del alcance del plan</strong>El cliente necesita funcionalidades que la plataforma self-serve no incluye.<br>· LinkedIn no soportado, idiomas no disponibles, gestión multi-cuenta<br>· El cliente lo descubre tras contratar, no antes<br>· Acción: filtro de compatibilidad en el onboarding y sección "esto no incluye el plan" visible antes del alta.',
+    desc:'El cliente requiere funcionalidades que van más allá del plan self-serve: LinkedIn, cambios diarios, gestión multi-cuenta o servicio personalizado. Estas limitaciones deben comunicarse antes del alta para evitar churns evitables.',
     subs:['Expectativa de atención personalizada (1)','LinkedIn no soportado (1)','Servicio legacy personalizado (1)']
   },
   'Onboarding Failure':{
     es:'Fallo en el onboarding', badge:'badge-warning',
-    tip:'<strong>Fallo en el onboarding</strong>El cliente nunca llegó a entender ni usar bien el servicio.',
-    desc:'El cliente no llegó a vincularse correctamente con la plataforma desde el inicio. En 2 casos hay "Payment vs. Delivery Misalignment": el cliente fue cobrado antes de recibir el servicio, lo que generó desconfianza desde el primer día.',
+    tip:'<strong>Fallo en el onboarding</strong>El cliente no llega a activarse de forma autónoma en la plataforma.<br>· Sin vinculación de RRSS completada, la plataforma no entrega valor<br>· Cobro antes de recibir el servicio genera desconfianza desde el día 1<br>· Acción: onboarding guiado paso a paso hasta la primera publicación y recordatorio automático a las 72h.',
+    desc:'El cliente no llega a vincularse correctamente con la plataforma desde el inicio. En self-serve, si el onboarding no guía al cliente de forma completamente autónoma hasta la primera publicación, la probabilidad de churn en los primeros 30 días se dispara.',
     subs:['Cobro sin entrega esperada (2)','Necesidad de gestión multi-cuenta (1)']
   },
   'WTP < Cost':{
     es:'No justifica el precio', badge:'badge-ok',
-    tip:'<strong>No justifica el precio</strong>El valor percibido es inferior al coste del servicio.',
-    desc:'En 4 de los 6 casos el sub-motivo es "Lack of Budget": el cliente simplemente no puede asumir el gasto mensual, independientemente de la satisfacción con el servicio.',
+    tip:'<strong>No justifica el precio</strong>El valor percibido del servicio self-serve es inferior al coste mensual.<br>· Sin nadie que comunique resultados, el precio se cuestiona fácilmente<br>· Cobros sin aviso previo aceleran la decisión de cancelar<br>· Acción: aviso automático antes de cada renovación con resumen de valor generado y opción de downgrade visible.',
+    desc:'El cliente no percibe suficiente valor del servicio autónomo para justificar el coste. En self-serve, sin nadie que defienda el valor generado, el precio es lo primero que se cuestiona cuando los resultados no son visibles.',
     subs:['Falta de presupuesto (4)']
   }
 };
@@ -1173,11 +1173,11 @@ function toggleConcl(h){const b=h.nextElementSibling,t=h.querySelector('.concl-t
 const HS_RECOM_MAP={
   'Forced Sales Closing':       {icon:'🤝',area:'Ventas',priority:'alta',action:'Implementar confirmación post-venta (24h tras el cierre): resumen escrito de qué incluye y qué NO incluye el servicio, firmado por el cliente antes de activar el cobro.',kpi:'Reducir churns en los primeros 30 días'},
   'Sales Miscommunication':     {icon:'📢',area:'Ventas',priority:'alta',action:'Crear un "kit de expectativas" obligatorio en el cierre: ficha clara de qué es y qué NO es el servicio (sin atención 1:1 continua, modelo APP/IA). Revisión del guión de ventas.',kpi:'Reducir High-Touch Expectation'},
-  'Quality Issues':             {icon:'✏️',area:'CS / Contenido',priority:'alta',action:'Brief personalizado mínimo de 10 preguntas antes de activar la cuenta. Revisión humana obligatoria del primer mes de contenido para nichos específicos.',kpi:'Reducir Personalization Gap'},
-  'Poor CX / Platform Issues':  {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist técnico de vinculación de RRSS en las primeras 48h del alta. Alerta automática si las cuentas no están conectadas a los 3 días.',kpi:'Eliminar fallos de vinculación en onboarding'},
-  'Does not see impact on their business':{icon:'📈',area:'CS / Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones). Llamada proactiva al mes 2 si no hay mejora detectable vs. baseline.',kpi:'Aumentar retención meses 2-3'},
-  'Unrealistic Promise':        {icon:'🎯',area:'Ventas',priority:'alta',action:'Revisar script de ventas eliminando promesas de resultados inmediatos. Establecer expectativas realistas: resultados visibles en 3-6 meses.',kpi:'Reducir churn por expectativas no cumplidas'},
-  'Support or Service Issues':  {icon:'🎧',area:'Soporte / CS',priority:'media',action:'SLA de respuesta de 24h documentado y medido. Asignar un interlocutor fijo por cliente durante los primeros 3 meses para garantizar continuidad.',kpi:'Reducir churn por soporte — el más prevenible'},
+  'Quality Issues':             {icon:'✏️',area:'Producto',priority:'alta',action:'Brief guiado obligatorio con ejemplos visuales en el alta. Flujo de feedback in-app para rechazar y regenerar propuestas. Recordatorio automático si el brief tiene campos vacíos.',kpi:'Reducir Personalization Gap'},
+  'Poor CX / Platform Issues':  {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS guiado en la app en primeras 48h. Alerta automática in-app si las cuentas no están conectadas a los 3 días. FAQ de errores comunes accesible desde el primer paso.',kpi:'Eliminar fallos de vinculación en onboarding'},
+  'Does not see impact on their business':{icon:'📈',area:'Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) en app y por email. Notificación in-app al mes 2 si el engagement no mejora, con sugerencias accionables de mejora del brief.',kpi:'Aumentar retención meses 2-3'},
+  'Unrealistic Promise':        {icon:'🎯',area:'Ventas',priority:'alta',action:'Eliminar garantías de resultados del discurso de ventas. Página de "qué incluye y qué no incluye Plinng" visible antes del alta. Expectativas realistas: resultados visibles en 3-6 meses.',kpi:'Reducir churn por expectativas no cumplidas'},
+  'Support or Service Issues':  {icon:'🎧',area:'Producto',priority:'media',action:'Centro de ayuda self-serve con búsqueda por problema. Confirmación automática de tickets en menos de 2h. SLA de resolución de 24h medido y visible. Flujo de cancelación autogestionable desde la cuenta.',kpi:'Reducir churn por soporte — el más prevenible'},
   'Competitor / Alternative':   {icon:'⚔️',area:'Producto',priority:'baja',action:'Análisis trimestral de competidores. Fortalecer diferenciadores (automatización, precio, volumen) y comunicarlos en el onboarding.',kpi:'Fortalecer propuesta de valor vs. alternativas'},
   'Financial / Budget Constraints':{icon:'💰',area:'Ventas / CS',priority:'baja',action:'Ofrecer opción de pausa de 1-2 meses antes del churn definitivo. Crear plan de "mantenimiento mínimo" a precio reducido.',kpi:'Convertir churns financieros en pausas'},
   'Product Does Not Fit':       {icon:'🔎',area:'Producto / Ventas',priority:'media',action:'Revisar criterios de cualificación de leads y el ICP (Ideal Customer Profile). Evitar contratar clientes que no encajan con el modelo SaaS/IA desde el inicio.',kpi:'Reducir churn estructural por mala cualificación'},
@@ -1307,17 +1307,17 @@ function renderModjoKPI(id){
 // MODJO RECOMMENDATIONS (dynamic, based on filtered period)
 // ============================================================
 const MODJO_RECOM_MAP={
-  'Fallo en la plataforma':        {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS obligatorio en las primeras 48h del alta. Alerta automática si Instagram/Facebook no están conectados a los 3 días. Protocolo de escalado técnico en menos de 4h.',kpi:'Eliminar fallos de vinculación en el primer mes'},
-  'Cierre de venta forzado':       {icon:'⚠️',area:'Ventas / Operaciones',priority:'alta',action:'Confirmación escrita de condiciones de contrato en el alta. Resumen de política de cancelación (20 días de preaviso) enviado por email el día 1. Revisión de los scripts de cierre de ventas.',kpi:'Reducir reclamaciones por cierres sin información suficiente'},
-  'Mala comunicacion en ventas':   {icon:'📢',area:'Ventas / CS',priority:'alta',action:'Handoff estructurado ventas-CS con resumen de lo prometido al cliente. Alinear el discurso de ventas con la realidad del producto. Auditoría trimestral de promesas hechas en cierres.',kpi:'Reducir gap entre expectativas y entrega real'},
-  'Problemas de calidad':          {icon:'✏️',area:'CS / Contenido',priority:'media',action:'Brief personalizado mínimo de 10 preguntas antes de activar la cuenta. Revisión humana obligatoria del primer mes de contenido. Proceso de feedback simplificado: aprobar/rechazar con un clic.',kpi:'Reducir Personalization Gap — contenido que no encaja'},
-  'Sin impacto real en su negocio':{icon:'📈',area:'CS / Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) enviado al cliente. Llamada proactiva al mes 2 si no hay mejora detectable vs. baseline.',kpi:'Aumentar retención meses 2-3 comunicando valor'},
-  'Promesa irreal':                {icon:'🎯',area:'Ventas',priority:'alta',action:'Eliminar garantías de resultados del discurso de ventas. Establecer expectativas medibles y honestas desde el primer contacto. Formación de ventas sobre qué puede y no puede prometer el servicio.',kpi:'Reducir churns por expectativas incumplidas'},
-  'Negocio cerrado':               {icon:'🏢',area:'CS',priority:'baja',action:'Registrar motivo específico en HubSpot. Ofrecer pausa de cuenta de 1-3 meses como alternativa al churn definitivo. Campaña de reactivación a los 6 meses para negocios que reabrieron.',kpi:'Convertir churns por cierre en pausas recuperables'},
-  'Fuera del alcance del plan':    {icon:'🔎',area:'Producto',priority:'media',action:'Comunicar proactivamente el roadmap de producto en el onboarding. Para limitaciones conocidas (LinkedIn, catalán, móvil), registrar en HubSpot y agrupar para priorización de producto.',kpi:'Reducir churn por limitaciones no comunicadas'},
-  'Problema de soporte':           {icon:'🎧',area:'Soporte / CS',priority:'media',action:'SLA de respuesta de 24h documentado y medido semanalmente. Asignar un interlocutor fijo por cliente durante los primeros 3 meses. Registro obligatorio de todas las incidencias.',kpi:'El tipo de churn más prevenible — reducir al 0%'},
-  'Fallo en el onboarding':        {icon:'🚀',area:'CS / Producto',priority:'alta',action:'Vídeo de onboarding de 3 minutos enviado el día 1. Llamada de bienvenida obligatoria en los primeros 7 días. Checklist de activación visible en el dashboard del cliente.',kpi:'Reducir churn en el primer mes'},
-  'No justifica precio':           {icon:'💳',area:'Ventas / Operaciones',priority:'alta',action:'Clarificar la política de cancelación (20 días de preaviso) en el momento del alta. Ofrecer plan de menor coste como alternativa antes de la baja definitiva. Identificar señales de riesgo de impago antes del churn.',kpi:'Reducir reclamaciones y disputas de cobro'},
+  'Fallo en la plataforma':        {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS guiado en la app en primeras 48h. Alerta automática in-app si Instagram/Facebook no están conectados a los 3 días. FAQ de errores comunes de vinculación accesible desde el primer paso del alta.',kpi:'Eliminar fallos de vinculación en el primer mes'},
+  'Cierre de venta forzado':       {icon:'⚠️',area:'Ventas',priority:'alta',action:'Pantalla de confirmación explícita de condiciones antes del alta. Email automático con resumen de condiciones y política de cancelación. Aviso in-app 5 días antes de cualquier cargo recurrente.',kpi:'Reducir reclamaciones por cierres sin información suficiente'},
+  'Mala comunicacion en ventas':   {icon:'📢',area:'Ventas',priority:'alta',action:'Demo interactiva del flujo real de Plinng antes del cierre. Email automatizado post-venta con "qué esperar en los primeros 30 días". Alinear el discurso de ventas con el modelo self-serve.',kpi:'Reducir gap entre expectativas y entrega real'},
+  'Problemas de calidad':          {icon:'✏️',area:'Producto',priority:'media',action:'Brief guiado obligatorio con ejemplos visuales en el alta. Flujo de feedback in-app para rechazar y regenerar propuestas con un clic. Recordatorio automático si el brief tiene campos vacíos.',kpi:'Reducir Personalization Gap — contenido que no encaja'},
+  'Sin impacto real en su negocio':{icon:'📈',area:'Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) en app y por email. Notificación in-app al mes 2 si el engagement no mejora, con sugerencias accionables de mejora del brief.',kpi:'Aumentar retención meses 2-3 comunicando valor'},
+  'Promesa irreal':                {icon:'🎯',area:'Ventas',priority:'alta',action:'Eliminar garantías de resultados del discurso de ventas. Página de "qué incluye y qué no incluye Plinng" visible antes del alta. Expectativas realistas: resultados visibles en 3-6 meses de uso autónomo.',kpi:'Reducir churns por expectativas incumplidas'},
+  'Negocio cerrado':               {icon:'🏢',area:'Producto',priority:'baja',action:'Opción de pausa de cuenta visible en el flujo de cancelación como alternativa al churn definitivo. Encuesta automática de salida para registrar el motivo real.',kpi:'Convertir churns por cierre en pausas recuperables'},
+  'Fuera del alcance del plan':    {icon:'🔎',area:'Producto',priority:'media',action:'Sección "Esto no incluye el plan" visible antes del alta. Filtro de compatibilidad en el onboarding para detectar casos fuera de alcance antes del cobro. Roadmap público de funcionalidades en desarrollo.',kpi:'Reducir churn por limitaciones no comunicadas'},
+  'Problema de soporte':           {icon:'🎧',area:'Producto',priority:'media',action:'Centro de ayuda self-serve con búsqueda por problema. Confirmación automática de tickets en menos de 2h. SLA de resolución de 24h medido y visible. Flujo de cancelación autogestionable desde la cuenta.',kpi:'El tipo de churn más prevenible — reducir al 0%'},
+  'Fallo en el onboarding':        {icon:'🚀',area:'Producto',priority:'alta',action:'Flujo de onboarding guiado paso a paso hasta la primera publicación aprobada. Vídeos cortos in-app por cada acción clave. Recordatorio automático si el cliente no completa el onboarding en 72h.',kpi:'Reducir churn en el primer mes'},
+  'No justifica precio':           {icon:'💳',area:'Ventas / Producto',priority:'alta',action:'Aviso automático antes de cada renovación con resumen de valor generado. Opción de downgrade o pausa visible antes del botón de cancelar. Política de cancelación clara y autogestionable desde la cuenta.',kpi:'Reducir reclamaciones y disputas de cobro'},
 };
 const MODJO_RECOM_COLOR={alta:'#ef4444',media:'#f59e0b',baja:'#22c55e'};
 const MODJO_RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad Baja'};

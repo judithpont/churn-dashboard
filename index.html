@@ -1858,7 +1858,7 @@ function refreshData(){
       allModjo=procesarModjo(res.data);filteredModjo=allModjo;
       const dates=allModjo.filter(r=>r.fecha).map(r=>r.fecha);
       if(dates.length){const mx=new Date(Math.max(...dates));document.getElementById('lastUpdate').textContent='Modjo: '+mx.toLocaleDateString('es-ES')+' · HubSpot: '+HS_DATA.length+' registros';}
-      render();
+      applyModjoFilters();applyHSFilters();render();
       if(btn){btn.disabled=false;btn.innerHTML='🔄 Actualizar';}
     },
     error:function(){
@@ -1875,7 +1875,7 @@ window.addEventListener('load',function(){
       const dates=allModjo.filter(r=>r.fecha).map(r=>r.fecha);
       if(dates.length){const mx=new Date(Math.max(...dates));document.getElementById('lastUpdate').textContent='Modjo: '+mx.toLocaleDateString('es-ES')+' · HubSpot: '+HS_DATA.length+' registros';}
       document.getElementById('loadingDiv').style.display='none';
-      initFilters();applyModjoFilters();render();
+      initFilters();applyModjoFilters();applyHSFilters();render();
     },
     error:function(err){document.getElementById('loadingDiv').innerHTML='<p style="color:#ef4444">Error cargando Modjo: '+err.message+'</p>';}
   });

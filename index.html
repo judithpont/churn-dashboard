@@ -1553,6 +1553,7 @@ function renderHSExecSummary(){
 }
 
 function renderHSInsights(){
+  const recomEl=document.getElementById('recomHS');if(recomEl)recomEl.innerHTML='';
   // Build reason counts
   const reasonRecs={};
   Object.keys(HS_REASON).forEach(k=>{reasonRecs[k]=[];});

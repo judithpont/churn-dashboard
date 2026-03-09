@@ -526,9 +526,9 @@ const CAT_TIP={
   'Fuera del alcance del plan':
     '<strong>Fuera del alcance del plan</strong>La plataforma no cubre lo que el cliente necesita.<br>· "Necesito gestionar LinkedIn y no podéis"<br>· No permite subir archivos desde el ordenador<br>· Sin soporte en catalán u otros idiomas',
   'Problema de soporte':
-    '<strong>Problema de soporte</strong>El cliente no puede resolver sus dudas de forma autónoma y no recibe respuesta ágil.<br>· "Mandé un mensaje hace días y nadie contestó"<br>· Sin centro de ayuda self-serve accesible, cada duda requiere contacto humano<br>· Acción: centro de ayuda con búsqueda y SLA de respuesta de 24h medido',
+    '<strong>Problema de soporte</strong>El cliente no puede resolver sus dudas de forma autónoma y no recibe respuesta ágil.<br>· "Mandé un mensaje hace días y nadie contestó"<br>· Sin centro de ayuda self-serve accesible, cada duda requiere contacto humano',
   'Fallo en el onboarding':
-    '<strong>Fallo en el onboarding</strong>El cliente no llega a activarse de forma autónoma en la plataforma.<br>· "¿Cómo funciona el proceso de aprobación?"<br>· Semanas sin vincular cuentas — sin guía in-app que lo detecte<br>· Acción: onboarding guiado paso a paso y recordatorio automático a las 72h si no completa la activación',
+    '<strong>Fallo en el onboarding</strong>El cliente no llega a activarse de forma autónoma en la plataforma.<br>· "¿Cómo funciona el proceso de aprobación?"<br>· Semanas sin vincular cuentas — sin guía in-app que lo detecte',
   'No justifica precio':
     '<strong>No justifica precio</strong>El servicio es demasiado caro para el valor percibido.<br>· Cobro inesperado o error en el cargo<br>· Recorte de presupuesto en marketing<br>· "No vale lo que cuesta dados los resultados"'
 };
@@ -543,67 +543,67 @@ let HS_DATA=[{"id":"396417534153","name":"Alejandro Peláez Rodríguez","churn_r
 const HS_REASON={
   'Forced Sales Closing':{
     es:'Cierre de venta forzado', badge:'badge-danger',
-    tip:'<strong>Cierre de venta forzado</strong>El cliente firmó sin entender bien las condiciones del servicio self-serve.<br>· Baja convicción desde el inicio — esperaba más acompañamiento humano<br>· Cobro inesperado tras prueba gratuita no bien explicada<br>· Acción: confirmación explícita de condiciones en el alta y aviso automático antes del primer cargo.',
+    tip:'<strong>Cierre de venta forzado</strong>El cliente firmó sin entender bien las condiciones del servicio self-serve.<br>· Baja convicción desde el inicio — esperaba más acompañamiento humano<br>· Cobro inesperado tras prueba gratuita no bien explicada',
     desc:'El cliente firmó sin estar completamente convencido o sin entender que Plinng es una plataforma self-serve, no una agencia. El sub-motivo más frecuente es baja convicción inicial: el cliente nunca estuvo realmente comprometido con el modelo de producto.',
     subs:['Arrepentimiento / baja convicción (8)','Cobro sin entrega esperada (3)','Falta de presupuesto (2)','Confusión sobre el precio (1)','Cambio a competidor antes de pagar (1)']
   },
   'Sales Miscommunication':{
     es:'Mala comunicación en ventas', badge:'badge-danger',
-    tip:'<strong>Mala comunicación en ventas</strong>El cliente entró esperando un servicio distinto al modelo self-serve de Plinng.<br>· Expectativa de atención personalizada tipo agencia<br>· Rechazo al modelo APP/IA cuando lo descubre en uso<br>· Acción: demo interactiva del flujo real antes del cierre y email automático con "qué esperar en los primeros 30 días".',
+    tip:'<strong>Mala comunicación en ventas</strong>El cliente entró esperando un servicio distinto al modelo self-serve de Plinng.<br>· Expectativa de atención personalizada tipo agencia<br>· Rechazo al modelo APP/IA cuando lo descubre en uso',
     desc:'La expectativa del cliente no coincidió con lo que Plinng realmente ofrece como plataforma self-serve. Incluye malentendidos sobre la prueba gratuita, el precio o el modelo de producto (APP/IA autónoma vs. agencia con gestión humana).',
     subs:['Malentendido prueba gratuita (1)','Baja convicción / arrepentimiento (2)','Expectativa de atención personalizada (2)','Rechazo al modelo APP/IA (2)','Confusión sobre precio/plan (1)']
   },
   'Quality Issues':{
     es:'Problemas de calidad', badge:'badge-danger',
-    tip:'<strong>Problemas de calidad</strong>El contenido generado por la IA no refleja la identidad del negocio del cliente.<br>· Brief inicial insuficiente — la IA no tiene datos para personalizar<br>· El cliente no sabe cómo mejorar el brief de forma autónoma<br>· Acción: brief guiado obligatorio en el alta y flujo de feedback in-app para regenerar propuestas.',
+    tip:'<strong>Problemas de calidad</strong>El contenido generado por la IA no refleja la identidad del negocio del cliente.<br>· Brief inicial insuficiente — la IA no tiene datos para personalizar<br>· El cliente no sabe cómo mejorar el brief de forma autónoma',
     desc:'El sub-motivo dominante es la falta de personalización: el contenido es genérico porque el brief inicial es pobre y el cliente no sabe cómo mejorarlo de forma autónoma. En un modelo self-serve sin revisión humana, un brief deficiente se traduce directamente en churn.',
     subs:['Falta de personalización (4)','Expectativa de atención personalizada (2)','Web no entregada en plazo (2)','Contenido no alineado al sector (2)','Bugs funcionales (1)']
   },
   'Poor CX / Platform Issues':{
     es:'Fallos de plataforma / CX', badge:'badge-danger',
-    tip:'<strong>Fallos de plataforma / CX</strong>Errores técnicos que bloquean al cliente antes de recibir valor real.<br>· Vinculación de Instagram/Facebook fallida sin guía clara<br>· Publicaciones que no se ejecutan sin alerta automática<br>· Acción: checklist de vinculación guiado y alerta automática in-app si no hay publicaciones en 72h.',
+    tip:'<strong>Fallos de plataforma / CX</strong>Errores técnicos que bloquean al cliente antes de recibir valor real.<br>· Vinculación de Instagram/Facebook fallida sin guía clara<br>· Publicaciones que no se ejecutan sin alerta automática',
     desc:'El problema más recurrente es el fallo de vinculación de redes sociales. Al ser self-serve, el cliente no sabe cómo resolverlo sin ayuda. Le siguen retrasos en entregas y publicaciones que no se ejecutan sin notificación.',
     subs:['Fallo de vinculación RRSS (4)','Falta de personalización (3)','Retrasos en entrega (2)','Publicaciones no ejecutadas (2)','Fallo de Maya en onboarding (2)']
   },
   'Does not see impact on their business':{
     es:'Sin impacto en su negocio', badge:'badge-warning',
-    tip:'<strong>Sin impacto en su negocio</strong>El cliente no percibe resultados desde el uso autónomo de la plataforma.<br>· Sin dashboard de métricas visible, el valor pasa desapercibido<br>· Nadie comunica los resultados de forma proactiva en self-serve<br>· Acción: informe automático mensual y notificación in-app si el engagement no mejora al mes 2.',
+    tip:'<strong>Sin impacto en su negocio</strong>El cliente no percibe resultados desde el uso autónomo de la plataforma.<br>· Sin dashboard de métricas visible, el valor pasa desapercibido<br>· Nadie comunica los resultados de forma proactiva en self-serve',
     desc:'El cliente lleva semanas o meses usando la plataforma de forma autónoma sin percibir ningún impacto en su negocio. En self-serve, sin nadie que comunique resultados, la percepción de valor se deteriora en silencio.',
     subs:['Valor no percibido (1)','Malentendido prueba gratuita (1)','Solapamiento con Kit Digital (1)','Expectativa de atención personalizada (1)']
   },
   'Support or Service Issues':{
     es:'Problemas de soporte', badge:'badge-warning',
-    tip:'<strong>Problemas de soporte</strong>El cliente no puede resolver sus problemas de forma autónoma y no recibe respuesta ágil.<br>· Sin centro de ayuda self-serve accesible, cada duda requiere contacto humano<br>· Flujo de cancelación poco claro<br>· Acción: centro de ayuda con búsqueda, confirmación automática de tickets y baja autogestionable.',
+    tip:'<strong>Problemas de soporte</strong>El cliente no puede resolver sus problemas de forma autónoma y no recibe respuesta ágil.<br>· Sin centro de ayuda self-serve accesible, cada duda requiere contacto humano<br>· Flujo de cancelación poco claro',
     desc:'El cliente envía mensajes o solicitudes sin recibir respuesta ágil. En un modelo self-serve, el soporte debe resolverse sin escalado humano: si el cliente no puede encontrar la solución por sí mismo, la frustración se acumula hasta la baja.',
     subs:[]
   },
   'Business Closed':{
     es:'Negocio cerrado', badge:'badge-neutral',
-    tip:'<strong>Negocio cerrado</strong>El cliente ha cerrado o dejado de operar su negocio.<br>· No atribuible al servicio — churn inevitable<br>· Acción: opción de pausa de cuenta en el flujo de cancelación y encuesta automática de salida.',
+    tip:'<strong>Negocio cerrado</strong>El cliente ha cerrado o dejado de operar su negocio.<br>· No atribuible al servicio — churn inevitable',
     desc:'El cliente cancela porque su negocio ha dejado de operar. No es atribuible al servicio. En self-serve, el único lever es facilitar una pausa de cuenta como alternativa al churn definitivo y capturar el motivo con una encuesta automática.',
     subs:['Insolvencia (2)','Disolución de empresa (1)']
   },
   'Unrealistic promise':{
     es:'Promesa irreal', badge:'badge-danger',
-    tip:'<strong>Promesa irreal</strong>Se vendió Plinng como un servicio con atención humana que la plataforma self-serve no ofrece.<br>· Expectativa de community manager dedicado vs. herramienta de IA autónoma<br>· Leads o ventas garantizadas que ninguna herramienta self-serve puede asegurar<br>· Acción: eliminar garantías de resultados y mostrar "qué incluye y qué no" antes del alta.',
+    tip:'<strong>Promesa irreal</strong>Se vendió Plinng como un servicio con atención humana que la plataforma self-serve no ofrece.<br>· Expectativa de community manager dedicado vs. herramienta de IA autónoma<br>· Leads o ventas garantizadas que ninguna herramienta self-serve puede asegurar',
     desc:'El cliente esperaba resultados o niveles de servicio que Plinng, como plataforma self-serve, no puede ofrecer: atención personalizada tipo agencia, leads garantizados o crecimiento de seguidores asegurado.',
     subs:['Expectativa de servicio tipo agencia (2)','Rechazo al modelo de producto (1)','Rechazo al modelo APP/IA (1)','Expectativa de atención personalizada (1)','Web no entregada en plazo (1)']
   },
   'Outside The Scope of the Plan':{
     es:'Fuera del alcance del plan', badge:'badge-warning',
-    tip:'<strong>Fuera del alcance del plan</strong>El cliente necesita funcionalidades que la plataforma self-serve no incluye.<br>· LinkedIn no soportado, idiomas no disponibles, gestión multi-cuenta<br>· El cliente lo descubre tras contratar, no antes<br>· Acción: filtro de compatibilidad en el onboarding y sección "esto no incluye el plan" visible antes del alta.',
+    tip:'<strong>Fuera del alcance del plan</strong>El cliente necesita funcionalidades que la plataforma self-serve no incluye.<br>· LinkedIn no soportado, idiomas no disponibles, gestión multi-cuenta<br>· El cliente lo descubre tras contratar, no antes',
     desc:'El cliente requiere funcionalidades que van más allá del plan self-serve: LinkedIn, cambios diarios, gestión multi-cuenta o servicio personalizado. Estas limitaciones deben comunicarse antes del alta para evitar churns evitables.',
     subs:['Expectativa de atención personalizada (1)','LinkedIn no soportado (1)','Servicio legacy personalizado (1)']
   },
   'Onboarding Failure':{
     es:'Fallo en el onboarding', badge:'badge-warning',
-    tip:'<strong>Fallo en el onboarding</strong>El cliente no llega a activarse de forma autónoma en la plataforma.<br>· Sin vinculación de RRSS completada, la plataforma no entrega valor<br>· Cobro antes de recibir el servicio genera desconfianza desde el día 1<br>· Acción: onboarding guiado paso a paso hasta la primera publicación y recordatorio automático a las 72h.',
+    tip:'<strong>Fallo en el onboarding</strong>El cliente no llega a activarse de forma autónoma en la plataforma.<br>· Sin vinculación de RRSS completada, la plataforma no entrega valor<br>· Cobro antes de recibir el servicio genera desconfianza desde el día 1',
     desc:'El cliente no llega a vincularse correctamente con la plataforma desde el inicio. En self-serve, si el onboarding no guía al cliente de forma completamente autónoma hasta la primera publicación, la probabilidad de churn en los primeros 30 días se dispara.',
     subs:['Cobro sin entrega esperada (2)','Necesidad de gestión multi-cuenta (1)']
   },
   'WTP < Cost':{
     es:'No justifica el precio', badge:'badge-ok',
-    tip:'<strong>No justifica el precio</strong>El valor percibido del servicio self-serve es inferior al coste mensual.<br>· Sin nadie que comunique resultados, el precio se cuestiona fácilmente<br>· Cobros sin aviso previo aceleran la decisión de cancelar<br>· Acción: aviso automático antes de cada renovación con resumen de valor generado y opción de downgrade visible.',
+    tip:'<strong>No justifica el precio</strong>El valor percibido del servicio self-serve es inferior al coste mensual.<br>· Sin nadie que comunique resultados, el precio se cuestiona fácilmente<br>· Cobros sin aviso previo aceleran la decisión de cancelar',
     desc:'El cliente no percibe suficiente valor del servicio autónomo para justificar el coste. En self-serve, sin nadie que defienda el valor generado, el precio es lo primero que se cuestiona cuando los resultados no son visibles.',
     subs:['Falta de presupuesto (4)']
   }
@@ -1651,7 +1651,7 @@ function renderHSInsights(){
     </div>`;}).join('');
 
   document.getElementById('conclHS').innerHTML=hsConclHTML();
-  renderHSRecomendaciones();
+
   renderPatternAnalysis();
 }
 

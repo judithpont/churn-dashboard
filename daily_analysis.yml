@@ -2,8 +2,11 @@ name: Análisis Churn Diario
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # Cada día a las 8:00 AM UTC
-  workflow_dispatch:        # Permite ejecutarlo manualmente desde GitHub
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   analyze:
@@ -11,18 +14,26 @@ jobs:
 
     steps:
       - name: Checkout código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Instalar dependencias
-        run: pip install gspread google-auth anthropic pandas openpyxl
+        run: pip install gspread google-auth anthropic pandas openpyxl requests
 
       - name: Ejecutar análisis de churn
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
         run: python analyze.py
+
+      - name: Commit y push de modjo_data.json
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add modjo_data.json
+          git diff --cached --quiet || git commit -m "chore: update modjo analysis $(date -u +'%Y-%m-%d')"
+          git push

@@ -15,10 +15,10 @@ SHEET_URL         = "https://docs.google.com/spreadsheets/d/16Tv2U164NammrDBe2u8
 SOURCE_TAB        = "Resultados_Churn"
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 HUBSPOT_API_KEY   = os.environ.get("HUBSPOT_API_KEY", "")
-HUBSPOT_PORTAL_ID = "25808060"          # your HubSpot portal
+HUBSPOT_PORTAL_ID = "25808060"
 
-# PRD v2: confidence ≥ 8/10 to classify; below → "Sin clasificar"
-CONFIDENCE_THRESHOLD = 0.70
+# Más estricto: 8/10 real
+CONFIDENCE_THRESHOLD = 0.80
 
 # False = no re-analiza todo el histórico, solo lo necesario
 FORCE_REANALYZE = False
@@ -47,7 +47,6 @@ CATEGORIAS_CHURN = [
     "No justifica precio",
 ]
 
-# PRD v2: up to 3 sub-motivos per call, ordered by weight in the churn decision
 SUBCATEGORIAS = {
     "Problemas de calidad": [
         "baja-velocidad-entrega", "contenido-generico", "servicio-no-entregado",
@@ -86,7 +85,6 @@ SUBCATEGORIAS = {
     ],
 }
 
-# HubSpot reason → Modjo category
 HS_TRADUCCIONES = {
     "Sales Miscommunication":                "Mala comunicación en ventas",
     "Poor CX / Platform Issues":             "Fallo en la plataforma",
@@ -135,14 +133,9 @@ def extraer_cliente(participantes: str, dueno: str) -> str:
 
 
 # ============================================================
-# HUBSPOT — Sprint 2: SaaS Client Type + URL directa + fecha baja
+# HUBSPOT
 # ============================================================
 def buscar_hubspot(cliente: str) -> dict:
-    """
-    Returns:
-      company_id, name, saas_client_type, churn_reason, churn_date,
-      hs_url, sin_registro (bool)
-    """
     if not HUBSPOT_API_KEY or not cliente:
         return {"sin_registro": True}
 
@@ -201,7 +194,7 @@ def buscar_hubspot(cliente: str) -> dict:
 
 
 # ============================================================
-# ANÁLISIS CON CLAUDE — PRD v2 two-step root cause reasoning
+# ANÁLISIS CON CLAUDE
 # ============================================================
 def analizar_transcript(transcript: str, cliente: str, titulo: str, fuente: str = "transcript") -> dict:
     if not transcript or len(transcript.strip()) < 50:
@@ -380,9 +373,12 @@ Reglas de salida:
             subs = [str(subs)] if subs else []
 
         valid_subs = set(SUBCATEGORIAS.get(cat_assigned, []))
-        if valid_subs:
-            subs = [s for s in subs if s in valid_subs]
-        parsed["subcategorias"] = subs[:3]
+        subs_normalizadas = []
+        for s in subs:
+            s_norm = str(s).strip().lower().replace(" ", "-")
+            if s_norm in valid_subs:
+                subs_normalizadas.append(s_norm)
+        parsed["subcategorias"] = subs_normalizadas[:3]
 
         parsed.setdefault("churn_detectado", "no")
         parsed.setdefault("categoria", "Sin clasificar")
@@ -448,6 +444,7 @@ if __name__ == "__main__":
         hoy = datetime.now()
         inicio_mes = datetime(hoy.year, hoy.month, 1)
         df_filtrado = df_filtrado[df_filtrado[col_fecha] >= inicio_mes].copy()
+        df_filtrado = df_filtrado.sort_values(by=col_fecha, ascending=False).copy()
         print(f"📅 Filtrado por mes actual desde {inicio_mes.strftime('%Y-%m-%d')} → {len(df_filtrado)} filas", flush=True)
     else:
         print("⚠️  No se encontró columna de fecha; no se aplica filtro de mes actual", flush=True)
@@ -457,9 +454,6 @@ if __name__ == "__main__":
         df_filtrado = df_filtrado.head(MAX_FILAS_MES_ACTUAL).copy()
         print(f"🔒 Límite manual aplicado: {len(df_filtrado)} filas", flush=True)
 
-    # --------------------------------------------------------
-    # PRD v2 RULE: No re-analysis of already classified rows
-    # --------------------------------------------------------
     rows_to_analyze = df_filtrado
     skipped = 0
 
@@ -549,10 +543,14 @@ if __name__ == "__main__":
                     analisis["categoria"] = hs["churn_reason"]
                     print(f"   → Categoría de HubSpot aplicada: {analisis['categoria']}", flush=True)
 
+        fecha_dt = pd.to_datetime(fecha, errors="coerce", dayfirst=True)
+        mes_valor = fecha_dt.strftime("%Y-%m") if pd.notna(fecha_dt) else ""
+
         resultados.append({
             "owner":             dueno,
             "cliente":           cliente,
             "fecha":             fecha,
+            "mes":               mes_valor,
             "participantes":     participantes,
             "duracion":          duracion,
             "llamada_id":        call_id,
@@ -597,9 +595,39 @@ if __name__ == "__main__":
 
     all_records = list(existing_data.values()) if existing_data else resultados
 
+    if all_records:
+        df_all = pd.DataFrame(all_records)
+
+        top_categorias = df_all["categoria"].value_counts().head(10).to_dict() if "categoria" in df_all.columns else {}
+
+        all_subs = []
+        if "subcategorias" in df_all.columns:
+            for subs in df_all["subcategorias"]:
+                if isinstance(subs, list):
+                    all_subs.extend(subs)
+
+        top_subcategorias = pd.Series(all_subs).value_counts().head(10).to_dict() if all_subs else {}
+
+        resumen_json = {
+            "churn_detectado": int(len(df_all[df_all["esChurn"] == "sí"])) if "esChurn" in df_all.columns else 0,
+            "riesgo": int(len(df_all[df_all["esChurn"] == "riesgo"])) if "esChurn" in df_all.columns else 0,
+            "sin_clasificar": int(len(df_all[df_all["categoria"] == "Sin clasificar"])) if "categoria" in df_all.columns else 0,
+            "top_categorias": top_categorias,
+            "top_subcategorias": top_subcategorias,
+        }
+    else:
+        resumen_json = {
+            "churn_detectado": 0,
+            "riesgo": 0,
+            "sin_clasificar": 0,
+            "top_categorias": {},
+            "top_subcategorias": {},
+        }
+
     json_output = {
         "generated_at": datetime.now().isoformat(),
         "total": len(all_records),
+        "resumen": resumen_json,
         "data": all_records
     }
 

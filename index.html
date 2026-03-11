@@ -288,7 +288,7 @@
 // ============================================================
 // MODJO CONFIG
 // ============================================================
-const SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSgZgcbRQZ0sa1BU7Pv1TKwqo_CDyHEPcdcGZF3DtUuH_vNmZsjbrO5puLarjMCDtCsiF0SjIFFk0Jy/pub?output=csv';
+const MODJO_JSON_URL='modjo_data.json';
 // HubSpot API — cambia esta URL a tu deployment de Vercel
 const HS_API_URL='/api/hs-churns';
 const DUENOS=['Victor Ortega','Óscar Lopo','Gonzalo Rosales','Franco Ferretti','Kamila Jiménez','Martina Benalcazar'];
@@ -304,7 +304,7 @@ function getClientType(name){
 const CAT_KW={
   'Fallo en la plataforma':        ['error','fallo','falla','bug','no funciona','no carga','caida','lento','desconect','sincroniz','vinculacion','integracion','permisos','instagram no','facebook no','no se publica','no se conecta','problema tecnico','cuenta bloqueada','acceso bloqueado','web inactiva','dominio','reactivar','contrasena','no puede acceder','no puedo acceder','bloqueado','bloqueo','no abre','no descarga','problema con la app','dificultades para acceder','plataforma','reconectar','desconexion','publicaciones automaticas','publicacion automatica','vincular cuenta','vincular su cuenta','vincular redes','cuenta vinculada','bugs en la plataforma','problemas en la plataforma','fallo en la plataforma','problema en la plataforma','error en la plataforma','actualizacion de la app','actualizacion pendiente','configuracion pendiente'],
   'Cierre de venta forzado':       ['me dijeron que','me prometieron','no me explicaron','no sabia que','no me avisaron','me enganaron','prueba gratuita','periodo de prueba','mes gratis','no fue lo que me dijeron','no fue lo que me contaron','fui enganado','me vendieron mal','cierre de venta'],
-  'Mala comunicacion en ventas':   ['en ventas me dijeron','no es lo que me vendieron','expectativas','malentendido','no fue lo que esperaba','diferente a lo que me explicaron','se comprometieron a','no cumplieron lo prometido','no me explicaron bien','me dijeron que era diferente'],
+
   'Problemas de calidad':          ['contenido generico','contenido no personalizado','no refleja mi marca','no refleja su marca','no encaja con mi negocio','no encaja con su negocio','no es mi estilo','no es su estilo','post generico','copy generico','imagen generica','no representa','no es mi marca','no es su marca','publicaciones no son','contenido no es','no refleja','chatgpt','tono incorrecto','estilo incorrecto','no me gusta el contenido','contenido malo','mala calidad del contenido','calidad del contenido','diseño web','diseno web','imagen de stock','foto generica','foto artificial','tipografia','colores no corresponden','identidad visual','imagen de marca','linea de marca','linea visual','no alineado con su marca','no alineados con su marca','no corresponde a su linea','no corresponden a su linea','insatisfaccion con la personalizacion','cambios no alineados','personalización de la aplicacion','diseno no refleja','colores no son','fuera de su imagen'],
   'Sin impacto real en su negocio':['sin resultado','no resultado','no sirve','no veo','no consigo','no llega','no genera','alcance','engagement','no veo impacto','no ha mejorado','no veo diferencia','no ha funcionado','no ha dado resultado','no ha cambiado','no noto mejoria'],
   'Promesa irreal':                ['prometieron resultados','me dijeron que iba a conseguir','garantizaron','aseguraron','resultados garantizados','leads garantizados','clientes nuevos garantizados','promesa irreal','no cumplieron con lo prometido','expectativa irreal'],
@@ -366,10 +366,6 @@ const SUB_CAT_KW={
     'cliente-fuera-icp':['no era el perfil','fuera de icp','cliente incorrecto','no encajaba','perfil equivocado','no es para su tipo de negocio'],
     'desalineacion-facturacion':['cargo no esperado','cobro incorrecto','factura incorrecta','no esperaba ese cobro','cargo sorpresa','problema de facturacion','cobro sin avisar'],
     'cliente-solo-promocion':['promocion','descuento','oferta','solo por la promo','solo vino por la oferta','precio promocional']
-  },
-  'Mala comunicacion en ventas':{
-    'cliente-fuera-icp':['no era el perfil','fuera de icp','cliente incorrecto','perfil equivocado','no es para su tipo de negocio'],
-    'desalineacion-facturacion':['expectativas','no fue lo que esperaba','malentendido','diferente a lo que le explicaron','no le explicaron bien','no sabia que']
   },
   'Promesa irreal':{
     'funcionalidad-prometida-no-disponible':['prometieron funcionalidad','le dijeron que habia','no existe esa funcionalidad','prometieron una funcion','no esta disponible lo prometido'],
@@ -650,7 +646,6 @@ const CAT_SUBMOTIVOS={
   'Negocio cerrado':['Company Downsizing / Layoffs','Went Out of Business','cierra-negocio','churn-no-evitable'],
   'Mala comunicacion en ventas':["Buyer's Remorse",'Wrong ICP Sold','Expectativas vs. servicio desalineadas'],
   'No justifica precio':['Too Expensive for Current Usage','Budget Cuts / Downsizing','roi-no-percibido','Relación calidad-precio insuficiente'],
-  'WTP < Cost':['Too Expensive for Current Usage','Budget Cuts / Downsizing','roi-no-percibido']
 };
 
 
@@ -1070,6 +1065,32 @@ function procesarModjo(raw){
   return rows;
 }
 
+// ── Load Modjo data from JSON (generated by analyze.py) ──
+function procesarModjoJSON(records){
+  const rows=[],seen=new Set();
+  for(const r of records){
+    const owner=canonicalOwner(r.owner||'');
+    if(!owner)continue;
+    const cliente=r.cliente||'Desconocido';
+    const fechaStr=r.fecha||'';
+    const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
+    if(seen.has(key))continue;seen.add(key);
+    const cat=r.categoria||'Sin motivo claro';
+    const subs=r.subcategorias||[];
+    const sub=subs[0]||'';
+    const esChurnVal=(r.esChurn||'').toLowerCase().trim();
+    const esChurn=esChurnVal==='sí'||esChurnVal==='si';
+    rows.push({owner,cliente,categoria:cat,subcategoria:sub,subcategorias:subs,esChurn,fecha:parseDate(fechaStr),fechaStr,displayText:r.displayText||r.resumen_ia||'',contactId:r.contactId||''});
+  }
+  return rows;
+}
+
+function loadModjoJSON(){
+  return fetch(MODJO_JSON_URL+'?v='+Date.now())
+    .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
+    .then(function(data){return procesarModjoJSON(data.data||[]);});
+}
+
 // ============================================================
 // MODJO FILTERS
 // ============================================================
@@ -1465,7 +1486,6 @@ function renderModjoKPI(id){
 const MODJO_RECOM_MAP={
   'Fallo en la plataforma':        {icon:'🔧',area:'Producto / Tech',priority:'alta',action:'Checklist de vinculación de RRSS guiado en la app en primeras 48h. Alerta automática in-app si Instagram/Facebook no están conectados a los 3 días. FAQ de errores comunes de vinculación accesible desde el primer paso del alta.',kpi:'Eliminar fallos de vinculación en el primer mes'},
   'Cierre de venta forzado':       {icon:'⚠️',area:'Ventas',priority:'alta',action:'Pantalla de confirmación explícita de condiciones antes del alta. Email automático con resumen de condiciones y política de cancelación. Aviso in-app 5 días antes de cualquier cargo recurrente.',kpi:'Reducir reclamaciones por cierres sin información suficiente'},
-  'Mala comunicacion en ventas':   {icon:'📢',area:'Ventas',priority:'alta',action:'Demo interactiva del flujo real de Plinng antes del cierre. Email automatizado post-venta con "qué esperar en los primeros 30 días". Alinear el discurso de ventas con el modelo self-serve.',kpi:'Reducir gap entre expectativas y entrega real'},
   'Problemas de calidad':          {icon:'✏️',area:'Producto',priority:'media',action:'Brief guiado obligatorio con ejemplos visuales en el alta. Flujo de feedback in-app para rechazar y regenerar propuestas con un clic. Recordatorio automático si el brief tiene campos vacíos.',kpi:'Reducir Personalization Gap — contenido que no encaja'},
   'Sin impacto real en su negocio':{icon:'📈',area:'Producto',priority:'alta',action:'Informe mensual automático de métricas (alcance, publicaciones, interacciones) en app y por email. Notificación in-app al mes 2 si el engagement no mejora, con sugerencias accionables de mejora del brief.',kpi:'Aumentar retención meses 2-3 comunicando valor'},
   'Promesa irreal':                {icon:'🎯',area:'Ventas',priority:'alta',action:'Eliminar garantías de resultados del discurso de ventas. Página de "qué incluye y qué no incluye Plinng" visible antes del alta. Expectativas realistas: resultados visibles en 3-6 meses de uso autónomo.',kpi:'Reducir churns por expectativas incumplidas'},
@@ -2076,13 +2096,8 @@ function refreshData(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Actualizando…';}
   document.getElementById('lastUpdate').textContent='Actualizando…';
 
-  // Fetch both Modjo + HubSpot in parallel
-  const modjoP=new Promise((resolve,reject)=>{
-    Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
-      complete:function(res){allModjo=procesarModjo(res.data);filteredModjo=allModjo;resolve();},
-      error:function(err){reject(err);}
-    });
-  });
+  // Fetch both Modjo JSON + HubSpot in parallel
+  const modjoP=loadModjoJSON().then(function(rows){allModjo=rows;filteredModjo=allModjo;});
   const hsP=fetchHubSpotData();
 
   Promise.allSettled([modjoP,hsP]).then(()=>{
@@ -2093,13 +2108,8 @@ function refreshData(){
 }
 
 window.addEventListener('load',function(){
-  // Load Modjo + HubSpot in parallel on page load
-  const modjoP=new Promise((resolve,reject)=>{
-    Papa.parse(SHEET_URL,{download:true,header:true,skipEmptyLines:true,
-      complete:function(res){allModjo=procesarModjo(res.data);filteredModjo=allModjo;resolve();},
-      error:function(err){reject(err);}
-    });
-  });
+  // Load Modjo JSON + HubSpot in parallel on page load
+  const modjoP=loadModjoJSON().then(function(rows){allModjo=rows;filteredModjo=allModjo;});
   const hsP=fetchHubSpotData();
 
   Promise.allSettled([modjoP,hsP]).then(()=>{

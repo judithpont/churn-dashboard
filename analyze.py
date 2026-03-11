@@ -22,7 +22,7 @@ CONFIDENCE_THRESHOLD = 0.70
 
 # Set to True to re-analyze ALL rows, ignoring previously classified ones.
 # Use after prompt improvements to refresh the full historical dataset.
-FORCE_REANALYZE = False
+FORCE_REANALYZE = True
 
 DUENOS_OBJETIVO = [
     "Victor Ortega", "Óscar Lopo", "Martina Benalcazar",
@@ -556,113 +556,75 @@ if __name__ == "__main__":
                     print(f"   → Categoría de HubSpot aplicada: {analisis['categoria']}")
 
         resultados.append({
-            "Dueño":              dueno,
-            "Fecha":              fecha,
-            "Cliente":            cliente,
-            "Participantes":      participantes,
-            "Duración (min)":     duracion,
-            "Llamada ID":         call_id,
-            "Churn detectado":    analisis["churn_detectado"],
-            "Categoría":          analisis["categoria"],
-            "Subcategoría 1":     subcats[0] if len(subcats) > 0 else "",
-            "Subcategoría 2":     subcats[1] if len(subcats) > 1 else "",
-            "Subcategoría 3":     subcats[2] if len(subcats) > 2 else "",
-            "Nivel de riesgo":    analisis["nivel_riesgo"],
-            "Motivo principal":   analisis["motivo_principal"],
-            "Paso 1 comprensión": analisis.get("paso1_comprension", ""),
-            "Razón categoría":    analisis.get("razon_categoria", ""),
-            "Resumen IA":         analisis["resumen_ia"],
-            # Sprint 2 fields
-            "SaaS Client Type":   hs.get("saas_client_type", ""),
-            "HS Churn Reason":    hs.get("churn_reason_raw", ""),
-            "HS Churn Date":      hs.get("churn_date", ""),
-            "HS URL":             hs.get("hs_url", ""),
-            "Sin registro HS":    "Sí" if hs.get("sin_registro") else "No",
-            "Fuente análisis":    fuente,
-            "Confianza IA":       f"{confianza:.0%}",
-            "Actualizado":        datetime.now().strftime("%Y-%m-%d %H:%M")
+            "owner":             dueno,
+            "cliente":           cliente,
+            "fecha":             fecha,
+            "participantes":     participantes,
+            "duracion":          duracion,
+            "llamada_id":        call_id,
+            "displayText":       analisis["resumen_ia"] or resumen_exist or transcript[:500] if transcript else "",
+            "contactId":         "",
+            "esChurn":           analisis["churn_detectado"],
+            "categoria":         analisis["categoria"],
+            "subcategorias":     [s for s in subcats if s],  # solo las que apliquen
+            "confianza":         confianza,
+            "nivel_riesgo":      analisis["nivel_riesgo"],
+            "motivo_principal":  analisis["motivo_principal"],
+            "resumen_ia":        analisis["resumen_ia"],
+            "paso1_comprension": analisis.get("paso1_comprension", ""),
+            "razon_categoria":   analisis.get("razon_categoria", ""),
+            "hs_churn_reason":   hs.get("churn_reason_raw", ""),
+            "hs_churn_date":     hs.get("churn_date", ""),
+            "hs_url":            hs.get("hs_url", ""),
+            "sin_registro_hs":   bool(hs.get("sin_registro")),
+            "fuente_analisis":   fuente,
+            "actualizado":       datetime.now().strftime("%Y-%m-%d %H:%M")
         })
         time.sleep(0.5)
 
-    # ---- Save results to Análisis_Churn ----
-    output_tab = "Análisis_Churn"
-    try:
-        ws_res = spreadsheet.worksheet(output_tab)
-        ws_res.clear()
-    except Exception:
-        ws_res = spreadsheet.add_worksheet(title=output_tab, rows=2000, cols=25)
+    # ---- Load existing JSON for incremental merge ----
+    json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modjo_data.json")
+    existing_data = {}
+    if not FORCE_REANALYZE and os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                existing_json = json.load(f)
+            for rec in existing_json.get("data", []):
+                key = rec.get("llamada_id", "")
+                if key:
+                    existing_data[key] = rec
+            print(f"\n📂 {len(existing_data)} registros previos cargados de 'modjo_data.json'")
+        except Exception as e:
+            print(f"\n⚠️  Error leyendo modjo_data.json: {e}")
 
+    # ---- Merge new results with existing ----
+    for rec in resultados:
+        key = rec.get("llamada_id", "")
+        if key:
+            existing_data[key] = rec
+
+    all_records = list(existing_data.values()) if existing_data else resultados
+
+    # ---- Save to modjo_data.json ----
+    json_output = {
+        "generated_at": datetime.now().isoformat(),
+        "total": len(all_records),
+        "data": all_records
+    }
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(json_output, f, indent=2, ensure_ascii=False)
+
+    print(f"\n✅ {len(all_records)} registros guardados en 'modjo_data.json' ({len(resultados)} nuevos/actualizados)")
+
+    # ---- Summary stats ----
     if resultados:
         df_res = pd.DataFrame(resultados)
-        ws_res.update([df_res.columns.tolist()] + df_res.values.tolist())
-        print(f"\n✅ {len(resultados)} resultados guardados en '{output_tab}'")
-
-    # ---- Write AI columns back to Resultados_Churn so the dashboard can read them ----
-    if resultados:
-        print(f"\n📝 Escribiendo categorías IA de vuelta a '{SOURCE_TAB}'...")
-        import gspread.utils as gu
-
-        # Get current headers (row 1)
-        headers = ws_source.row_values(1)
-
-        # AI columns to sync back
-        ai_col_names = [
-            'Categoría IA', 'Subcategoría 1', 'Subcategoría 2',
-            'Subcategoría 3', 'Churn IA', 'Confianza IA'
-        ]
-
-        # Find or create column positions (1-indexed)
-        col_positions = {}
-        next_col_idx = len(headers) + 1
-        header_updates = []
-
-        for col_name in ai_col_names:
-            found = None
-            for i, h in enumerate(headers):
-                if h.strip() == col_name:
-                    found = i + 1  # 1-indexed
-                    break
-            if found:
-                col_positions[col_name] = found
-            else:
-                col_positions[col_name] = next_col_idx
-                header_updates.append({'range': gu.rowcol_to_a1(1, next_col_idx), 'values': [[col_name]]})
-                next_col_idx += 1
-
-        if header_updates:
-            ws_source.batch_update(header_updates)
-            print(f"   ➕ Añadidas {len(header_updates)} columnas AI a '{SOURCE_TAB}'")
-
-        # Batch update each analyzed row
-        cell_updates = []
-        for orig_idx, res in zip(rows_to_analyze.index, resultados):
-            sheet_row = int(orig_idx) + 2  # +1 header, +1 for 0-to-1 indexing
-            vals = {
-                'Categoría IA':   res['Categoría'],
-                'Subcategoría 1': res.get('Subcategoría 1', ''),
-                'Subcategoría 2': res.get('Subcategoría 2', ''),
-                'Subcategoría 3': res.get('Subcategoría 3', ''),
-                'Churn IA':       res['Churn detectado'],
-                'Confianza IA':   res['Confianza IA'],
-            }
-            for col_name, value in vals.items():
-                cell_updates.append({
-                    'range': gu.rowcol_to_a1(sheet_row, col_positions[col_name]),
-                    'values': [[str(value) if value is not None else '']]
-                })
-
-        if cell_updates:
-            # gspread batch_update accepts max ~1000 ranges per call; chunk if needed
-            chunk = 500
-            for i in range(0, len(cell_updates), chunk):
-                ws_source.batch_update(cell_updates[i:i+chunk])
-            print(f"✅ {len(rows_to_analyze)} filas actualizadas en '{SOURCE_TAB}' con categorías IA")
-
-        n_churn      = len(df_res[df_res["Churn detectado"] == "sí"])
-        n_riesgo     = len(df_res[df_res["Churn detectado"] == "riesgo"])
-        n_sin_cls    = len(df_res[df_res["Categoría"] == "Sin clasificar"])
-        n_sin_hs     = len(df_res[df_res["Sin registro HS"] == "Sí"])
-        cats         = df_res["Categoría"].value_counts().to_dict()
+        n_churn      = len(df_res[df_res["esChurn"] == "sí"])
+        n_riesgo     = len(df_res[df_res["esChurn"] == "riesgo"])
+        n_sin_cls    = len(df_res[df_res["categoria"] == "Sin clasificar"])
+        n_sin_hs     = len(df_res[df_res["sin_registro_hs"] == True])
+        cats         = df_res["categoria"].value_counts().to_dict()
 
         print(f"\n📊 Resumen PRD v2:")
         print(f"   Total procesadas : {len(resultados)}")

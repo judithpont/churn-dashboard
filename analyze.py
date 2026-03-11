@@ -79,9 +79,7 @@ SUBCATEGORIAS = {
         "arrepentimiento-compra", "cliente-fuera-icp",
         "desalineacion-facturacion", "cliente-solo-promocion"
     ],
-    "Mala comunicación en ventas": [
-        "cliente-fuera-icp", "desalineacion-facturacion"
-    ],
+    "Mala comunicación en ventas": [],
     # ⰾ Unrealistic Promises
     "Promesa irreal": [
         "funcionalidad-prometida-no-disponible", "servicio-estilo-agencia-prometido",
@@ -242,13 +240,16 @@ def analizar_transcript(transcript: str, cliente: str, titulo: str) -> dict:
     system_prompt = """Eres un analista senior de Revenue Operations en Plinng, empresa SaaS española de gestión y creación de contenido para redes sociales con IA.
 
 SOBRE PLINNG:
-Plinng es una plataforma SaaS de suscripción mensual/anual que ayuda a pymes y agencias a gestionar su presencia en redes sociales. Incluye:
-- Creación de contenido asistida por IA (posts, copy, imágenes)
+Plinng es una plataforma SaaS de suscripción mensual/anual que ayuda a pymes y agencias a gestionar y hacer crecer su presencia digital. Los servicios que ofrece incluyen:
+- Creación de contenido asistida por IA (posts, copy, imágenes) para redes sociales
 - Módulo de calendario editorial y publicación automática en RRSS (Instagram, Facebook, LinkedIn, etc.)
 - Módulo Maya (funcionalidades avanzadas de gestión visual/diseño)
 - Conexión directa con cuentas de redes sociales
+- Gestión de reputación online: monitorización y respuesta a reseñas en plataformas como Google Business, Trustpilot, etc.
+- Posicionamiento SEO: optimización para buscadores, contenido SEO, visibilidad en Google
+- Creación y mantenimiento de páginas web (landing pages, webs corporativas)
 - Soporte y onboarding incluido según plan
-El cliente contrata un plan y espera que Plinng publique o gestione su contenido en RRSS de forma autónoma o asistida.
+El cliente contrata un plan y espera que Plinng gestione uno o varios de estos servicios de forma autónoma o asistida.
 
 TAXONOMÍA OFICIAL DE CHURN — definiciones precisas:
 

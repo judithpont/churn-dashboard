@@ -31,7 +31,6 @@ DUENOS_OBJETIVO = [
 CATEGORIAS_CHURN = [
     "Fallo en la plataforma",
     "Cierre de venta forzado",
-    "Mala comunicación en ventas",
     "Problemas de calidad",
     "Sin impacto real en su negocio",
     "Promesa irreal",
@@ -79,7 +78,6 @@ SUBCATEGORIAS = {
         "arrepentimiento-compra", "cliente-fuera-icp",
         "desalineacion-facturacion", "cliente-solo-promocion"
     ],
-    "Mala comunicación en ventas": [],
     # ⰾ Unrealistic Promises
     "Promesa irreal": [
         "funcionalidad-prometida-no-disponible", "servicio-estilo-agencia-prometido",
@@ -285,15 +283,11 @@ TAXONOMÍA OFICIAL DE CHURN — definiciones precisas:
    CUÁNDO: El cliente no era el cliente ideal desde el principio: firmó solo por una promoción, no encaja en el ICP, hay una desalineación en la facturación (pagó más de lo esperado), o claramente se arrepintió al poco de contratar.
    EL PROBLEMA ES: el cliente nunca debió haber sido vendido.
 
-9. Mala comunicación en ventas
-   CUÁNDO: El vendedor explicó mal el producto, el plan, el alcance o las funcionalidades de forma confusa o incompleta, generando expectativas incorrectas NO intencionadas.
-   EL PROBLEMA ES: el cliente entendió mal qué compraba.
-
-10. Promesa irreal
+9. Promesa irreal
     CUÁNDO: El vendedor prometió activamente algo que NO existe o que Plinng NO puede cumplir: una funcionalidad inexistente, un nivel de servicio de agencia, un precio que no corresponde.
     EL PROBLEMA ES: promesa deliberada o sistémica que el producto no puede cumplir.
 
-11. Negocio cerrado
+10. Negocio cerrado
     CUÁNDO: El cliente cierra su empresa, reduce drásticamente personal o tiene razones externas completamente ajenas al producto o servicio de Plinng.
     EL PROBLEMA ES: causa externa, no relacionada con Plinng.
 
@@ -302,14 +296,6 @@ GUÍA DE DESEMPATE — cuando dos categorías parezcan similares:
 ▸ "Sin impacto real" vs "No justifica precio":
   → ¿El cliente dice "no funciona" / "no nos ha traído resultados"? → Sin impacto real
   → ¿El cliente dice "funciona pero es muy caro" / "hay algo más barato"? → No justifica precio
-
-▸ "Mala comunicación en ventas" vs "Promesa irreal":
-  → ¿El vendedor explicó mal lo que ya existe? → Mala comunicación en ventas
-  → ¿El vendedor prometió algo que no existe o que no se puede dar? → Promesa irreal
-
-▸ "Mala comunicación en ventas" vs "Cierre de venta forzado":
-  → ¿El cliente quería el producto pero entendió mal qué incluía? → Mala comunicación en ventas
-  → ¿El cliente claramente no era el cliente correcto o firmó por la promo? → Cierre de venta forzado
 
 ▸ "Fallo en la plataforma" vs "Problemas de calidad":
   → ¿El fallo es técnico (app, conexión, publicación automática)? → Fallo en la plataforma
@@ -351,7 +337,7 @@ Responde ÚNICAMENTE en JSON válido con este formato exacto:
   "paso1_comprension": "2-3 frases: qué le molestó, qué esperaba, qué no recibió",
   "razon_categoria": "1 frase explicando por qué elegiste ESA categoría y no otra similar",
   "churn_detectado": "sí | no | riesgo",
-  "categoria": "una de las 11 categorías del sistema, o null si no aplica",
+  "categoria": "una de las 10 categorías del sistema, o null si no aplica",
   "subcategorias": [],
   "nivel_riesgo": "alto | medio | bajo",
   "motivo_principal": "frase concisa en español del root cause real",

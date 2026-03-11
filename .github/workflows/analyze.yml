@@ -1,0 +1,28 @@
+name: Análisis Churn (analyze.py)
+
+on:
+  workflow_dispatch:   # permite lanzarlo manualmente desde GitHub
+  schedule:
+    - cron: '0 8 * * 1'  # también corre automáticamente cada lunes a las 8h
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install gspread pandas anthropic google-auth requests
+
+      - name: Run analyze.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        run: python analyze.py

@@ -132,6 +132,42 @@
     .refresh-btn{padding:7px 14px;background:var(--accent);color:#1a1a1a;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
     .refresh-btn:hover{opacity:.85;}
     .refresh-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:48px 24px;color:var(--muted);}
+    .empty-state svg{width:48px;height:48px;margin-bottom:12px;opacity:.4;}
+    .empty-state h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;}
+    .empty-state p{font-size:13px;}
+    /* Estado PS badges */
+    .estado-pendiente{background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .estado-gestion{background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .estado-cerrado{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+    /* Top root causes */
+    .root-cause-section{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:24px;}
+    .root-cause-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+    .root-cause-card{border-radius:10px;border:1px solid var(--border);padding:14px;background:#fafafa;}
+    .root-cause-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;background:#e0f2fe;color:#0369a1;display:inline-block;margin-bottom:8px;}
+    .root-cause-count{font-size:26px;font-weight:800;color:var(--danger);line-height:1;margin-bottom:4px;}
+    .root-cause-quote{font-size:11px;color:var(--muted);line-height:1.6;font-style:italic;border-left:3px solid var(--accent);padding-left:8px;margin-top:8px;}
+    /* Trend comparison */
+    .trend-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+    .trend-prev-bar{height:8px;background:#e5e7eb;border-radius:4px;position:relative;}
+    .trend-prev-fill{height:100%;background:#d1d5db;border-radius:4px;}
+    /* Clickable pill */
+    .sub-pill{cursor:pointer;transition:opacity .15s;}
+    .sub-pill:hover{opacity:.8;transform:scale(1.03);}
+    /* Mobile */
+    @media(max-width:600px){
+      .insights-grid{grid-template-columns:1fr!important;}
+      .root-cause-grid{grid-template-columns:1fr!important;}
+      .kpi-row{grid-template-columns:repeat(2,1fr)!important;}
+      .filter-bar{padding:10px 12px;}
+      .content{padding:12px;}
+    }
+    /* Risk badge with text */
+    .risk-alto::before{content:"🔴 Alto";}
+    .risk-medio::before{content:"🟡 Medio";}
+    .risk-bajo::before{content:"🟢 Bajo";}
   </style>
 </head>
 <body>
@@ -157,7 +193,14 @@
 <div class="filter-bar" id="filterModjo" style="display:none">
   <input type="text" class="search-input" id="fSearch" placeholder="🔍 Buscar empresa…" oninput="applyModjoFilters()"/>
   <select id="fOwner" onchange="applyModjoFilters()"><option value="">Todos los owners</option></select>
-  <select id="fCat" onchange="applyModjoFilters()"><option value="">Todos los motivos</option></select>
+  <select id="fCat" onchange="applyModjoFilters();populateSubCat()"><option value="">Todos los motivos</option></select>
+  <select id="fSubCat" onchange="applyModjoFilters()" style="min-width:170px"><option value="">Todos los submotivos</option></select>
+  <select id="fEstadoPS" onchange="applyModjoFilters()">
+    <option value="">Estado PS</option>
+    <option value="Pendiente">🔴 Pendiente</option>
+    <option value="En gestión">🟡 En gestión</option>
+    <option value="Cerrado">🟢 Cerrado</option>
+  </select>
   <select id="fChurn" onchange="applyModjoFilters()">
     <option value="">Churn + No churn</option>
     <option value="si">Solo churn</option>
@@ -205,6 +248,7 @@
       <div class="section-title">Distribución por motivo — haz clic en la barra para submotivos</div>
       <div class="chart-bars" id="chartModjo"></div>
     </div>
+    <div id="topRootCausesSection"></div>
     <div class="section-title">Detalle por motivo</div>
     <div class="insights-grid" id="insightsModjo"></div>
     <div id="conclModjo"></div>
@@ -215,7 +259,7 @@
     <div class="table-wrap">
       <table><thead><tr>
         <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-        <th>Motivo</th><th style="width:220px">Submotivo</th><th>Churn</th><th>Client Type</th><th>Ver</th>
+        <th>Motivo</th><th style="width:220px">Submotivo</th><th>Churn</th><th>Estado PS</th><th>Client Type</th><th>Ver</th>
       </tr></thead><tbody id="tbodyModjo"></tbody></table>
     </div>
   </div>
@@ -608,6 +652,55 @@ const HS_REASON={
     subs:['Falta de presupuesto (4)']
   }
 };
+
+
+// ============================================================
+// PRD v2 TAXONOMY — sub-motivos por categoría
+// ============================================================
+const CAT_SUBMOTIVOS={
+  'Problemas de calidad':['Delivery Speed Gap','Personalization Gap / Too Generic','Service Non-Delivery (GMB, SEO)','AI Content Rejection','contenido-generico','contenido-no-personalizado','identidad-visual-no-respetada','fotos-y-videos-no-usados','mensajeria-rrss-automatica','estrategia-mensual-nula'],
+  'Fallo en la plataforma':['Technical Errors','Failed Posting vs Calendar','Connection RRSS Failure','App UX Friction','app-inestable','publicaciones-no-publicadas','cambios-no-aplicados','gmb-no-gestionado','web-fdk'],
+  'Problema de soporte':['No / Slow Response Times','Issues Not Resolved Satisfactorily','Lack of Dedicated Support','soporte-lento-o-inexistente','respuesta-cs-insatisfactoria','ritmo-incumplido'],
+  'Fuera del alcance del plan':['Missing Features','Integration Not Available (TikTok)','Automation Capabilities Insufficient','onboarding-tedioso','contestador-llamadas-dificil-onboarding','fallos-de-ejecucion'],
+  'Fallo en el onboarding':['Never Fully Adopted the Tool','Too Complex to Use','Lack of Training Resources','Expectativas mal alineadas','onboarding-tedioso','fallos-de-ejecucion'],
+  'Sin impacto real en su negocio':['Too Expensive for Current Usage','Better Value Found Elsewhere','Budget Cuts / Downsizing','ROI Not Justified','roi-no-percibido'],
+  'Cierre de venta forzado':["Buyer's Remorse",'Wrong ICP Sold','Payment / Billing Misalignment','Promo-only Buyer','servicio-prometido-no-cumplido'],
+  'Promesa irreal':['Feature Promised Not Available','Agency-style Service Promised','Pricing Promised Incorrectly','servicio-prometido-no-cumplido'],
+  'Negocio cerrado':['Company Downsizing / Layoffs','Went Out of Business','cierra-negocio','churn-no-evitable'],
+  'Mala comunicacion en ventas':["Buyer's Remorse",'Wrong ICP Sold','Expectativas vs. servicio desalineadas'],
+  'No justifica precio':['Too Expensive for Current Usage','Budget Cuts / Downsizing','roi-no-percibido','Relación calidad-precio insuficiente'],
+  'WTP < Cost':['Too Expensive for Current Usage','Budget Cuts / Downsizing','roi-no-percibido']
+};
+
+
+function filterBySubCat(el,cat,sub){
+  // Set both category and sub-cat filters
+  const fCatEl=document.getElementById('fCat');
+  const fSubEl=document.getElementById('fSubCat');
+  if(fCatEl)fCatEl.value=cat;
+  populateSubCat();
+  if(fSubEl)fSubEl.value=sub;
+  // Switch to tabla view
+  switchMain('tabla-modjo');
+  applyModjoFilters();
+}
+
+function populateSubCat(){
+  const cat=document.getElementById('fCat').value;
+  const sel=document.getElementById('fSubCat');
+  sel.innerHTML='<option value="">Todos los submotivos</option>';
+  if(!cat)return;
+  // Gather sub-motivos from data that match this category
+  const dataSubs=new Set();
+  (window._modjoRows||[]).filter(r=>r.categoria===cat).forEach(r=>{
+    const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);
+    subs.forEach(s=>{if(s&&s!=='Otros')dataSubs.add(s);});
+  });
+  // Merge with taxonomy
+  const taxSubs=CAT_SUBMOTIVOS[cat]||[];
+  const allSubs=[...new Set([...dataSubs,...taxSubs])].sort();
+  allSubs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
+}
 
 // Auto-grouping keywords for "Sin motivo" records
 const AUTO_KW={
@@ -1188,6 +1281,44 @@ const HS_RECOM_MAP={
 const RECOM_COLOR={alta:'#ef4444',media:'#f59e0b',baja:'#22c55e'};
 const RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad Baja'};
 
+
+// ============================================================
+// TOP ROOT CAUSES SECTION
+// ============================================================
+function renderTopRootCauses(){
+  const el=document.getElementById('topRootCausesSection');
+  if(!el)return;
+  const churns=filteredModjo.filter(r=>r.esChurn);
+  if(!churns.length){el.innerHTML='';return;}
+  // Count sub-motivos across all churns
+  const subCnt={};
+  churns.forEach(r=>{
+    const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);
+    subs.forEach(s=>{if(s)subCnt[s]=(subCnt[s]||0)+1;});
+  });
+  const top3=Object.entries(subCnt).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  if(!top3.length){el.innerHTML='';return;}
+  const cardsHTML=top3.map(([tag,n])=>{
+    // Find an example transcript for this tag
+    const example=churns.find(r=>{
+      const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);
+      return subs.includes(tag)&&(r.displayText||'').trim().length>20;
+    });
+    const quote=example?'"'+(example.displayText||'').substring(0,100).trim()+'…"':'';
+    const cliente=example?example.cliente:'';
+    return`<div class="root-cause-card">
+      <span class="root-cause-tag">${tag}</span>
+      <div class="root-cause-count">${n} churn${n>1?'s':''}</div>
+      ${quote?`<div class="root-cause-quote">${quote}<br><em style="font-size:10px;color:#9ca3af">${cliente}</em></div>`:''}
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="root-cause-section">
+    <div class="section-title" style="margin-bottom:0">🔍 Top root causes este mes</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:0;margin-top:4px">Sub-motivos más frecuentes en churns del período — haz clic en un chip para filtrar</p>
+    <div class="root-cause-grid">${cardsHTML}</div>
+  </div>`;
+}
+
 function renderHSRecomendaciones(){
   const el=document.getElementById('recomHS');
   if(!el)return;
@@ -1299,11 +1430,15 @@ function renderModjoExecSummary(){
 
 function renderModjoKPI(id){
   const t=filteredModjo.length,c=filteredModjo.filter(r=>r.esChurn).length;
+  const sinClasif=filteredModjo.filter(r=>!r.categoria||r.categoria==='Sin clasificar').length;
+  const pendingPS=filteredModjo.filter(r=>(r.estadoPS||'Pendiente')==='Pendiente'&&r.esChurn).length;
   document.getElementById(id).innerHTML=`
     <div class="kpi-card"><div class="kpi-label">Total llamadas</div><div class="kpi-value">${t}</div><div class="kpi-sub">en el período</div></div>
     <div class="kpi-card kpi-churn"><div class="kpi-label">Churn detectado</div><div class="kpi-value">${c}</div><div class="kpi-sub">llamadas con churn</div></div>
     <div class="kpi-card kpi-ok"><div class="kpi-label">Sin churn</div><div class="kpi-value">${t-c}</div><div class="kpi-sub">llamadas OK</div></div>
-    <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${t?Math.round(c/t*100):0}%</div><div class="kpi-sub">del total</div></div>`;
+    <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${t?Math.round(c/t*100):0}%</div><div class="kpi-sub">del total</div></div>
+    <div class="kpi-card" style="border-color:#f59e0b"><div class="kpi-label" style="color:#d97706">Sin clasificar</div><div class="kpi-value" style="color:#d97706">${sinClasif}</div><div class="kpi-sub">revisión manual</div></div>
+    <div class="kpi-card" style="border-color:#ef4444"><div class="kpi-label" style="color:#dc2626">Pendiente PS</div><div class="kpi-value" style="color:#dc2626">${pendingPS}</div><div class="kpi-sub">churns sin atender</div></div>`;
 }
 // ============================================================
 // MODJO RECOMMENDATIONS (dynamic, based on filtered period)
@@ -1505,21 +1640,40 @@ function renderHSKPI(){
 function renderHSTrend(){
   const withDates=filteredHS.filter(r=>r.churn_date);
   if(!withDates.length){document.getElementById('trendBarsHS').innerHTML='<p style="color:var(--muted);font-size:13px">Sin fechas disponibles</p>';return;}
+  // Count all months (not just filtered period) for comparison
+  const allMonthCounts={};
+  HS_DATA.filter(r=>r.churn_date).forEach(r=>{const m=r.churn_date.substring(0,7);allMonthCounts[m]=(allMonthCounts[m]||0)+1;});
   const monthCounts={};
   withDates.forEach(r=>{const m=r.churn_date.substring(0,7);monthCounts[m]=(monthCounts[m]||0)+1;});
   const sortedMonths=Object.keys(monthCounts).sort();
   const maxV=Math.max(...Object.values(monthCounts),1);
-  document.getElementById('trendBarsHS').innerHTML=sortedMonths.map(m=>{
+  const barsHTML=sortedMonths.map(m=>{
     const v=monthCounts[m];
+    // Get previous month for comparison
+    const d=new Date(m+'-01');d.setMonth(d.getMonth()-1);
+    const prevM=d.toISOString().substring(0,7);
+    const prevV=allMonthCounts[prevM]||0;
     const label=new Date(m+'-01').toLocaleDateString('es-ES',{month:'short',year:'2-digit'});
     const pct=Math.max(v/maxV*100,3);
     const color=v===maxV?'#ef4444':v>=maxV*0.7?'#f59e0b':'var(--accent)';
+    const diff=v-prevV;
+    const diffLabel=prevV>0?`<span style="font-size:10px;font-weight:600;color:${diff>0?'#ef4444':diff<0?'#22c55e':'#6b7280'}">${diff>0?'▲':'▼'} ${Math.abs(diff)} vs mes ant.</span>`:'';
     return`<div class="chart-bar-row">
       <div class="chart-bar-label" style="width:80px">${label}</div>
       <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%;background:${color}">${v}</div></div>
       <div class="chart-bar-count">${v}</div>
+      <div style="width:120px;text-align:left;padding-left:8px">${diffLabel}</div>
     </div>`;
   }).join('');
+  // Summary: current vs previous month
+  const now=new Date();const curM=now.toISOString().substring(0,7);
+  const prevD=new Date(now);prevD.setMonth(prevD.getMonth()-1);const prevM=prevD.toISOString().substring(0,7);
+  const curV=allMonthCounts[curM]||0;const prevV2=allMonthCounts[prevM]||0;
+  const summaryHTML=prevV2>0?`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px 12px;background:${curV>prevV2?'#fee2e2':curV<prevV2?'#dcfce7':'var(--bg)'};border-radius:8px">
+    <strong>Este mes vs. mes anterior:</strong> ${curV} churns este mes vs ${prevV2} el mes pasado
+    <strong style="color:${curV>prevV2?'#dc2626':curV<prevV2?'#15803d':'#6b7280'}">${curV>prevV2?'▲ Peor':curV<prevV2?'▼ Mejora':'= Sin cambio'}</strong>
+  </div>`:'';
+  document.getElementById('trendBarsHS').innerHTML=summaryHTML+barsHTML;
 }
 
 // ============================================================
@@ -1554,6 +1708,10 @@ function renderHSExecSummary(){
 
 function renderHSInsights(){
   const recomEl=document.getElementById('recomHS');if(recomEl)recomEl.innerHTML='';
+  if(!filteredHS.length){
+    document.getElementById('insightsHS').innerHTML='<div class="empty-state" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3>Sin datos para este período</h3><p>Ajusta los filtros o selecciona un rango con datos.</p></div>';
+    return;
+  }
   // Build reason counts
   const reasonRecs={};
   Object.keys(HS_REASON).forEach(k=>{reasonRecs[k]=[];});
@@ -1766,20 +1924,28 @@ function toggleCase(uid){
 }
 
 function renderTablaModjo(){
+  if(!filteredModjo.length){
+    document.getElementById('tbodyModjo').innerHTML=`<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3>Sin resultados</h3><p>No hay llamadas que coincidan con los filtros seleccionados.<br>Prueba a cambiar el período o limpiar algún filtro.</p></div></td></tr>`;
+    return;
+  }
+  const estadoClass={'Pendiente':'estado-pendiente','En gestión':'estado-gestion','Cerrado':'estado-cerrado'};
   document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>{
     const hasDetail=(r.displayText||'').trim().length>20;
     const{url:hsLink,ct:hsCt}=getHSInfoForRow(r);
     const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};
+    const estado=r.estadoPS||(r.esChurn?'Pendiente':'–');
+    const estadoCls=estadoClass[estado]||'';
     return`<tr>
       <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
-      <td><span class="cat-badge">${r.categoria}</span></td>
-      <td style="width:220px">${(()=>{const subs=(r.subcategorias&&r.subcategorias[0]!=='Otros'?r.subcategorias:r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);if(!subs.length)return'<span style="color:#9ca3af;font-size:11px">–</span>';return'<div style="display:flex;flex-direction:column;gap:3px">'+subs.map(s=>`<span class="cat-badge" style="background:#f3e8ff;color:#7c3aed;font-size:10px;padding:2px 6px;white-space:nowrap;display:inline-block;width:fit-content">${s}</span>`).join('')+'</div>';})()}</td>
+      <td><span class="cat-badge">${r.categoria||'<span style=color:#d97706>Sin clasificar</span>'}</span></td>
+      <td style="width:220px">${(()=>{const subs=(r.subcategorias&&r.subcategorias[0]!=='Otros'?r.subcategorias:r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);if(!subs.length)return'<span style="color:#9ca3af;font-size:11px">–</span>';return'<div style="display:flex;flex-direction:column;gap:3px">'+subs.map(s=>`<span class="cat-badge" style="background:#f3e8ff;color:#7c3aed;font-size:10px;padding:2px 6px;white-space:nowrap;display:inline-block;width:fit-content;cursor:pointer" onclick="filterBySubCat(this,'${r.categoria||''}','${s.replace(/'/g,"\'")}')">${s}</span>`).join('')+'</div>';})()}</td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
+      <td>${r.esChurn?`<span class="${estadoCls||'estado-pendiente'}">${estado==='–'?'–':estado}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>
-    ${hasDetail?`<tr><td colspan="9"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
   }).join('');
 }
 
@@ -1815,7 +1981,7 @@ function render(){
   document.getElementById('filterHS').style.display='none';
   if(currentMain==='modjo'){
     document.getElementById('filterModjo').style.display='flex';
-    document.getElementById('viewModjoInsights').style.display='block';renderModjoExecSummary();renderModjoKPI('kpiRowModjo');renderModjoInsights();
+    document.getElementById('viewModjoInsights').style.display='block';renderModjoExecSummary();renderModjoKPI('kpiRowModjo');renderTopRootCauses();renderModjoInsights();
   }else if(currentMain==='tabla-modjo'){
     document.getElementById('filterModjo').style.display='flex';
     document.getElementById('viewTablaModjo').style.display='block';renderTablaModjo();

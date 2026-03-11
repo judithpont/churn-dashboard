@@ -20,9 +20,13 @@ HUBSPOT_PORTAL_ID = "25808060"          # your HubSpot portal
 # PRD v2: confidence ≥ 8/10 to classify; below → "Sin clasificar"
 CONFIDENCE_THRESHOLD = 0.70
 
-# Set to True to re-analyze ALL rows, ignoring previously classified ones.
-# Use after prompt improvements to refresh the full historical dataset.
-FORCE_REANALYZE = True
+# IMPORTANTE:
+# False = no re-analiza todo el histórico, solo lo necesario
+FORCE_REANALYZE = False
+
+# NUEVO: limitar gasto / volumen
+# Pon None si quieres quitar el límite manual
+MAX_FILAS_MES_ACTUAL = 150
 
 DUENOS_OBJETIVO = [
     "Victor Ortega", "Óscar Lopo", "Martina Benalcazar",
@@ -175,7 +179,6 @@ def buscar_hubspot(cliente: str) -> dict:
         if not results:
             return {"sin_registro": True}
 
-        # Best match
         cliente_lower = cliente.lower()
         best_result = None
         for company in results:
@@ -204,7 +207,7 @@ def buscar_hubspot(cliente: str) -> dict:
             "hs_url": f"https://app.hubspot.com/contacts/{HUBSPOT_PORTAL_ID}/company/{company_id}" if company_id else "",
         }
     except Exception as e:
-        print(f"   ⚠️  Error HubSpot para '{cliente}': {e}")
+        print(f"   ⚠️  Error HubSpot para '{cliente}': {e}", flush=True)
         return {"sin_registro": True}
 
 
@@ -212,15 +215,6 @@ def buscar_hubspot(cliente: str) -> dict:
 # ANÁLISIS CON CLAUDE — PRD v2 two-step root cause reasoning
 # ============================================================
 def analizar_transcript(transcript: str, cliente: str, titulo: str, fuente: str = "transcript") -> dict:
-    """
-    PRD v2:
-    - System prompt sets Plinng product context + category disambiguation guide
-    - Step 1: comprehension — what bothered the client, what they expected, what they didn't get
-    - Step 2: root cause — choose category/sub-motivos based on root cause, not keywords
-    - Confidence ≥ 8/10 to assign category; below → 'Sin clasificar'
-    - Max 3 sub-motivos ordered by weight in churn decision
-    - temperature=0 for deterministic results
-    """
     if not transcript or len(transcript.strip()) < 50:
         return {
             "churn_detectado": "sin datos", "categoria": "Sin clasificar",
@@ -231,14 +225,13 @@ def analizar_transcript(transcript: str, cliente: str, titulo: str, fuente: str 
         }
 
     ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    transcript_truncado = transcript[:15000]  # Increased from 10k to 15k for longer calls
+    transcript_truncado = transcript[:15000]
 
     subcats_text = "\n".join(
         f"  {cat}:\n" + "\n".join(f"    · {s}" for s in subs)
         for cat, subs in SUBCATEGORIAS.items()
     )
 
-    # ── SYSTEM PROMPT: product context + taxonomy with descriptions + disambiguation ──
     system_prompt = """Eres un analista senior de Revenue Operations en Plinng, empresa SaaS española de gestión y creación de contenido para redes sociales con IA.
 
 SOBRE PLINNG:
@@ -309,7 +302,6 @@ GUÍA DE DESEMPATE — cuando dos categorías parezcan similares:
   → ¿El soporte deficiente ES el motivo principal del churn? → Problema de soporte
   → ¿El soporte fue mencionado de pasada pero el problema real es otro? → Usa la categoría del problema real"""
 
-    # ── Build source-specific context block ──
     if fuente == "resumen_existente":
         fuente_contexto = """FORMATO DEL TEXTO: Es un RESUMEN generado automáticamente por Modjo (IA), escrito en 3ª persona.
 No contiene turnos de conversación reales. Describe lo que ocurrió en la llamada de forma condensada.
@@ -322,7 +314,6 @@ Contiene turnos de conversación alternos. IMPORTANTE:
 - Basa el análisis EXCLUSIVAMENTE en lo que dice el cliente: sus quejas, sus expectativas, sus frustraciones.
 - Si el rep de Plinng menciona un problema ("veo que has tenido problemas con X"), no lo uses como evidencia a menos que el cliente lo confirme."""
 
-    # ── USER PROMPT: transcript + step-by-step instructions ──
     prompt = f"""Analiza el siguiente texto de llamada con el cliente "{cliente}" (título: "{titulo}").
 
 {fuente_contexto}
@@ -384,24 +375,21 @@ Reglas de salida:
         texto = msg.content[0].text.strip()
         parsed = json.loads(texto[texto.find("{"):texto.rfind("}")+1])
 
-        # Normalize confianza: PRD uses 1-10 scale; store as 0-1 internally
         raw_conf = parsed.get("confianza", 5)
         if isinstance(raw_conf, (int, float)) and raw_conf > 1:
             confianza = raw_conf / 10.0
         else:
             confianza = float(raw_conf)
 
-        # PRD rule: confidence < 8/10 → "Sin clasificar"
         if confianza < CONFIDENCE_THRESHOLD:
             parsed["categoria"] = "Sin clasificar"
             parsed["subcategorias"] = []
 
-        # Validate and filter subcategories: must belong to the assigned category
         cat_assigned = parsed.get("categoria", "Sin clasificar") or "Sin clasificar"
         subs = parsed.get("subcategorias", [])
         if not isinstance(subs, list):
             subs = [str(subs)] if subs else []
-        # Filter to only valid sub-motivos for this category (safety net)
+
         valid_subs = set(SUBCATEGORIAS.get(cat_assigned, []))
         if valid_subs:
             subs = [s for s in subs if s in valid_subs]
@@ -418,7 +406,7 @@ Reglas de salida:
         return parsed
 
     except Exception as e:
-        print(f"   ⚠️  Error Claude para '{cliente}': {e}")
+        print(f"   ⚠️  Error Claude para '{cliente}': {e}", flush=True)
         return {
             "churn_detectado": "sin datos", "categoria": "Sin clasificar",
             "subcategorias": [], "nivel_riesgo": "bajo",
@@ -431,16 +419,15 @@ Reglas de salida:
 # MAIN
 # ============================================================
 if __name__ == "__main__":
-    print(f"🚀 Análisis PRD v2 iniciado — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    print(f"   Modelo: claude-sonnet-4-6  |  Confianza mínima: {CONFIDENCE_THRESHOLD:.0%}")
-    print(f"   HubSpot API: {'✅ configurado' if HUBSPOT_API_KEY else '⚠️  no configurado'}")
+    print(f"🚀 Análisis PRD v2 iniciado — {datetime.now().strftime('%Y-%m-%d %H:%M')}", flush=True)
+    print(f"   Modelo: claude-sonnet-4-6  |  Confianza mínima: {CONFIDENCE_THRESHOLD:.0%}", flush=True)
+    print(f"   HubSpot API: {'✅ configurado' if HUBSPOT_API_KEY else '⚠️  no configurado'}", flush=True)
 
     spreadsheet = conectar_sheets()
     ws_source   = spreadsheet.worksheet(SOURCE_TAB)
     df          = pd.DataFrame(ws_source.get_all_records())
-    print(f"✅ {len(df)} filas cargadas de '{SOURCE_TAB}'")
+    print(f"✅ {len(df)} filas cargadas de '{SOURCE_TAB}'", flush=True)
 
-    # Detect columns
     def find_col(df, *keywords):
         for c in df.columns:
             cl = c.lower()
@@ -460,21 +447,35 @@ if __name__ == "__main__":
     col_cat_exist     = find_col(df, "categoría", "categoria")
     col_conf_exist    = find_col(df, "confianza")
 
-    print(f"   Transcript: {col_transcript}  |  Resumen: {col_resumen_exist}")
+    print(f"   Transcript: {col_transcript}  |  Resumen: {col_resumen_exist}", flush=True)
 
     # Filter by target owners
     df_filtrado = df[df[col_dueno].isin(DUENOS_OBJETIVO)].copy() if col_dueno else df.copy()
+    print(f"✅ {len(df_filtrado)} filas tras filtrar owners objetivo", flush=True)
+
+    # NUEVO: filtrar solo llamadas del mes actual
+    if col_fecha:
+        df_filtrado[col_fecha] = pd.to_datetime(df_filtrado[col_fecha], errors="coerce", dayfirst=True)
+        hoy = datetime.now()
+        inicio_mes = datetime(hoy.year, hoy.month, 1)
+        df_filtrado = df_filtrado[df_filtrado[col_fecha] >= inicio_mes].copy()
+        print(f"📅 Filtrado por mes actual desde {inicio_mes.strftime('%Y-%m-%d')} → {len(df_filtrado)} filas", flush=True)
+    else:
+        print("⚠️  No se encontró columna de fecha; no se aplica filtro de mes actual", flush=True)
+
+    # NUEVO: limitar número máximo de filas para controlar gasto
+    if MAX_FILAS_MES_ACTUAL is not None:
+        df_filtrado = df_filtrado.head(MAX_FILAS_MES_ACTUAL).copy()
+        print(f"🔒 Límite manual aplicado: {len(df_filtrado)} filas", flush=True)
 
     # --------------------------------------------------------
     # PRD v2 RULE: No re-analysis of already classified rows
-    # Skip rows that already have: category assigned AND confidence ≥ 8/10
-    # Only process: (1) new rows without category, (2) "Sin clasificar" rows
     # --------------------------------------------------------
     rows_to_analyze = df_filtrado
     skipped = 0
 
     if FORCE_REANALYZE:
-        print(f"   🔄 FORCE_REANALYZE=True → se re-analizarán TODAS las filas")
+        print("   🔄 FORCE_REANALYZE=True → se re-analizarán TODAS las filas", flush=True)
     elif col_cat_exist and col_conf_exist:
         def parse_conf(val):
             s = str(val).rstrip('%').strip()
@@ -494,14 +495,12 @@ if __name__ == "__main__":
         already_done = df_filtrado[mask_already_done]
         rows_to_analyze = df_filtrado[~mask_already_done]
         skipped = len(already_done)
-        print(f"   ⏭️  {skipped} filas ya clasificadas (confianza ≥ {CONFIDENCE_THRESHOLD:.0%}) → saltadas")
-    else:
-        pass  # col_cat_exist or col_conf_exist not found, analyze all
+        print(f"   ⏭️  {skipped} filas ya clasificadas (confianza ≥ {CONFIDENCE_THRESHOLD:.0%}) → saltadas", flush=True)
 
-    print(f"✅ {len(rows_to_analyze)} filas para analizar")
+    print(f"✅ {len(rows_to_analyze)} filas para analizar", flush=True)
 
     if rows_to_analyze.empty:
-        print("✅ Sin filas nuevas para procesar.")
+        print("✅ Sin filas nuevas para procesar.", flush=True)
         exit()
 
     resultados = []
@@ -518,42 +517,48 @@ if __name__ == "__main__":
         resumen_exist = str(row.get(col_resumen_exist, "")).strip()  if col_resumen_exist else ""
 
         cliente = extraer_cliente(participantes, dueno)
-        print(f"\n[{idx}/{total}] {dueno or 'N/A'} — {cliente or titulo or call_id}")
+        print(f"\n[{idx}/{total}] {dueno or 'N/A'} — {cliente or titulo or call_id}", flush=True)
 
         fuente = "transcript"
         if transcript:
-            print(f"   📄 Fuente: transcript ({len(transcript)} chars)")
+            print(f"   📄 Fuente: transcript ({len(transcript)} chars)", flush=True)
         elif resumen_exist:
             transcript = resumen_exist
             fuente     = "resumen_existente"
-            print(f"   📄 Fuente: resumen existente ({len(transcript)} chars) — sin transcript disponible")
+            print(f"   📄 Fuente: resumen existente ({len(transcript)} chars) — sin transcript disponible", flush=True)
         else:
-            print(f"   ⚠️  Sin transcript ni resumen — llamada ID: {call_id}")
+            print(f"   ⚠️  Sin transcript ni resumen — llamada ID: {call_id}", flush=True)
 
-        # ---- STEP 1+2: Two-step root cause analysis ----
         analisis  = analizar_transcript(transcript, cliente, titulo, fuente)
         confianza = float(analisis.get("confianza", 0.0))
         subcats   = analisis.get("subcategorias", [])
         subcats_str = " | ".join(subcats) if subcats else ""
 
-        print(f"   → Churn: {analisis['churn_detectado']} | Cat: {analisis['categoria']} | "
-              f"Conf: {confianza:.0%} | Subs: {subcats_str or '–'}")
+        print(
+            f"   → Churn: {analisis['churn_detectado']} | Cat: {analisis['categoria']} | "
+            f"Conf: {confianza:.0%} | Subs: {subcats_str or '–'}",
+            flush=True
+        )
 
         if analisis["categoria"] == "Sin clasificar":
-            print(f"   ⚠️  Confianza < {CONFIDENCE_THRESHOLD:.0%} → marcado como 'Sin clasificar' para revisión manual")
+            print(
+                f"   ⚠️  Confianza < {CONFIDENCE_THRESHOLD:.0%} → marcado como 'Sin clasificar' para revisión manual",
+                flush=True
+            )
 
-        # ---- Sprint 2: HubSpot enrichment ----
         hs = {}
         if HUBSPOT_API_KEY:
             hs = buscar_hubspot(cliente)
             if hs.get("sin_registro"):
-                print(f"   🔍 HubSpot: Sin registro para '{cliente}'")
+                print(f"   🔍 HubSpot: Sin registro para '{cliente}'", flush=True)
             else:
-                print(f"   ✅ HubSpot: {hs.get('name','')} | Type: {hs.get('saas_client_type','')} | Reason: {hs.get('churn_reason','')}")
-                # If category is "Sin clasificar" and HubSpot has a reason, use it as fallback
+                print(
+                    f"   ✅ HubSpot: {hs.get('name','')} | Type: {hs.get('saas_client_type','')} | Reason: {hs.get('churn_reason','')}",
+                    flush=True
+                )
                 if analisis["categoria"] == "Sin clasificar" and hs.get("churn_reason"):
                     analisis["categoria"] = hs["churn_reason"]
-                    print(f"   → Categoría de HubSpot aplicada: {analisis['categoria']}")
+                    print(f"   → Categoría de HubSpot aplicada: {analisis['categoria']}", flush=True)
 
         resultados.append({
             "owner":             dueno,
@@ -566,7 +571,7 @@ if __name__ == "__main__":
             "contactId":         "",
             "esChurn":           analisis["churn_detectado"],
             "categoria":         analisis["categoria"],
-            "subcategorias":     [s for s in subcats if s],  # solo las que apliquen
+            "subcategorias":     [s for s in subcats if s],
             "confianza":         confianza,
             "nivel_riesgo":      analisis["nivel_riesgo"],
             "motivo_principal":  analisis["motivo_principal"],
@@ -582,7 +587,6 @@ if __name__ == "__main__":
         })
         time.sleep(0.5)
 
-    # ---- Load existing JSON for incremental merge ----
     json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modjo_data.json")
     existing_data = {}
     if not FORCE_REANALYZE and os.path.exists(json_path):
@@ -593,11 +597,10 @@ if __name__ == "__main__":
                 key = rec.get("llamada_id", "")
                 if key:
                     existing_data[key] = rec
-            print(f"\n📂 {len(existing_data)} registros previos cargados de 'modjo_data.json'")
+            print(f"\n📂 {len(existing_data)} registros previos cargados de 'modjo_data.json'", flush=True)
         except Exception as e:
-            print(f"\n⚠️  Error leyendo modjo_data.json: {e}")
+            print(f"\n⚠️  Error leyendo modjo_data.json: {e}", flush=True)
 
-    # ---- Merge new results with existing ----
     for rec in resultados:
         key = rec.get("llamada_id", "")
         if key:
@@ -605,7 +608,6 @@ if __name__ == "__main__":
 
     all_records = list(existing_data.values()) if existing_data else resultados
 
-    # ---- Save to modjo_data.json ----
     json_output = {
         "generated_at": datetime.now().isoformat(),
         "total": len(all_records),
@@ -615,9 +617,11 @@ if __name__ == "__main__":
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(json_output, f, indent=2, ensure_ascii=False)
 
-    print(f"\n✅ {len(all_records)} registros guardados en 'modjo_data.json' ({len(resultados)} nuevos/actualizados)")
+    print(
+        f"\n✅ {len(all_records)} registros guardados en 'modjo_data.json' ({len(resultados)} nuevos/actualizados)",
+        flush=True
+    )
 
-    # ---- Summary stats ----
     if resultados:
         df_res = pd.DataFrame(resultados)
         n_churn      = len(df_res[df_res["esChurn"] == "sí"])
@@ -626,15 +630,15 @@ if __name__ == "__main__":
         n_sin_hs     = len(df_res[df_res["sin_registro_hs"] == True])
         cats         = df_res["categoria"].value_counts().to_dict()
 
-        print(f"\n📊 Resumen PRD v2:")
-        print(f"   Total procesadas : {len(resultados)}")
-        print(f"   Saltadas (ya OK) : {skipped}")
-        print(f"   Churn detectado  : {n_churn}")
-        print(f"   Riesgo           : {n_riesgo}")
-        print(f"   Sin clasificar   : {n_sin_cls}  ← revisión manual")
-        print(f"   Sin registro HS  : {n_sin_hs}")
-        print(f"\n   Categorías:")
+        print(f"\n📊 Resumen PRD v2:", flush=True)
+        print(f"   Total procesadas : {len(resultados)}", flush=True)
+        print(f"   Saltadas (ya OK) : {skipped}", flush=True)
+        print(f"   Churn detectado  : {n_churn}", flush=True)
+        print(f"   Riesgo           : {n_riesgo}", flush=True)
+        print(f"   Sin clasificar   : {n_sin_cls}  ← revisión manual", flush=True)
+        print(f"   Sin registro HS  : {n_sin_hs}", flush=True)
+        print(f"\n   Categorías:", flush=True)
         for cat, cnt in sorted(cats.items(), key=lambda x: -x[1]):
-            print(f"   - {cat}: {cnt}")
+            print(f"   - {cat}: {cnt}", flush=True)
 
-    print("\n✅ Análisis PRD v2 completado.")
+    print("\n✅ Análisis PRD v2 completado.", flush=True)

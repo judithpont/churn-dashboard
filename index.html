@@ -682,19 +682,17 @@ function populateSubCat(){
   const sel=document.getElementById('fSubCat');
   sel.innerHTML='<option value="">Todos los submotivos</option>';
   if(!cat)return;
-  // Gather sub-motivos from data that match this category
+  // 1. Gather sub-motivos actually present in the data for this category
   const dataSubs=new Set();
-  // Use allModjo (all loaded rows) so options don't depend on current filter
   (allModjo||[]).filter(r=>r.categoria===cat).forEach(r=>{
     const sub=r.subcategoria;
     if(sub&&sub!=='Otros')dataSubs.add(sub);
   });
-  // Merge with taxonomy — only show taxonomy subs that also appear in real data
-  // (if dataSubs has items, restrict; otherwise show all taxonomy subs)
-  const taxSubs=CAT_SUBMOTIVOS[cat]||[];
+  // 2. Fallback: use SUB_CAT_KW keys (same source as detSubCat) so names always match
+  const taxSubs=Object.keys(SUB_CAT_KW[cat]||{});
   const allSubs=dataSubs.size>0
-    ?[...new Set([...dataSubs])].sort()
-    :[...new Set([...taxSubs])].sort();
+    ?[...dataSubs].sort()
+    :taxSubs.sort();
   allSubs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
 }
 

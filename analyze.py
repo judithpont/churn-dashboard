@@ -20,12 +20,10 @@ HUBSPOT_PORTAL_ID = "25808060"          # your HubSpot portal
 # PRD v2: confidence ≥ 8/10 to classify; below → "Sin clasificar"
 CONFIDENCE_THRESHOLD = 0.70
 
-# IMPORTANTE:
 # False = no re-analiza todo el histórico, solo lo necesario
 FORCE_REANALYZE = False
 
-# NUEVO: limitar gasto / volumen
-# Pon None si quieres quitar el límite manual
+# Límite manual temporal para este mes
 MAX_FILAS_MES_ACTUAL = 150
 
 DUENOS_OBJETIVO = [
@@ -51,47 +49,38 @@ CATEGORIAS_CHURN = [
 
 # PRD v2: up to 3 sub-motivos per call, ordered by weight in the churn decision
 SUBCATEGORIAS = {
-    # 🏺 Quality Issues
     "Problemas de calidad": [
         "baja-velocidad-entrega", "contenido-generico", "servicio-no-entregado",
         "contenido-ai-rechazado", "identidad-visual-no-respetada", "cambios-no-aplicados"
     ],
-    # 🏗️ Technical Issues
     "Fallo en la plataforma": [
         "errores-tecnicos", "publicaciones-fallan-calendario", "fallo-conexion-rrss",
         "friccion-ux-app", "problemas-modulo-maya", "problemas-inicio-sesion"
     ],
-    # 🫂 Support & Service
     "Problema de soporte": [
         "respuesta-soporte-lenta", "problemas-no-resueltos", "falta-soporte-dedicado"
     ],
-    # 🪶 Product / Feature Gaps
     "Fuera del alcance del plan": [
         "funcionalidades-faltantes", "integracion-no-disponible", "automatizacion-insuficiente"
     ],
-    # 🚤 Poor Adoption
     "Fallo en el onboarding": [
         "herramienta-no-adoptada", "herramienta-demasiado-compleja",
         "falta-recursos-formacion", "objetivos-iniciales-no-alcanzados"
     ],
-    # 💰 Pricing & Value
     "Sin impacto real en su negocio": [
         "precio-demasiado-alto", "mejor-valor-en-competencia", "roi-no-justificado"
     ],
     "No justifica precio": [
         "precio-demasiado-alto", "mejor-valor-en-competencia", "roi-no-justificado"
     ],
-    # 🔫 Forced Sales Closing
     "Cierre de venta forzado": [
         "arrepentimiento-compra", "cliente-fuera-icp",
         "desalineacion-facturacion", "cliente-solo-promocion"
     ],
-    # ⰾ Unrealistic Promises
     "Promesa irreal": [
         "funcionalidad-prometida-no-disponible", "servicio-estilo-agencia-prometido",
         "precio-prometido-incorrecto"
     ],
-    # 🏚️ Business Changes
     "Negocio cerrado": [
         "negocio-cerrado", "reduccion-personal"
     ],
@@ -225,7 +214,7 @@ def analizar_transcript(transcript: str, cliente: str, titulo: str, fuente: str 
         }
 
     ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    transcript_truncado = transcript[:15000]
+    transcript_truncado = transcript[:8000]
 
     subcats_text = "\n".join(
         f"  {cat}:\n" + "\n".join(f"    · {s}" for s in subs)
@@ -453,7 +442,7 @@ if __name__ == "__main__":
     df_filtrado = df[df[col_dueno].isin(DUENOS_OBJETIVO)].copy() if col_dueno else df.copy()
     print(f"✅ {len(df_filtrado)} filas tras filtrar owners objetivo", flush=True)
 
-    # NUEVO: filtrar solo llamadas del mes actual
+    # Filtrar solo llamadas del mes actual
     if col_fecha:
         df_filtrado[col_fecha] = pd.to_datetime(df_filtrado[col_fecha], errors="coerce", dayfirst=True)
         hoy = datetime.now()
@@ -463,7 +452,7 @@ if __name__ == "__main__":
     else:
         print("⚠️  No se encontró columna de fecha; no se aplica filtro de mes actual", flush=True)
 
-    # NUEVO: limitar número máximo de filas para controlar gasto
+    # Límite manual de filas para controlar gasto
     if MAX_FILAS_MES_ACTUAL is not None:
         df_filtrado = df_filtrado.head(MAX_FILAS_MES_ACTUAL).copy()
         print(f"🔒 Límite manual aplicado: {len(df_filtrado)} filas", flush=True)

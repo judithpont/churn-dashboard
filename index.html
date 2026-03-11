@@ -1752,7 +1752,8 @@ function renderHSInsights(){
   });
 
   const total=filteredHS.length||1;
-  const sorted=Object.entries(reasonRecs).filter(([,v])=>v.length>0).sort((a,b)=>b[1].length-a[1].length);
+  // Show ALL categories (even those with 0 records in current period), sorted by count desc
+  const sorted=Object.entries(reasonRecs).sort((a,b)=>b[1].length-a[1].length);
   const maxC=Math.max(...sorted.map(([,v])=>v.length),1);
 
   // Chart
@@ -1769,14 +1770,17 @@ function renderHSInsights(){
           <div class="sub-bar-label" title="${s}">${s}</div>
           <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${Math.max(n/subMax*100,10)}%">${n}</div></div>
         </div>`).join('')
-      :`<div style="font-size:11px;color:var(--muted);padding:2px 0">${k==='Sin motivo registrado'?Object.entries(autoGroups).map(([g,n])=>`${g}: ${n}`).join(' · '):'Sin sub-motivos registrados'}</div>`;
+      :`<div style="font-size:11px;color:var(--muted);padding:2px 0">${v===0?'Sin casos este período':k==='Sin motivo registrado'?Object.entries(autoGroups).map(([g,n])=>`${g}: ${n}`).join(' · '):'Sin sub-motivos registrados'}</div>`;
+    const barStyle=v===0
+      ?`width:100%;background:rgba(156,163,175,.15);border:1px dashed rgba(156,163,175,.4);color:#9ca3af`
+      :`width:${Math.max(v/maxC*100,3)}%`;
     return`
-      <div class="chart-bar-row">
+      <div class="chart-bar-row" style="${v===0?'opacity:.55':''}">
         <div class="chart-bar-label">${mkInfo(tip)} ${label}</div>
         <div class="chart-bar-track" onclick="toggleSubChart('hsc${idx}')">
-          <div class="chart-bar-fill" style="width:${Math.max(v/maxC*100,3)}%">${v}</div>
+          <div class="chart-bar-fill" style="${barStyle}">${v===0?'0':v}</div>
         </div>
-        <div class="chart-bar-count">${Math.round(v/total*100)}%</div>
+        <div class="chart-bar-count" style="${v===0?'color:#9ca3af':''}">${Math.round(v/total*100)}%</div>
       </div>
       <div class="sub-chart" id="hsc${idx}">${subHTML}</div>`;
   }).join('');
@@ -1817,6 +1821,18 @@ function renderHSInsights(){
         <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">${realExamples}</ul>`:''}
         ${hsRec?`<div style="margin-top:8px;background:#f0fdf4;border-radius:6px;padding:6px 8px;font-size:11px;color:#15803d"><strong>Acción:</strong> ${hsRec.action}</div>`:''}
       </div>`;
+    // Card with no records: show greyed-out "Sin casos" state
+    if(v===0){
+      return`<div class="insight-card" style="opacity:.5;border-style:dashed">
+        <div class="insight-card-header">
+          <span class="insight-cat">${mkInfo(tip)} ${label}</span>
+          <span class="insight-badge badge-neutral">0%</span>
+        </div>
+        <div class="insight-count" style="color:#9ca3af">0</div>
+        <div class="insight-sub" style="color:#9ca3af">Sin casos este período</div>
+        ${tip&&tip!==`<strong>${label}</strong>`?`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><p style="font-size:11px;color:#9ca3af;line-height:1.6">${tip.replace(/<[^>]+>/g,'')}</p></div>`:''}
+      </div>`;
+    }
     return`<div class="insight-card">
       <div class="insight-card-header">
         <span class="insight-cat">${mkInfo(tip)} ${label}</span>

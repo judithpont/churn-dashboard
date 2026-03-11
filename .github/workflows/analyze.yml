@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 6 * * *'  # cada día a las 7h (España = UTC+1)
 
+permissions:
+  contents: write
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -19,12 +22,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install gspread pandas anthropic google-auth requests
+        run: pip install gspread pandas anthropic google-auth requests openpyxl
 
       - name: Run analyze.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          HUBSPOT_API_KEY: ${{ secrets.HUBSPOT_API_KEY }}
         run: python analyze.py
 
       - name: Commit modjo_data.json

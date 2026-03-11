@@ -138,10 +138,7 @@
     .empty-state svg{width:48px;height:48px;margin-bottom:12px;opacity:.4;}
     .empty-state h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;}
     .empty-state p{font-size:13px;}
-    /* Estado PS badges */
-    .estado-pendiente{background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
-    .estado-gestion{background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
-    .estado-cerrado{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+
     /* Top root causes */
     .root-cause-section{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:24px;}
     .root-cause-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
@@ -195,12 +192,7 @@
   <select id="fOwner" onchange="applyModjoFilters()"><option value="">Todos los owners</option></select>
   <select id="fCat" onchange="applyModjoFilters();populateSubCat()"><option value="">Todos los motivos</option></select>
   <select id="fSubCat" onchange="applyModjoFilters()" style="min-width:170px"><option value="">Todos los submotivos</option></select>
-  <select id="fEstadoPS" onchange="applyModjoFilters()">
-    <option value="">Estado PS</option>
-    <option value="Pendiente">🔴 Pendiente</option>
-    <option value="En gestión">🟡 En gestión</option>
-    <option value="Cerrado">🟢 Cerrado</option>
-  </select>
+
   <select id="fChurn" onchange="applyModjoFilters()">
     <option value="">Churn + No churn</option>
     <option value="si">Solo churn</option>
@@ -259,7 +251,7 @@
     <div class="table-wrap">
       <table><thead><tr>
         <th></th><th>Fecha</th><th>Cliente</th><th>Owner</th>
-        <th>Motivo</th><th style="width:220px">Submotivo</th><th>Churn</th><th>Estado PS</th><th>Client Type</th><th>Ver</th>
+        <th>Motivo</th><th style="width:220px">Submotivo</th><th>Churn Modjo</th><th>Client Type HS</th><th>Ver</th>
       </tr></thead><tbody id="tbodyModjo"></tbody></table>
     </div>
   </div>
@@ -1431,14 +1423,12 @@ function renderModjoExecSummary(){
 function renderModjoKPI(id){
   const t=filteredModjo.length,c=filteredModjo.filter(r=>r.esChurn).length;
   const sinClasif=filteredModjo.filter(r=>!r.categoria||r.categoria==='Sin clasificar').length;
-  const pendingPS=filteredModjo.filter(r=>(r.estadoPS||'Pendiente')==='Pendiente'&&r.esChurn).length;
   document.getElementById(id).innerHTML=`
     <div class="kpi-card"><div class="kpi-label">Total llamadas</div><div class="kpi-value">${t}</div><div class="kpi-sub">en el período</div></div>
     <div class="kpi-card kpi-churn"><div class="kpi-label">Churn detectado</div><div class="kpi-value">${c}</div><div class="kpi-sub">llamadas con churn</div></div>
     <div class="kpi-card kpi-ok"><div class="kpi-label">Sin churn</div><div class="kpi-value">${t-c}</div><div class="kpi-sub">llamadas OK</div></div>
     <div class="kpi-card kpi-rate"><div class="kpi-label">Tasa de churn</div><div class="kpi-value">${t?Math.round(c/t*100):0}%</div><div class="kpi-sub">del total</div></div>
-    <div class="kpi-card" style="border-color:#f59e0b"><div class="kpi-label" style="color:#d97706">Sin clasificar</div><div class="kpi-value" style="color:#d97706">${sinClasif}</div><div class="kpi-sub">revisión manual</div></div>
-    <div class="kpi-card" style="border-color:#ef4444"><div class="kpi-label" style="color:#dc2626">Pendiente PS</div><div class="kpi-value" style="color:#dc2626">${pendingPS}</div><div class="kpi-sub">churns sin atender</div></div>`;
+    <div class="kpi-card" style="border-color:#f59e0b"><div class="kpi-label" style="color:#d97706">Sin clasificar</div><div class="kpi-value" style="color:#d97706">${sinClasif}</div><div class="kpi-sub">revisión manual</div></div>`;
 }
 // ============================================================
 // MODJO RECOMMENDATIONS (dynamic, based on filtered period)
@@ -1925,23 +1915,19 @@ function toggleCase(uid){
 
 function renderTablaModjo(){
   if(!filteredModjo.length){
-    document.getElementById('tbodyModjo').innerHTML=`<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3>Sin resultados</h3><p>No hay llamadas que coincidan con los filtros seleccionados.<br>Prueba a cambiar el período o limpiar algún filtro.</p></div></td></tr>`;
+    document.getElementById('tbodyModjo').innerHTML=`<tr><td colspan="9"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3>Sin resultados</h3><p>No hay llamadas que coincidan con los filtros seleccionados.<br>Prueba a cambiar el período o limpiar algún filtro.</p></div></td></tr>`;
     return;
   }
-  const estadoClass={'Pendiente':'estado-pendiente','En gestión':'estado-gestion','Cerrado':'estado-cerrado'};
   document.getElementById('tbodyModjo').innerHTML=filteredModjo.map((r,i)=>{
     const hasDetail=(r.displayText||'').trim().length>20;
     const{url:hsLink,ct:hsCt}=getHSInfoForRow(r);
     const colors={'Active Client':'background:#dcfce7;color:#15803d','Churn':'background:#fee2e2;color:#dc2626','No client':'background:#f3f4f6;color:#6b7280','Guest':'background:#fef3c7;color:#92400e'};
-    const estado=r.estadoPS||(r.esChurn?'Pendiente':'–');
-    const estadoCls=estadoClass[estado]||'';
     return`<tr>
       <td>${hasDetail?`<button class="expand-btn" onclick="toggleXI('m${i}')">▸</button>`:''}</td>
       <td>${r.fechaStr||'–'}</td><td>${r.cliente}</td><td>${r.owner}</td>
       <td><span class="cat-badge">${r.categoria||'<span style=color:#d97706>Sin clasificar</span>'}</span></td>
       <td style="width:220px">${(()=>{const subs=(r.subcategorias&&r.subcategorias[0]!=='Otros'?r.subcategorias:r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);if(!subs.length)return'<span style="color:#9ca3af;font-size:11px">–</span>';return'<div style="display:flex;flex-direction:column;gap:3px">'+subs.map(s=>`<span class="cat-badge" style="background:#f3e8ff;color:#7c3aed;font-size:10px;padding:2px 6px;white-space:nowrap;display:inline-block;width:fit-content;cursor:pointer" onclick="filterBySubCat(this,'${r.categoria||''}','${s.replace(/'/g,"\'")}')">${s}</span>`).join('')+'</div>';})()}</td>
       <td><span class="churn-badge ${r.esChurn?'churn-si':'churn-no'}">${r.esChurn?'Sí':'No'}</span></td>
-      <td>${r.esChurn?`<span class="${estadoCls||'estado-pendiente'}">${estado==='–'?'–':estado}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>

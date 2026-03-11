@@ -2,8 +2,8 @@ name: Análisis Churn Diario
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # cada día 08:00 UTC
-  workflow_dispatch:      # permite ejecutarlo manualmente
+    - cron: '0 8 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -11,6 +11,8 @@ permissions:
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout código

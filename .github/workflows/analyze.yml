@@ -3,7 +3,7 @@ name: Análisis Churn (analyze.py)
 on:
   workflow_dispatch:   # permite lanzarlo manualmente desde GitHub
   schedule:
-    - cron: '0 8 * * 1'  # también corre automáticamente cada lunes a las 8h
+    - cron: '0 6 * * *'  # cada día a las 7h (España = UTC+1)
 
 jobs:
   analyze:

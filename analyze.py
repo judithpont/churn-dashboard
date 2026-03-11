@@ -18,7 +18,7 @@ HUBSPOT_API_KEY   = os.environ.get("HUBSPOT_API_KEY", "")
 HUBSPOT_PORTAL_ID = "25808060"          # your HubSpot portal
 
 # PRD v2: confidence ≥ 8/10 to classify; below → "Sin clasificar"
-CONFIDENCE_THRESHOLD = 0.80
+CONFIDENCE_THRESHOLD = 0.70
 
 DUENOS_OBJETIVO = [
     "Victor Ortega", "Óscar Lopo", "Martina Benalcazar",

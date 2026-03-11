@@ -214,10 +214,12 @@ def buscar_hubspot(cliente: str) -> dict:
 def analizar_transcript(transcript: str, cliente: str, titulo: str) -> dict:
     """
     PRD v2:
+    - System prompt sets Plinng product context + category disambiguation guide
     - Step 1: comprehension — what bothered the client, what they expected, what they didn't get
     - Step 2: root cause — choose category/sub-motivos based on root cause, not keywords
     - Confidence ≥ 8/10 to assign category; below → 'Sin clasificar'
     - Max 3 sub-motivos ordered by weight in churn decision
+    - temperature=0 for deterministic results
     """
     if not transcript or len(transcript.strip()) < 50:
         return {
@@ -229,16 +231,95 @@ def analizar_transcript(transcript: str, cliente: str, titulo: str) -> dict:
         }
 
     ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    transcript_truncado = transcript[:10000]
+    transcript_truncado = transcript[:15000]  # Increased from 10k to 15k for longer calls
 
-    cats_list = "\n".join(f"  - {c}" for c in CATEGORIAS_CHURN)
     subcats_text = "\n".join(
         f"  {cat}:\n" + "\n".join(f"    · {s}" for s in subs)
         for cat, subs in SUBCATEGORIAS.items()
     )
 
-    prompt = f"""Eres un analista de Revenue Operations especializado en churn de SaaS.
-Analiza la siguiente transcripción de llamada con el cliente "{cliente}" (título: "{titulo}").
+    # ── SYSTEM PROMPT: product context + taxonomy with descriptions + disambiguation ──
+    system_prompt = """Eres un analista senior de Revenue Operations en Plinng, empresa SaaS española de gestión y creación de contenido para redes sociales con IA.
+
+SOBRE PLINNG:
+Plinng es una plataforma SaaS de suscripción mensual/anual que ayuda a pymes y agencias a gestionar su presencia en redes sociales. Incluye:
+- Creación de contenido asistida por IA (posts, copy, imágenes)
+- Módulo de calendario editorial y publicación automática en RRSS (Instagram, Facebook, LinkedIn, etc.)
+- Módulo Maya (funcionalidades avanzadas de gestión visual/diseño)
+- Conexión directa con cuentas de redes sociales
+- Soporte y onboarding incluido según plan
+El cliente contrata un plan y espera que Plinng publique o gestione su contenido en RRSS de forma autónoma o asistida.
+
+TAXONOMÍA OFICIAL DE CHURN — definiciones precisas:
+
+1. Fallo en la plataforma
+   CUÁNDO: El producto tiene errores técnicos. Posts que no se publican, la app falla, conexión con RRSS rota, calendario no funciona, login imposible.
+   EL PROBLEMA ES: el software no funciona correctamente.
+
+2. Problemas de calidad
+   CUÁNDO: La plataforma funciona, pero el CONTENIDO entregado no cumple expectativas. Posts genéricos, identidad visual no respetada, cambios no aplicados, contenido IA rechazado.
+   EL PROBLEMA ES: lo que producen no es bueno, no lo que falla técnicamente.
+
+3. Problema de soporte
+   CUÁNDO: El cliente tuvo un problema (técnico o de calidad) pero el equipo de soporte tardó demasiado, no lo resolvió, o el cliente siente abandono.
+   EL PROBLEMA ES: la atención al cliente fue deficiente.
+
+4. Fuera del alcance del plan
+   CUÁNDO: El cliente necesita una funcionalidad, integración o nivel de automatización que Plinng NO ofrece en su plan (o en ningún plan).
+   EL PROBLEMA ES: el producto no tiene lo que el cliente necesita.
+
+5. Fallo en el onboarding
+   CUÁNDO: El cliente nunca llegó a usar bien la herramienta. La adoptó poco, le pareció demasiado compleja, no recibió formación suficiente, o los objetivos de arranque no se cumplieron.
+   EL PROBLEMA ES: el cliente no se incorporó bien al producto.
+
+6. Sin impacto real en su negocio
+   CUÁNDO: El cliente usó el producto durante un tiempo, pero NO vio resultados ni retorno (más seguidores, más clientes, más ventas). El producto funcionó técnicamente pero no generó valor de negocio percibido.
+   EL PROBLEMA ES: ROI no demostrado o percepción de que "no les sirve de nada".
+
+7. No justifica precio
+   CUÁNDO: El cliente reconoce que el producto funciona o tiene valor, pero considera que el precio es demasiado alto para lo que recibe, o hay alternativas más baratas.
+   EL PROBLEMA ES: relación precio/valor subjetiva, no ausencia de impacto.
+
+8. Cierre de venta forzado
+   CUÁNDO: El cliente no era el cliente ideal desde el principio: firmó solo por una promoción, no encaja en el ICP, hay una desalineación en la facturación (pagó más de lo esperado), o claramente se arrepintió al poco de contratar.
+   EL PROBLEMA ES: el cliente nunca debió haber sido vendido.
+
+9. Mala comunicación en ventas
+   CUÁNDO: El vendedor explicó mal el producto, el plan, el alcance o las funcionalidades de forma confusa o incompleta, generando expectativas incorrectas NO intencionadas.
+   EL PROBLEMA ES: el cliente entendió mal qué compraba.
+
+10. Promesa irreal
+    CUÁNDO: El vendedor prometió activamente algo que NO existe o que Plinng NO puede cumplir: una funcionalidad inexistente, un nivel de servicio de agencia, un precio que no corresponde.
+    EL PROBLEMA ES: promesa deliberada o sistémica que el producto no puede cumplir.
+
+11. Negocio cerrado
+    CUÁNDO: El cliente cierra su empresa, reduce drásticamente personal o tiene razones externas completamente ajenas al producto o servicio de Plinng.
+    EL PROBLEMA ES: causa externa, no relacionada con Plinng.
+
+GUÍA DE DESEMPATE — cuando dos categorías parezcan similares:
+
+▸ "Sin impacto real" vs "No justifica precio":
+  → ¿El cliente dice "no funciona" / "no nos ha traído resultados"? → Sin impacto real
+  → ¿El cliente dice "funciona pero es muy caro" / "hay algo más barato"? → No justifica precio
+
+▸ "Mala comunicación en ventas" vs "Promesa irreal":
+  → ¿El vendedor explicó mal lo que ya existe? → Mala comunicación en ventas
+  → ¿El vendedor prometió algo que no existe o que no se puede dar? → Promesa irreal
+
+▸ "Mala comunicación en ventas" vs "Cierre de venta forzado":
+  → ¿El cliente quería el producto pero entendió mal qué incluía? → Mala comunicación en ventas
+  → ¿El cliente claramente no era el cliente correcto o firmó por la promo? → Cierre de venta forzado
+
+▸ "Fallo en la plataforma" vs "Problemas de calidad":
+  → ¿El fallo es técnico (app, conexión, publicación automática)? → Fallo en la plataforma
+  → ¿El fallo es en el contenido producido (calidad, estilo, cambios)? → Problemas de calidad
+
+▸ "Problema de soporte" vs otras categorías con soporte mencionado:
+  → ¿El soporte deficiente ES el motivo principal del churn? → Problema de soporte
+  → ¿El soporte fue mencionado de pasada pero el problema real es otro? → Usa la categoría del problema real"""
+
+    # ── USER PROMPT: transcript + step-by-step instructions ──
+    prompt = f"""Analiza la siguiente transcripción de llamada con el cliente "{cliente}" (título: "{titulo}").
 
 TRANSCRIPCIÓN:
 {transcript_truncado}
@@ -248,27 +329,17 @@ TRANSCRIPCIÓN:
 INSTRUCCIONES — razona en DOS PASOS antes de responder:
 
 PASO 1 — COMPRENSIÓN:
-Lee la transcripción completa. Extrae mentalmente:
+Lee la transcripción completa. Extrae:
   a) ¿Qué le molestó específicamente al cliente?
   b) ¿Qué esperaba recibir y no recibió?
   c) ¿Qué fue lo que realmente lo empujó a irse o a estar insatisfecho?
   (No etiquetes todavía. Solo comprende la experiencia completa.)
 
 PASO 2 — ROOT CAUSE:
-Con ese contexto, identifica el root cause REAL del churn o insatisfacción.
-Elige la categoría cuya causa raíz encaje mejor con la EXPERIENCIA DEL CLIENTE,
-no con las palabras literales que usó.
+Con ese contexto, usa las definiciones y la guía de desempate del sistema para identificar el root cause REAL.
+Elige la categoría cuya definición encaje con la experiencia del cliente, no con las palabras que usó.
 
-Ejemplo: si el cliente menciona 'la app es lenta' y 'nadie me respondió' pero
-su queja real es que nunca recibió el servicio prometido en ventas →
-root cause: Mala comunicación en ventas, no Fallo en la plataforma.
-
----
-
-Categorías válidas:
-{cats_list}
-
-Sub-motivos válidos por categoría:
+Sub-motivos válidos por categoría (usa SOLO los de la categoría que elijas):
 {subcats_text}
 
 ---
@@ -276,27 +347,30 @@ Sub-motivos válidos por categoría:
 Responde ÚNICAMENTE en JSON válido con este formato exacto:
 
 {{
-  "paso1_comprension": "2-3 frases resumiendo qué le molestó, qué esperaba, qué no recibió",
+  "paso1_comprension": "2-3 frases: qué le molestó, qué esperaba, qué no recibió",
+  "razon_categoria": "1 frase explicando por qué elegiste ESA categoría y no otra similar",
   "churn_detectado": "sí | no | riesgo",
-  "categoria": "una de las categorías listadas arriba, o null si no aplica",
+  "categoria": "una de las 11 categorías del sistema, o null si no aplica",
   "subcategorias": [],
   "nivel_riesgo": "alto | medio | bajo",
-  "motivo_principal": "frase concisa en español explicando el root cause real",
+  "motivo_principal": "frase concisa en español del root cause real",
   "resumen_ia": "resumen ejecutivo de 2-3 frases en español",
   "confianza": 8
 }}
 
 Reglas de salida:
-- "subcategorias": elige ÚNICAMENTE sub-motivos de la lista de la categoría que hayas asignado. NO mezcles sub-motivos de otras categorías. Incluye solo los que estén claramente respaldados por la transcripción. Si ninguno encaja, devuelve []. Máximo 3, ordenados de mayor a menor peso en la decisión del cliente.
-- "confianza": número del 1 al 10 (no entre 0 y 1). 9-10 si la causa es muy clara; 5-6 si hay señales pero ambiguas; 3-4 si el transcript es vago; 1-2 si es ininteligible o no hay datos.
-- "categoria": null si confianza < 8 (la llamada quedará como 'Sin clasificar' para revisión manual).
+- "subcategorias": ÚNICAMENTE sub-motivos de la categoría elegida, respaldados por la transcripción. Array vacío si ninguno encaja. Máximo 3, de mayor a menor peso.
+- "confianza": 1-10 (no 0-1). 9-10 = causa muy clara; 7-8 = señales claras con algo de ambigüedad; 5-6 = señales pero ambiguas; 3-4 = transcript vago; 1-2 = ininteligible o sin datos.
+- "categoria": null si confianza < 8 → quedará como "Sin clasificar" para revisión manual.
 - "churn_detectado": "sí" si el cliente ya solicitó baja o claramente se va; "riesgo" si hay señales sin confirmar; "no" si la llamada es normal.
 """
 
     try:
         msg = ai.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=800,
+            max_tokens=1200,
+            temperature=0,
+            system=system_prompt,
             messages=[{"role": "user", "content": prompt}]
         )
         texto = msg.content[0].text.strip()
@@ -330,6 +404,8 @@ Reglas de salida:
         parsed.setdefault("nivel_riesgo", "bajo")
         parsed.setdefault("motivo_principal", "")
         parsed.setdefault("resumen_ia", "")
+        parsed.setdefault("razon_categoria", "")
+        parsed.setdefault("paso1_comprension", "")
         parsed["confianza"] = confianza
         return parsed
 
@@ -482,6 +558,7 @@ if __name__ == "__main__":
             "Nivel de riesgo":    analisis["nivel_riesgo"],
             "Motivo principal":   analisis["motivo_principal"],
             "Paso 1 comprensión": analisis.get("paso1_comprension", ""),
+            "Razón categoría":    analisis.get("razon_categoria", ""),
             "Resumen IA":         analisis["resumen_ia"],
             # Sprint 2 fields
             "SaaS Client Type":   hs.get("saas_client_type", ""),

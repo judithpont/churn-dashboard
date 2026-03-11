@@ -1553,11 +1553,15 @@ function renderModjoInsights(){
         <div class="sub-bar-label" title="${s}">${s}</div>
         <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${Math.max(n/subMax*100,10)}%">${n}</div></div>
       </div>`).join('');
+    // Bar color: accent by default; if churn filter active use danger tone
+    const fChVal=(document.getElementById('fChurn')||{}).value||'';
+    const barCol=fChVal==='si'?'#ef4444':'var(--accent)';
+    const churnPct=cc[c].total>0?Math.round(cc[c].churn/cc[c].total*100):0;
+    const churnHint=cc[c].churn>0&&fChVal!=='si'?`<span style="font-size:10px;color:#ef4444;font-weight:600;margin-left:4px">(${cc[c].churn} churns)</span>`:'';
     return`<div>
       <div class="chart-bar-row" style="cursor:pointer" onclick="toggleModjoSub(${idx})">
-        <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</div>
-        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%">${cc[c].total}</div></div>
-        <div class="chart-bar-count">${cc[c].churn>0?`<span style="color:#ef4444">${cc[c].churn}</span>`:''}</div>
+        <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}${churnHint}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%;background:${barCol}">${cc[c].total}</div></div>
         <div style="width:42px;text-align:right;font-size:11px;font-weight:600;color:var(--muted)">${Math.round(cc[c].total/totalFiltered*100)}%</div>
       </div>
       <div class="sub-chart" id="msc${idx}">${subHTML}</div>

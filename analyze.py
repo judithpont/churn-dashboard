@@ -24,7 +24,7 @@ CONFIDENCE_THRESHOLD = 0.80
 FORCE_REANALYZE = False
 
 # Límite manual temporal para este mes
-MAX_FILAS_MES_ACTUAL = 150
+MAX_FILAS_MES_ACTUAL = 10
 
 DUENOS_OBJETIVO = [
     "Victor Ortega", "Óscar Lopo", "Martina Benalcazar",

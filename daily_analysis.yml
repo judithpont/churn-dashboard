@@ -2,8 +2,8 @@ name: Análisis Churn Diario
 
 on:
   schedule:
-    - cron: '0 8 * * *'
-  workflow_dispatch:
+    - cron: '0 8 * * *'   # cada día 08:00 UTC
+  workflow_dispatch:      # permite ejecutarlo manualmente
 
 permissions:
   contents: write
@@ -28,6 +28,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          HUBSPOT_API_KEY: ${{ secrets.HUBSPOT_API_KEY }}
         run: python analyze.py
 
       - name: Commit y push de modjo_data.json

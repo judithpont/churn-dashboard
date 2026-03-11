@@ -493,7 +493,7 @@ if __name__ == "__main__":
         })
         time.sleep(0.5)
 
-    # ---- Save results ----
+    # ---- Save results to Análisis_Churn ----
     output_tab = "Análisis_Churn"
     try:
         ws_res = spreadsheet.worksheet(output_tab)
@@ -505,6 +505,67 @@ if __name__ == "__main__":
         df_res = pd.DataFrame(resultados)
         ws_res.update([df_res.columns.tolist()] + df_res.values.tolist())
         print(f"\n✅ {len(resultados)} resultados guardados en '{output_tab}'")
+
+    # ---- Write AI columns back to Resultados_Churn so the dashboard can read them ----
+    if resultados:
+        print(f"\n📝 Escribiendo categorías IA de vuelta a '{SOURCE_TAB}'...")
+        import gspread.utils as gu
+
+        # Get current headers (row 1)
+        headers = ws_source.row_values(1)
+
+        # AI columns to sync back
+        ai_col_names = [
+            'Categoría IA', 'Subcategoría 1', 'Subcategoría 2',
+            'Subcategoría 3', 'Churn IA', 'Confianza IA'
+        ]
+
+        # Find or create column positions (1-indexed)
+        col_positions = {}
+        next_col_idx = len(headers) + 1
+        header_updates = []
+
+        for col_name in ai_col_names:
+            found = None
+            for i, h in enumerate(headers):
+                if h.strip() == col_name:
+                    found = i + 1  # 1-indexed
+                    break
+            if found:
+                col_positions[col_name] = found
+            else:
+                col_positions[col_name] = next_col_idx
+                header_updates.append({'range': gu.rowcol_to_a1(1, next_col_idx), 'values': [[col_name]]})
+                next_col_idx += 1
+
+        if header_updates:
+            ws_source.batch_update(header_updates)
+            print(f"   ➕ Añadidas {len(header_updates)} columnas AI a '{SOURCE_TAB}'")
+
+        # Batch update each analyzed row
+        cell_updates = []
+        for orig_idx, res in zip(rows_to_analyze.index, resultados):
+            sheet_row = int(orig_idx) + 2  # +1 header, +1 for 0-to-1 indexing
+            vals = {
+                'Categoría IA':   res['Categoría'],
+                'Subcategoría 1': res.get('Subcategoría 1', ''),
+                'Subcategoría 2': res.get('Subcategoría 2', ''),
+                'Subcategoría 3': res.get('Subcategoría 3', ''),
+                'Churn IA':       res['Churn detectado'],
+                'Confianza IA':   res['Confianza IA'],
+            }
+            for col_name, value in vals.items():
+                cell_updates.append({
+                    'range': gu.rowcol_to_a1(sheet_row, col_positions[col_name]),
+                    'values': [[str(value) if value is not None else '']]
+                })
+
+        if cell_updates:
+            # gspread batch_update accepts max ~1000 ranges per call; chunk if needed
+            chunk = 500
+            for i in range(0, len(cell_updates), chunk):
+                ws_source.batch_update(cell_updates[i:i+chunk])
+            print(f"✅ {len(rows_to_analyze)} filas actualizadas en '{SOURCE_TAB}' con categorías IA")
 
         n_churn      = len(df_res[df_res["Churn detectado"] == "sí"])
         n_riesgo     = len(df_res[df_res["Churn detectado"] == "riesgo"])

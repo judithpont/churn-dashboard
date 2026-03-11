@@ -1049,6 +1049,12 @@ function procesarModjo(raw){
     const summary=col(r,'Resumen IA','resumen ia','Resumen Ia','RESUMEN IA','Summary','summary','Resumen','resumen');
     const fechaStr=col(r,'Fecha','fecha','Date','date');
     const contactId=col(r,'HubSpot Contact ID','hubspot contact id','hubspot_contact_id','Contact ID','contact id','ContactId','contactid');
+    // AI columns written back by analyze.py — use these when available
+    const aiCat=col(r,'Categoría IA','Categoria IA');
+    const aiSub1=col(r,'Subcategoría 1','Subcategoria 1');
+    const aiSub2=col(r,'Subcategoría 2','Subcategoria 2');
+    const aiSub3=col(r,'Subcategoría 3','Subcategoria 3');
+    const aiChurn=col(r,'Churn IA','churn ia');
     // Only include records where the owner column explicitly matches a known owner
     const owner=canonicalOwner(dueno);
     if(!owner)continue;
@@ -1056,13 +1062,21 @@ function procesarModjo(raw){
     if(partic){const ps=partic.split(',').map(p=>p.replace(/[\[\]]/g,'').trim()).filter(Boolean);for(const p of ps){if(!canonicalOwner(p)){cliente=p;break;}}}
     if(!cliente)cliente='Desconocido';
     const combined=(transcript||'')+' '+(summary||'');
-    // Use summary for categorization (avoids false positives from long transcripts)
-    // Fall back to combined if no summary
+    // Use summary for categorization fallback (avoids false positives from long transcripts)
     const catText=summary||combined;
     const key=norm(cliente)+'_'+fechaStr+'_'+norm(owner);
     if(seen.has(key))continue;seen.add(key);
-    const cat=detCat(catText);
-    rows.push({owner,cliente,categoria:cat,subcategoria:detSubCat(catText,cat),subcategorias:detSubCats(catText,cat),esChurn:detChurn(combined),fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
+    // ── AI-first categorization ──
+    // If analyze.py has already classified this call, use its result.
+    // Fall back to keyword matching only when AI column is absent or "Sin clasificar".
+    const useAI=aiCat&&aiCat!=='Sin clasificar'&&aiCat.trim()!=='';
+    const cat=useAI?aiCat:detCat(catText);
+    const subs=useAI?[aiSub1,aiSub2,aiSub3].filter(Boolean):detSubCats(catText,cat);
+    const sub=subs[0]||(useAI?'':detSubCat(catText,cat));
+    // Use AI churn flag if present ('sí'/'si' = true); else keyword detection
+    const aiChurnLow=(aiChurn||'').toLowerCase().trim();
+    const esChurn=aiChurn?aiChurnLow==='sí'||aiChurnLow==='si':detChurn(combined);
+    rows.push({owner,cliente,categoria:cat,subcategoria:sub,subcategorias:subs,esChurn,fecha:parseDate(fechaStr),fechaStr,displayText:summary||transcript||'',contactId:contactId||''});
   }
   return rows;
 }

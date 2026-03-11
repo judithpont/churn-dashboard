@@ -1292,10 +1292,10 @@ function findRelevantQuote(displayText,tag){
   const best=scored.sort((a,b)=>b.score-a.score)[0];
   if(best.score===0){
     const fallback=sentences.find(s=>/baja|cancel|churn|irse|no quiere|no seguir|no renovar|darme de baja/i.test(s));
-    if(fallback)return fallback.substring(0,130).trim();
-    return sentences[0].substring(0,130).trim();
+    if(fallback)return fallback.trim();
+    return sentences[0].trim();
   }
-  return best.s.substring(0,130).trim();
+  return best.s.trim();
 }
 
 function renderTopRootCauses(){
@@ -1323,7 +1323,14 @@ function renderTopRootCauses(){
       if(q)quotes.push({q,cliente:r.cliente});
       if(quotes.length>=2)break;
     }
-    const quotesHTML=quotes.map(({q,cliente})=>`<div class="root-cause-quote" style="margin-top:8px"><span style="font-style:italic">"${q}${q.length>=130?'\u2026':''}"</span><br><em style="font-size:10px;color:#9ca3af">${cliente}</em></div>`).join('');
+    const quotesHTML=quotes.map(({q,cliente},qi)=>{
+      const PREVIEW=110;const uid='rc_'+tag.replace(/\W/g,'')+'_'+qi;
+      const short=q.substring(0,PREVIEW);const hasMore=q.length>PREVIEW;
+      return`<div class="root-cause-quote" style="margin-top:8px">
+        <span style="font-style:italic">"<span id="${uid}_short">${short}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="toggleCase('${uid}')"> … ver más ▾</span>`:''}</span><span id="${uid}_full" style="display:none;font-style:italic">${q}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="toggleCase('${uid}')"> ver menos ▴</span></span>"</span><br>
+        <em style="font-size:10px;color:#9ca3af">${cliente}</em>
+      </div>`;
+    }).join('');
     return`<div class="root-cause-card"><span class="root-cause-tag">${tag}</span><div class="root-cause-count" style="margin-top:6px">${n} ${isChurnMode?'churn':'caso'}${n>1?'s':''}</div>${quotesHTML}</div>`;
   }).join('');
   const subtitle=isChurnMode?'Sub-motivos más frecuentes en churns del período':'Sub-motivos más frecuentes en el período — filtra por <strong>Solo churn</strong> para ver solo churns';

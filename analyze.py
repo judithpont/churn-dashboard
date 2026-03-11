@@ -279,7 +279,7 @@ Responde ÚNICAMENTE en JSON válido con este formato exacto:
   "paso1_comprension": "2-3 frases resumiendo qué le molestó, qué esperaba, qué no recibió",
   "churn_detectado": "sí | no | riesgo",
   "categoria": "una de las categorías listadas arriba, o null si no aplica",
-  "subcategorias": ["sub-motivo 1", "sub-motivo 2", "sub-motivo 3"],
+  "subcategorias": [],
   "nivel_riesgo": "alto | medio | bajo",
   "motivo_principal": "frase concisa en español explicando el root cause real",
   "resumen_ia": "resumen ejecutivo de 2-3 frases en español",
@@ -287,7 +287,7 @@ Responde ÚNICAMENTE en JSON válido con este formato exacto:
 }}
 
 Reglas de salida:
-- "subcategorias": máximo 3 sub-motivos de la lista, ordenados de mayor a menor peso en la decisión del cliente. Array vacío si no aplica.
+- "subcategorias": elige ÚNICAMENTE sub-motivos de la lista de la categoría que hayas asignado. NO mezcles sub-motivos de otras categorías. Incluye solo los que estén claramente respaldados por la transcripción. Si ninguno encaja, devuelve []. Máximo 3, ordenados de mayor a menor peso en la decisión del cliente.
 - "confianza": número del 1 al 10 (no entre 0 y 1). 9-10 si la causa es muy clara; 5-6 si hay señales pero ambiguas; 3-4 si el transcript es vago; 1-2 si es ininteligible o no hay datos.
 - "categoria": null si confianza < 8 (la llamada quedará como 'Sin clasificar' para revisión manual).
 - "churn_detectado": "sí" si el cliente ya solicitó baja o claramente se va; "riesgo" si hay señales sin confirmar; "no" si la llamada es normal.
@@ -314,10 +314,15 @@ Reglas de salida:
             parsed["categoria"] = "Sin clasificar"
             parsed["subcategorias"] = []
 
-        # Ensure max 3 sub-motivos
+        # Validate and filter subcategories: must belong to the assigned category
+        cat_assigned = parsed.get("categoria", "Sin clasificar") or "Sin clasificar"
         subs = parsed.get("subcategorias", [])
         if not isinstance(subs, list):
             subs = [str(subs)] if subs else []
+        # Filter to only valid sub-motivos for this category (safety net)
+        valid_subs = set(SUBCATEGORIAS.get(cat_assigned, []))
+        if valid_subs:
+            subs = [s for s in subs if s in valid_subs]
         parsed["subcategorias"] = subs[:3]
 
         parsed.setdefault("churn_detectado", "no")
@@ -428,11 +433,14 @@ if __name__ == "__main__":
         print(f"\n[{idx}/{total}] {dueno or 'N/A'} — {cliente or titulo or call_id}")
 
         fuente = "transcript"
-        if not transcript and resumen_exist:
+        if transcript:
+            print(f"   📄 Fuente: transcript ({len(transcript)} chars)")
+        elif resumen_exist:
             transcript = resumen_exist
             fuente     = "resumen_existente"
-        elif not transcript:
-            print(f"   ⚠️  Sin transcript — llamada ID: {call_id}")
+            print(f"   📄 Fuente: resumen existente ({len(transcript)} chars) — sin transcript disponible")
+        else:
+            print(f"   ⚠️  Sin transcript ni resumen — llamada ID: {call_id}")
 
         # ---- STEP 1+2: Two-step root cause analysis ----
         analisis  = analizar_transcript(transcript, cliente, titulo)

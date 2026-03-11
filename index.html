@@ -1128,22 +1128,22 @@ function setHSPeriod(p,btn){hsperiod=p;document.querySelectorAll('.hs-period').f
 function modjoConclHTML(){
   const t=filteredModjo.length;
   if(!t)return'';
-  const totalChurns=filteredModjo.filter(r=>r.esChurn).length||1;
-  // Build per-category stats
+  // Build per-category stats — ALL calls (churn + no churn)
   const cc={};
   Object.keys(CAT_KW).forEach(k=>{cc[k]={total:0,churn:0,clients:[]};});
   filteredModjo.forEach(r=>{
     if(cc[r.categoria]){
       cc[r.categoria].total++;
-      if(r.esChurn){cc[r.categoria].churn++;cc[r.categoria].clients.push(r.cliente);}
+      if(r.esChurn)cc[r.categoria].churn++;
+      cc[r.categoria].clients.push(r.cliente);
     }
   });
-  // Only categories with churns, sorted by churn count
-  const sorted=Object.entries(cc).filter(([,v])=>v.churn>0).sort((a,b)=>b[1].churn-a[1].churn);
+  // All categories with any calls, sorted by total
+  const sorted=Object.entries(cc).filter(([,v])=>v.total>0).sort((a,b)=>b[1].total-a[1].total);
   if(!sorted.length)return'';
-  // Frequency thresholds based on % of total churns
-  function freqClass(n){const p=n/totalChurns*100;return p>=30?'freq-muy-alta':p>=15?'freq-alta':p>=7?'freq-media':'freq-baja';}
-  function freqLabel(n){const p=n/totalChurns*100;return p>=30?'Muy alta frecuencia':p>=15?'Alta frecuencia':p>=7?'Frecuencia media':'Frecuencia baja';}
+  // Frequency thresholds based on % of total calls
+  function freqClass(n){const p=n/t*100;return p>=30?'freq-muy-alta':p>=15?'freq-alta':p>=7?'freq-media':'freq-baja';}
+  function freqLabel(n){const p=n/t*100;return p>=30?'Muy alta frecuencia':p>=15?'Alta frecuencia':p>=7?'Frecuencia media':'Frecuencia baja';}
   // Category descriptions for conclusions
   const CAT_CONCL={
     'Fallo en la plataforma':'Errores técnicos que impiden usar el servicio correctamente: publicaciones que no se publican, vinculación fallida con Instagram/Facebook, carga lenta o errores de acceso. Cuando el cliente no puede usar la plataforma desde el inicio, la confianza se pierde de forma irreversible.',
@@ -1170,8 +1170,8 @@ function modjoConclHTML(){
     const topSub=subCounts[0];
     const subInsight=topSub?`<div class="sub-note">📊 <strong>Submotivo principal:</strong> "${topSub[0]}" con ${topSub[1]} menciones (${Math.round(topSub[1]/data.total*100)}% de este motivo). ${subCounts.length>1?`Seguido de "${subCounts[1][0]}" (${subCounts[1][1]}).`:''}</div>`:'';
     return`<div class="concl-item">
-      <h3><span class="concl-freq ${freqClass(data.churn)}">${freqLabel(data.churn)}</span> ${i+1}. ${cat}</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:6px"><strong>${data.churn} churns</strong> de ${data.total} llamadas en el período (${churnRate}% tasa) — ${Math.round(data.churn/totalChurns*100)}% del churn total.</p>
+      <h3><span class="concl-freq ${freqClass(data.total)}">${freqLabel(data.total)}</span> ${i+1}. ${cat}</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:6px"><strong>${data.total} llamadas</strong> en el período (${Math.round(data.total/t*100)}% del total)${data.churn>0?` · ${data.churn} con churn (${churnRate}%)`:' · Sin churns'}.</p>
       ${desc?`<p>${desc}</p>`:''}
       ${subPills}
       ${subInsight}
@@ -1187,11 +1187,11 @@ function modjoConclHTML(){
       <span class="concl-toggle">▶</span>
     </div>
     <div class="concl-body">
-      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Análisis sobre <strong>${t} llamadas</strong> con <strong>${totalChurns} churns detectados</strong> en el período seleccionado. Basado en resúmenes IA de transcripciones.</p>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Análisis sobre <strong>${t} llamadas</strong> en el período seleccionado. Basado en resúmenes IA de transcripciones.</p>
       ${itemsHTML}
       <div class="pattern-box">
-        <h3>⚠️ Patrón crítico detectado en el período</h3>
-        <p>El motivo dominante es <strong>${topCat}</strong>${top2&&top2!==topCat?' seguido de <strong>'+top2+'</strong>':''}. La mayoría de los churns no son instantáneos: los clientes dan señales durante semanas antes de cancelar. Las llamadas de seguimiento llegan tarde y se convierten en rescate de emergencia en lugar de gestión proactiva.</p>
+        <h3>⚠️ Patrón más frecuente detectado en el período</h3>
+        <p>El motivo con más llamadas es <strong>${topCat}</strong>${top2&&top2!==topCat?' seguido de <strong>'+top2+'</strong>':''}. Las categorías con mayor volumen concentran la mayoría de las incidencias; actuar sobre ellas tiene el mayor impacto en la experiencia del cliente.</p>
       </div>
     </div>
   </div>`;
@@ -1607,7 +1607,7 @@ function renderModjoInsights(){
       ${subPillsHTML}
       ${exHTML}
     </div>`;}).join('');
-  document.getElementById('conclModjo').innerHTML='';
+  document.getElementById('conclModjo').innerHTML=modjoConclHTML();
   renderModjoRecomendaciones();
 }
 // ============================================================

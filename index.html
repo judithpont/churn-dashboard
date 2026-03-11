@@ -1277,38 +1277,53 @@ const RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad
 // ============================================================
 // TOP ROOT CAUSES SECTION
 // ============================================================
+// Find the most relevant sentence from displayText that matches the sub-motivo tag
+function findRelevantQuote(displayText,tag){
+  if(!displayText||displayText.trim().length<20)return'';
+  const stopWords=new Set(['de','la','el','en','no','se','que','los','las','con','una','un','por','del','al','su','es','lo','le','ya','ha','si','me','mi','te','tu']);
+  const tagWords=tag.toLowerCase().replace(/[\/\-()+]/g,' ').split(/\s+/).filter(w=>w.length>2&&!stopWords.has(w));
+  const sentences=displayText.split(/[.!?\n]+/).map(s=>s.trim()).filter(s=>s.length>15&&s.length<300);
+  if(!sentences.length)return displayText.substring(0,130).trim();
+  const scored=sentences.map(s=>{const sl=s.toLowerCase();const score=tagWords.reduce((acc,w)=>acc+(sl.includes(w)?1:0),0);return{s,score};});
+  const best=scored.sort((a,b)=>b.score-a.score)[0];
+  if(best.score===0){
+    const fallback=sentences.find(s=>/baja|cancel|churn|irse|no quiere|no seguir|no renovar|darme de baja/i.test(s));
+    if(fallback)return fallback.substring(0,130).trim();
+    return sentences[0].substring(0,130).trim();
+  }
+  return best.s.substring(0,130).trim();
+}
+
 function renderTopRootCauses(){
   const el=document.getElementById('topRootCausesSection');
   if(!el)return;
-  const churns=filteredModjo.filter(r=>r.esChurn);
-  if(!churns.length){el.innerHTML='';return;}
-  // Count sub-motivos across all churns
+  if(!filteredModjo.length){el.innerHTML='';return;}
+  const fCh=(document.getElementById('fChurn')||{}).value||'';
+  const baseRows=fCh==='si'?filteredModjo.filter(r=>r.esChurn):filteredModjo;
+  if(!baseRows.length){el.innerHTML='';return;}
   const subCnt={};
-  churns.forEach(r=>{
-    const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria&&r.subcategoria!=='Otros'?[r.subcategoria]:[]);
-    subs.forEach(s=>{if(s)subCnt[s]=(subCnt[s]||0)+1;});
+  baseRows.forEach(r=>{
+    const sub=r.subcategoria&&r.subcategoria!=='Otros'?r.subcategoria:'';
+    if(sub)subCnt[sub]=(subCnt[sub]||0)+1;
   });
   const top3=Object.entries(subCnt).sort((a,b)=>b[1]-a[1]).slice(0,3);
   if(!top3.length){el.innerHTML='';return;}
+  const isChurnMode=fCh==='si';
   const cardsHTML=top3.map(([tag,n])=>{
-    // Find an example transcript for this tag
-    const example=churns.find(r=>{
-      const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);
-      return subs.includes(tag)&&(r.displayText||'').trim().length>20;
-    });
-    const quote=example?'"'+(example.displayText||'').substring(0,100).trim()+'…"':'';
-    const cliente=example?example.cliente:'';
-    return`<div class="root-cause-card">
-      <span class="root-cause-tag">${tag}</span>
-      <div class="root-cause-count">${n} churn${n>1?'s':''}</div>
-      ${quote?`<div class="root-cause-quote">${quote}<br><em style="font-size:10px;color:#9ca3af">${cliente}</em></div>`:''}
-    </div>`;
+    const matches=baseRows.filter(r=>r.subcategoria===tag&&(r.displayText||'').trim().length>30);
+    const quotes=[];const seen=new Set();
+    for(const r of matches){
+      if(seen.has(r.cliente))continue;
+      seen.add(r.cliente);
+      const q=findRelevantQuote(r.displayText||'',tag);
+      if(q)quotes.push({q,cliente:r.cliente});
+      if(quotes.length>=2)break;
+    }
+    const quotesHTML=quotes.map(({q,cliente})=>`<div class="root-cause-quote" style="margin-top:8px"><span style="font-style:italic">"${q}${q.length>=130?'\u2026':''}"</span><br><em style="font-size:10px;color:#9ca3af">${cliente}</em></div>`).join('');
+    return`<div class="root-cause-card"><span class="root-cause-tag">${tag}</span><div class="root-cause-count" style="margin-top:6px">${n} ${isChurnMode?'churn':'caso'}${n>1?'s':''}</div>${quotesHTML}</div>`;
   }).join('');
-  el.innerHTML=`<div class="root-cause-section">
-    <div class="section-title" style="margin-bottom:0">🔍 Top root causes este mes</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:0;margin-top:4px">Sub-motivos más frecuentes en churns del período — haz clic en un chip para filtrar</p>
-    <div class="root-cause-grid">${cardsHTML}</div>
-  </div>`;
+  const subtitle=isChurnMode?'Sub-motivos más frecuentes en churns del período':'Sub-motivos más frecuentes en el período — filtra por <strong>Solo churn</strong> para ver solo churns';
+  el.innerHTML=`<div class="root-cause-section"><div class="section-title" style="margin-bottom:0">🔍 Top root causes este mes</div><p style="font-size:12px;color:var(--muted);margin-bottom:0;margin-top:4px">${subtitle}</p><div class="root-cause-grid">${cardsHTML}</div></div>`;
 }
 
 function renderHSRecomendaciones(){

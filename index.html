@@ -1074,6 +1074,7 @@ function procesarModjo(raw){
 // ============================================================
 function applyModjoFilters(){
   const fO=document.getElementById('fOwner').value,fC=document.getElementById('fCat').value,fCh=document.getElementById('fChurn').value;
+  const fSC=(document.getElementById('fSubCat')||{}).value||'';
   const fS=(document.getElementById('fSearch').value||'').toLowerCase().trim();
   const dF=document.getElementById('dFrom').value?new Date(document.getElementById('dFrom').value):null;
   const dT=document.getElementById('dTo').value?new Date(document.getElementById('dTo').value):null;
@@ -1086,6 +1087,7 @@ function applyModjoFilters(){
     if(fS&&!r.cliente.toLowerCase().includes(fS))return false;
     if(fO&&r.owner!==fO)return false;
     if(fC&&r.categoria!==fC)return false;
+    if(fSC&&r.subcategoria!==fSC)return false;
     if(fCh==='si'&&!r.esChurn)return false;
     if(fCh==='no'&&r.esChurn)return false;
     if(r.fecha){if(pF&&r.fecha<pF)return false;if(pT&&r.fecha>pT)return false;if(dF&&r.fecha<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}}

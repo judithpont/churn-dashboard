@@ -1556,11 +1556,9 @@ function renderModjoInsights(){
     // Bar color: accent by default; if churn filter active use danger tone
     const fChVal=(document.getElementById('fChurn')||{}).value||'';
     const barCol=fChVal==='si'?'#ef4444':'var(--accent)';
-    const churnPct=cc[c].total>0?Math.round(cc[c].churn/cc[c].total*100):0;
-    const churnHint=cc[c].churn>0&&fChVal!=='si'?`<span style="font-size:10px;color:#ef4444;font-weight:600;margin-left:4px">(${cc[c].churn} churns)</span>`:'';
     return`<div>
       <div class="chart-bar-row" style="cursor:pointer" onclick="toggleModjoSub(${idx})">
-        <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}${churnHint}</div>
+        <div class="chart-bar-label">${mkInfo(CAT_TIP[c]||'<strong>'+c+'</strong>')} ${c}</div>
         <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(cc[c].total/maxC*100,4)}%;background:${barCol}">${cc[c].total}</div></div>
         <div style="width:42px;text-align:right;font-size:11px;font-weight:600;color:var(--muted)">${Math.round(cc[c].total/totalFiltered*100)}%</div>
       </div>
@@ -1571,7 +1569,7 @@ function renderModjoInsights(){
   document.getElementById('insightsModjo').innerHTML=chartSorted.map(c=>{
     const rows=filteredModjo.filter(r=>r.categoria===c),ch=rows.filter(r=>r.esChurn);
     if(rows.length===0)return'';
-    const names=[...new Set(ch.map(r=>r.cliente))].slice(0,3).join(', ');
+    const names=[...new Set(rows.map(r=>r.cliente))].slice(0,3).join(', ');
     const desc=CAT_DESC[c];
     // Subcategory pills
     const subCounts=buildModjoSubCounts(c).filter(([s])=>s!=='Otros').slice(0,5);
@@ -1604,12 +1602,12 @@ function renderModjoInsights(){
         ${dynBadge(ch.length,rows.length)}
       </div>
       <div class="insight-count">${rows.length}</div>
-      <div class="insight-sub">${ch.length} churns detectados</div>
-      ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${names}${ch.length>3?'…':''}</div>`:''}
+      <div class="insight-sub">${rows.length} llamadas en el período</div>
+      ${names?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${names}${rows.length>3?'…':''}</div>`:''}
       ${subPillsHTML}
       ${exHTML}
     </div>`;}).join('');
-  document.getElementById('conclModjo').innerHTML=modjoConclHTML();
+  document.getElementById('conclModjo').innerHTML='';
   renderModjoRecomendaciones();
 }
 // ============================================================

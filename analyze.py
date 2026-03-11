@@ -44,58 +44,52 @@ CATEGORIAS_CHURN = [
 
 # PRD v2: up to 3 sub-motivos per call, ordered by weight in the churn decision
 SUBCATEGORIAS = {
+    # 🏺 Quality Issues
     "Problemas de calidad": [
-        "Delivery Speed Gap", "Personalization Gap / Too Generic",
-        "Service Non-Delivery (GMB, SEO)", "AI Content Rejection",
-        "contenido-generico", "contenido-no-personalizado",
-        "identidad-visual-no-respetada", "fotos-y-videos-no-usados",
-        "mensajeria-rrss-automatica", "estrategia-mensual-nula"
+        "baja-velocidad-entrega", "contenido-generico", "servicio-no-entregado",
+        "contenido-ai-rechazado", "identidad-visual-no-respetada", "cambios-no-aplicados"
     ],
+    # 🏗️ Technical Issues
     "Fallo en la plataforma": [
-        "Technical Errors", "Failed Posting vs Calendar",
-        "Connection RRSS Failure", "App UX Friction",
-        "app-inestable", "publicaciones-no-publicadas",
-        "cambios-no-aplicados", "gmb-no-gestionado", "web-fdk"
+        "errores-tecnicos", "publicaciones-fallan-calendario", "fallo-conexion-rrss",
+        "friccion-ux-app", "problemas-modulo-maya", "problemas-inicio-sesion"
     ],
+    # 🫂 Support & Service
     "Problema de soporte": [
-        "No / Slow Response Times", "Issues Not Resolved Satisfactorily",
-        "Lack of Dedicated Support",
-        "soporte-lento-o-inexistente", "respuesta-cs-insatisfactoria", "ritmo-incumplido"
+        "respuesta-soporte-lenta", "problemas-no-resueltos", "falta-soporte-dedicado"
     ],
+    # 🪶 Product / Feature Gaps
     "Fuera del alcance del plan": [
-        "Missing Features", "Integration Not Available (TikTok)",
-        "Automation Capabilities Insufficient",
-        "onboarding-tedioso", "contestador-llamadas-dificil-onboarding", "fallos-de-ejecucion"
+        "funcionalidades-faltantes", "integracion-no-disponible", "automatizacion-insuficiente"
     ],
+    # 🚤 Poor Adoption
     "Fallo en el onboarding": [
-        "Never Fully Adopted the Tool", "Too Complex to Use",
-        "Lack of Training Resources", "Didn't Achieve Initial Goals",
-        "onboarding-tedioso", "fallos-de-ejecucion"
+        "herramienta-no-adoptada", "herramienta-demasiado-compleja",
+        "falta-recursos-formacion", "objetivos-iniciales-no-alcanzados"
     ],
+    # 💰 Pricing & Value
     "Sin impacto real en su negocio": [
-        "Too Expensive for Current Usage", "Better Value Found Elsewhere",
-        "Budget Cuts / Downsizing", "ROI Not Justified", "roi-no-percibido"
-    ],
-    "Cierre de venta forzado": [
-        "Buyer's Remorse", "Wrong ICP Sold",
-        "Payment / Billing Misalignment", "Promo-only Buyer",
-        "servicio-prometido-no-cumplido"
-    ],
-    "Promesa irreal": [
-        "Feature Promised Not Available", "Agency-style Service Promised",
-        "Pricing Promised Incorrectly", "servicio-prometido-no-cumplido"
-    ],
-    "Negocio cerrado": [
-        "Company Downsizing / Layoffs", "Went Out of Business",
-        "cierra-negocio", "churn-no-evitable"
-    ],
-    "Mala comunicación en ventas": [
-        "Buyer's Remorse", "Wrong ICP Sold",
-        "Expectativas vs. servicio desalineadas"
+        "precio-demasiado-alto", "mejor-valor-en-competencia", "roi-no-justificado"
     ],
     "No justifica precio": [
-        "Too Expensive for Current Usage", "Budget Cuts / Downsizing",
-        "roi-no-percibido", "Relación calidad-precio insuficiente"
+        "precio-demasiado-alto", "mejor-valor-en-competencia", "roi-no-justificado"
+    ],
+    # 🔫 Forced Sales Closing
+    "Cierre de venta forzado": [
+        "arrepentimiento-compra", "cliente-fuera-icp",
+        "desalineacion-facturacion", "cliente-solo-promocion"
+    ],
+    "Mala comunicación en ventas": [
+        "cliente-fuera-icp", "desalineacion-facturacion"
+    ],
+    # ⰾ Unrealistic Promises
+    "Promesa irreal": [
+        "funcionalidad-prometida-no-disponible", "servicio-estilo-agencia-prometido",
+        "precio-prometido-incorrecto"
+    ],
+    # 🏚️ Business Changes
+    "Negocio cerrado": [
+        "negocio-cerrado", "reduccion-personal"
     ],
 }
 

@@ -684,13 +684,17 @@ function populateSubCat(){
   if(!cat)return;
   // Gather sub-motivos from data that match this category
   const dataSubs=new Set();
-  (window._modjoRows||[]).filter(r=>r.categoria===cat).forEach(r=>{
-    const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);
-    subs.forEach(s=>{if(s&&s!=='Otros')dataSubs.add(s);});
+  // Use allModjo (all loaded rows) so options don't depend on current filter
+  (allModjo||[]).filter(r=>r.categoria===cat).forEach(r=>{
+    const sub=r.subcategoria;
+    if(sub&&sub!=='Otros')dataSubs.add(sub);
   });
-  // Merge with taxonomy
+  // Merge with taxonomy — only show taxonomy subs that also appear in real data
+  // (if dataSubs has items, restrict; otherwise show all taxonomy subs)
   const taxSubs=CAT_SUBMOTIVOS[cat]||[];
-  const allSubs=[...new Set([...dataSubs,...taxSubs])].sort();
+  const allSubs=dataSubs.size>0
+    ?[...new Set([...dataSubs])].sort()
+    :[...new Set([...taxSubs])].sort();
   allSubs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
 }
 

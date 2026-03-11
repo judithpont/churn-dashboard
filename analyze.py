@@ -20,6 +20,10 @@ HUBSPOT_PORTAL_ID = "25808060"          # your HubSpot portal
 # PRD v2: confidence ≥ 8/10 to classify; below → "Sin clasificar"
 CONFIDENCE_THRESHOLD = 0.70
 
+# Set to True to re-analyze ALL rows, ignoring previously classified ones.
+# Use after prompt improvements to refresh the full historical dataset.
+FORCE_REANALYZE = False
+
 DUENOS_OBJETIVO = [
     "Victor Ortega", "Óscar Lopo", "Martina Benalcazar",
     "Kamila Jiménez", "Gonzalo Rosales", "Franco Ferretti"
@@ -207,7 +211,7 @@ def buscar_hubspot(cliente: str) -> dict:
 # ============================================================
 # ANÁLISIS CON CLAUDE — PRD v2 two-step root cause reasoning
 # ============================================================
-def analizar_transcript(transcript: str, cliente: str, titulo: str) -> dict:
+def analizar_transcript(transcript: str, cliente: str, titulo: str, fuente: str = "transcript") -> dict:
     """
     PRD v2:
     - System prompt sets Plinng product context + category disambiguation guide
@@ -305,10 +309,27 @@ GUÍA DE DESEMPATE — cuando dos categorías parezcan similares:
   → ¿El soporte deficiente ES el motivo principal del churn? → Problema de soporte
   → ¿El soporte fue mencionado de pasada pero el problema real es otro? → Usa la categoría del problema real"""
 
-    # ── USER PROMPT: transcript + step-by-step instructions ──
-    prompt = f"""Analiza la siguiente transcripción de llamada con el cliente "{cliente}" (título: "{titulo}").
+    # ── Build source-specific context block ──
+    if fuente == "resumen_existente":
+        fuente_contexto = """FORMATO DEL TEXTO: Es un RESUMEN generado automáticamente por Modjo (IA), escrito en 3ª persona.
+No contiene turnos de conversación reales. Describe lo que ocurrió en la llamada de forma condensada.
+Trata todo el contenido como la visión del cliente, extrayendo sus problemas, expectativas y frustraciones."""
+    else:
+        fuente_contexto = f"""FORMATO DEL TEXTO: Es la TRANSCRIPCIÓN COMPLETA de la llamada entre un representante de Plinng y el cliente "{cliente}".
+Contiene turnos de conversación alternos. IMPORTANTE:
+- Identifica qué speaker es el CLIENTE (quien llama o quien tiene el problema).
+- Ignora las frases del representante de Plinng al analizar el motivo de churn.
+- Basa el análisis EXCLUSIVAMENTE en lo que dice el cliente: sus quejas, sus expectativas, sus frustraciones.
+- Si el rep de Plinng menciona un problema ("veo que has tenido problemas con X"), no lo uses como evidencia a menos que el cliente lo confirme."""
 
-TRANSCRIPCIÓN:
+    # ── USER PROMPT: transcript + step-by-step instructions ──
+    prompt = f"""Analiza el siguiente texto de llamada con el cliente "{cliente}" (título: "{titulo}").
+
+{fuente_contexto}
+
+---
+
+TEXTO:
 {transcript_truncado}
 
 ---
@@ -316,11 +337,11 @@ TRANSCRIPCIÓN:
 INSTRUCCIONES — razona en DOS PASOS antes de responder:
 
 PASO 1 — COMPRENSIÓN:
-Lee la transcripción completa. Extrae:
+Lee el texto completo. Extrae basándote SOLO en lo que expresa el cliente:
   a) ¿Qué le molestó específicamente al cliente?
   b) ¿Qué esperaba recibir y no recibió?
   c) ¿Qué fue lo que realmente lo empujó a irse o a estar insatisfecho?
-  (No etiquetes todavía. Solo comprende la experiencia completa.)
+  (No etiquetes todavía. Solo comprende la experiencia completa del cliente.)
 
 PASO 2 — ROOT CAUSE:
 Con ese contexto, usa las definiciones y la guía de desempate del sistema para identificar el root cause REAL.
@@ -452,7 +473,9 @@ if __name__ == "__main__":
     rows_to_analyze = df_filtrado
     skipped = 0
 
-    if col_cat_exist and col_conf_exist:
+    if FORCE_REANALYZE:
+        print(f"   🔄 FORCE_REANALYZE=True → se re-analizarán TODAS las filas")
+    elif col_cat_exist and col_conf_exist:
         def parse_conf(val):
             s = str(val).rstrip('%').strip()
             try:
@@ -472,6 +495,8 @@ if __name__ == "__main__":
         rows_to_analyze = df_filtrado[~mask_already_done]
         skipped = len(already_done)
         print(f"   ⏭️  {skipped} filas ya clasificadas (confianza ≥ {CONFIDENCE_THRESHOLD:.0%}) → saltadas")
+    else:
+        pass  # col_cat_exist or col_conf_exist not found, analyze all
 
     print(f"✅ {len(rows_to_analyze)} filas para analizar")
 
@@ -506,7 +531,7 @@ if __name__ == "__main__":
             print(f"   ⚠️  Sin transcript ni resumen — llamada ID: {call_id}")
 
         # ---- STEP 1+2: Two-step root cause analysis ----
-        analisis  = analizar_transcript(transcript, cliente, titulo)
+        analisis  = analizar_transcript(transcript, cliente, titulo, fuente)
         confianza = float(analisis.get("confianza", 0.0))
         subcats   = analisis.get("subcategorias", [])
         subcats_str = " | ".join(subcats) if subcats else ""

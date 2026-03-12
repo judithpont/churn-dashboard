@@ -666,18 +666,15 @@ function populateSubCat(){
   const cat=document.getElementById('fCat').value;
   const sel=document.getElementById('fSubCat');
   sel.innerHTML='<option value="">Todos los submotivos</option>';
-  if(!cat)return;
-  // 1. Gather sub-motivos actually present in the data for this category
+  // Gather sub-motivos from data — filter by category if one is selected, else show all
   const dataSubs=new Set();
-  (allModjo||[]).filter(r=>r.categoria===cat).forEach(r=>{
+  (allModjo||[]).filter(r=>!cat||r.categoria===cat).forEach(r=>{
     const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);
     subs.filter(s=>s&&s!=='Otros').forEach(s=>dataSubs.add(s));
   });
-  // 2. Fallback: use SUB_CAT_KW keys (same source as detSubCat) so names always match
-  const taxSubs=Object.keys(SUB_CAT_KW[cat]||{});
-  const allSubs=dataSubs.size>0
-    ?[...dataSubs].sort()
-    :taxSubs.sort();
+  // Fallback: use taxonomy keys if no data subs found
+  const taxSubs=cat?Object.keys(SUB_CAT_KW[cat]||{}):Object.values(SUB_CAT_KW).flatMap(Object.keys);
+  const allSubs=dataSubs.size>0?[...dataSubs].sort():taxSubs.sort();
   allSubs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
 }
 
@@ -2085,6 +2082,7 @@ function initFilters(){
   document.getElementById('fHSReason').innerHTML='<option value="">Todos los motivos</option>'+reasons.map(r=>{const i=HS_REASON[r];return`<option value="${r}">${i?i.es:r}</option>`;}).join('');
   const hsOwners=[...new Set(HS_DATA.map(r=>r.owner).filter(Boolean))].sort();
   document.getElementById('fHSOwner').innerHTML='<option value="">Todos los owners</option>'+hsOwners.map(o=>`<option value="${o}">${o}</option>`).join('');
+  populateSubCat();
 }
 
 // Fetch fresh HubSpot data from API

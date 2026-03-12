@@ -176,6 +176,7 @@
   <div class="logo">📊</div>
   <h1>Dashboard de Churn</h1>
   <span class="header-sub" id="lastUpdate">Actualizando…</span>
+  <span class="header-sub" style="opacity:.6;font-size:11px">🕘 Se actualiza cada día a las 9h</span>
 
 </div>
 
@@ -1363,7 +1364,7 @@ function renderTopRootCauses(){
       const PREVIEW=110;const uid='rc_'+tag.replace(/\W/g,'')+'_'+qi;
       const short=q.substring(0,PREVIEW);const hasMore=q.length>PREVIEW;
       return`<div class="root-cause-quote" style="margin-top:8px">
-        <span style="font-style:italic">"<span id="${uid}_short">${short}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="toggleCase('${uid}')"> … ver más ▾</span>`:''}</span><span id="${uid}_full" style="display:none;font-style:italic">${q}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="toggleCase('${uid}')"> ver menos ▴</span></span>"</span><br>
+        <span style="font-style:italic">"<span id="${uid}_short" style="display:${hasMore?'none':''}">${short}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="toggleCase('${uid}')"> … ver más ▾</span>`:''}</span><span id="${uid}_full" style="display:${hasMore?'':'none'};font-style:italic">${q}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="toggleCase('${uid}')"> ver menos ▴</span></span>"</span><br>
         <em style="font-size:10px;color:#9ca3af">${cliente}</em>
       </div>`;
     }).join('');
@@ -1619,8 +1620,8 @@ function renderModjoInsights(){
       return`<li style="font-size:11px;color:#4b5563;line-height:1.6;padding:6px 8px;background:#f9fafb;border-radius:6px;cursor:pointer" onclick="toggleCase('${uid}')">
         <span style="color:var(--accent);font-weight:700;margin-right:4px">·</span>
         <strong>${r.cliente}:</strong>
-        <span id="${uid}_short"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
-        ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
+        <span id="${uid}_short" style="display:${hasMore?'none':''}"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
+        ${hasMore?`<span id="${uid}_full" style="display:"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
       </li>`;
     }).join('');
     const exHTML=desc?`
@@ -1841,8 +1842,8 @@ function renderHSInsights(){
       return`<li style="font-size:11px;color:#4b5563;line-height:1.6;padding:6px 8px;background:#f9fafb;border-radius:6px;cursor:pointer" onclick="toggleCase('${uid}')">
         <span style="color:var(--accent);font-weight:700;margin-right:4px">·</span>
         <strong>${r.name||'–'}:</strong>
-        <span id="${uid}_short"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
-        ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
+        <span id="${uid}_short" style="display:${hasMore?'none':''}"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
+        ${hasMore?`<span id="${uid}_full" style="display:"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
       </li>`;
     }).join('');
     const hsRec=HS_RECOM_MAP[k];
@@ -2010,7 +2011,7 @@ function renderTablaModjo(){
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>
-    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${r.displayText}</div></td></tr>`:''}`;
+    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${(r.displayText||'').replace(/^General Information[\s\S]*?\n\n?/i,'').trim()}</div></td></tr>`:''}`;
   }).join('');
 }
 

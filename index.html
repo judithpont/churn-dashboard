@@ -1086,9 +1086,21 @@ function procesarModjoJSON(records){
 }
 
 function loadModjoJSON(){
+  console.log('[Modjo] Fetching:', MODJO_JSON_URL);
   return fetch(MODJO_JSON_URL+'?v='+Date.now())
-    .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
-    .then(function(data){return procesarModjoJSON(data.data||[]);});
+    .then(function(res){
+      console.log('[Modjo] Response status:', res.status);
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      return res.json();
+    })
+    .then(function(data){
+      console.log('[Modjo] Records loaded:', (data.data||[]).length);
+      return procesarModjoJSON(data.data||[]);
+    })
+    .catch(function(err){
+      console.error('[Modjo] Error loading data:', err);
+      return [];
+    });
 }
 
 // ============================================================

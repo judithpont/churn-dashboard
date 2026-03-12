@@ -670,8 +670,8 @@ function populateSubCat(){
   // 1. Gather sub-motivos actually present in the data for this category
   const dataSubs=new Set();
   (allModjo||[]).filter(r=>r.categoria===cat).forEach(r=>{
-    const sub=r.subcategoria;
-    if(sub&&sub!=='Otros')dataSubs.add(sub);
+    const subs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);
+    subs.filter(s=>s&&s!=='Otros').forEach(s=>dataSubs.add(s));
   });
   // 2. Fallback: use SUB_CAT_KW keys (same source as detSubCat) so names always match
   const taxSubs=Object.keys(SUB_CAT_KW[cat]||{});
@@ -1122,7 +1122,7 @@ function applyModjoFilters(){
     if(fS&&!r.cliente.toLowerCase().includes(fS))return false;
     if(fO&&r.owner!==fO)return false;
     if(fC&&r.categoria!==fC)return false;
-    if(fSC&&r.subcategoria!==fSC)return false;
+    if(fSC){const rSubs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);if(!rSubs.includes(fSC))return false;}
     if(fCh==='si'&&!r.esChurn)return false;
     if(fCh==='no'&&r.esChurn)return false;
     if(r.fecha){if(pF&&r.fecha<pF)return false;if(pT&&r.fecha>pT)return false;if(dF&&r.fecha<dF)return false;if(dT){const dt=new Date(dT);dt.setDate(dt.getDate()+1);if(r.fecha>dt)return false;}}
@@ -1622,8 +1622,8 @@ function renderModjoInsights(){
       return`<li style="font-size:11px;color:#4b5563;line-height:1.6;padding:6px 8px;background:#f9fafb;border-radius:6px;cursor:pointer" onclick="toggleCase('${uid}')">
         <span style="color:var(--accent);font-weight:700;margin-right:4px">·</span>
         <strong>${r.cliente}:</strong>
-        <span id="${uid}_short" style="display:${hasMore?'none':''}"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
-        ${hasMore?`<span id="${uid}_full" style="display:"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
+        <span id="${uid}_short"> ${preview}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="event.stopPropagation();toggleCase('${uid}')"> Mostrar más ▾</span>`:''}</span>
+        ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="event.stopPropagation();toggleCase('${uid}')"> Mostrar menos ▴</span></span>`:''}
       </li>`;
     }).join('');
     const exHTML=desc?`
@@ -1844,8 +1844,8 @@ function renderHSInsights(){
       return`<li style="font-size:11px;color:#4b5563;line-height:1.6;padding:6px 8px;background:#f9fafb;border-radius:6px;cursor:pointer" onclick="toggleCase('${uid}')">
         <span style="color:var(--accent);font-weight:700;margin-right:4px">·</span>
         <strong>${r.name||'–'}:</strong>
-        <span id="${uid}_short" style="display:${hasMore?'none':''}"> ${preview}${hasMore?'<span style="color:#85D630;font-weight:600"> … ver más ▾</span>':''}</span>
-        ${hasMore?`<span id="${uid}_full" style="display:"> ${full}<span style="color:#85D630;font-weight:600;margin-left:4px"> ver menos ▴</span></span>`:''}
+        <span id="${uid}_short"> ${preview}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="event.stopPropagation();toggleCase('${uid}')"> Mostrar más ▾</span>`:''}</span>
+        ${hasMore?`<span id="${uid}_full" style="display:none"> ${full}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="event.stopPropagation();toggleCase('${uid}')"> Mostrar menos ▴</span></span>`:''}
       </li>`;
     }).join('');
     const hsRec=HS_RECOM_MAP[k];
@@ -1985,7 +1985,7 @@ function toggleSubChart(id){const el=document.getElementById(id);if(el)el.classL
 // ============================================================
 // TABLE RENDERS
 // ============================================================
-function cleanText(t){return(t||'').replace(/^(General Information|Next Steps|Key Insights|Action Items)[:\s\-]*[\r\n]*/gi,'').trim();}
+function cleanText(t){return(t||'').replace(/(General Information|Next Steps|Key Insights|Action Items|Summary)[:\s\-]*[\r\n]*/gi,'').replace(/\s*\S*\.{2,}\s*$/,'').replace(/\n{3,}/g,'\n\n').trim();}
 function toggleXI(id){const el=document.getElementById('xi_'+id);if(el)el.classList.toggle('open');}
 function toggleNote(id){const el=document.getElementById('note_'+id);if(!el)return;const expanded=el.classList.toggle('note-expanded');el.querySelector('.note-toggle').textContent=expanded?'Ver menos ▲':'Ver más ▼';}
 function toggleCase(uid){
@@ -2014,7 +2014,7 @@ function renderTablaModjo(){
       <td>${hsCt?`<span class="churn-badge" style="${colors[hsCt]||'background:#e0f2fe;color:#0369a1'}">${hsCt}</span>`:'<span style="color:#9ca3af;font-size:11px">–</span>'}</td>
       <td>${hsLink?`<a href="${hsLink}" target="_blank" style="font-size:11px;color:#0369a1;text-decoration:none;font-weight:600;white-space:nowrap">Ver →</a>`:'–'}</td>
     </tr>
-    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${(r.displayText||'').replace(/^General Information[\s\S]*?\n\n?/i,'').trim()}</div></td></tr>`:''}`;
+    ${hasDetail?`<tr><td colspan="10"><div class="xi" id="xi_m${i}">${cleanText(r.displayText||'')}</div></td></tr>`:''}`;
   }).join('');
 }
 

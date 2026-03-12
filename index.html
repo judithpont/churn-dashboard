@@ -1321,9 +1321,11 @@ const RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad
 // Find the most relevant sentence from displayText that matches the sub-motivo tag
 function findRelevantQuote(displayText,tag){
   if(!displayText||displayText.trim().length<20)return'';
+  const clean=cleanText(displayText);
+  if(!clean)return'';
   const stopWords=new Set(['de','la','el','en','no','se','que','los','las','con','una','un','por','del','al','su','es','lo','le','ya','ha','si','me','mi','te','tu']);
   const tagWords=tag.toLowerCase().replace(/[\/\-()+]/g,' ').split(/\s+/).filter(w=>w.length>2&&!stopWords.has(w));
-  const sentences=displayText.split(/[.!?\n]+/).map(s=>s.trim()).filter(s=>s.length>15&&s.length<300);
+  const sentences=clean.split(/[.!?\n]+/).map(s=>s.trim()).filter(s=>s.length>15&&s.length<300);
   if(!sentences.length)return displayText.substring(0,130).trim();
   const scored=sentences.map(s=>{const sl=s.toLowerCase();const score=tagWords.reduce((acc,w)=>acc+(sl.includes(w)?1:0),0);return{s,score};});
   const best=scored.sort((a,b)=>b.score-a.score)[0];
@@ -1362,9 +1364,9 @@ function renderTopRootCauses(){
     }
     const quotesHTML=quotes.map(({q,cliente},qi)=>{
       const PREVIEW=110;const uid='rc_'+tag.replace(/\W/g,'')+'_'+qi;
-      const short=q.substring(0,PREVIEW);const hasMore=q.length>PREVIEW;
+      const qClean=cleanText(q);const short=qClean.substring(0,PREVIEW);const hasMore=qClean.length>PREVIEW;
       return`<div class="root-cause-quote" style="margin-top:8px">
-        <span style="font-style:italic">"<span id="${uid}_short" style="display:${hasMore?'none':''}">${short}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="toggleCase('${uid}')"> … ver más ▾</span>`:''}</span><span id="${uid}_full" style="display:${hasMore?'':'none'};font-style:italic">${q}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="toggleCase('${uid}')"> ver menos ▴</span></span>"</span><br>
+        <span style="font-style:italic">"<span id="${uid}_short" style="display:${hasMore?'none':''}">${short}${hasMore?`<span style="color:#85D630;font-weight:600;cursor:pointer" onclick="toggleCase('${uid}')"> … ver más ▾</span>`:''}</span><span id="${uid}_full" style="display:${hasMore?'':'none'};font-style:italic">${qClean}<span style="color:#85D630;font-weight:600;cursor:pointer;margin-left:4px" onclick="toggleCase('${uid}')"> ver menos ▴</span></span>"</span><br>
         <em style="font-size:10px;color:#9ca3af">${cliente}</em>
       </div>`;
     }).join('');
@@ -1613,7 +1615,7 @@ function renderModjoInsights(){
     // Real examples
     const sampleRecs=(ch.length?ch:rows).filter(r=>(r.displayText||'').trim().length>20).slice(0,3);
     const realExamples=sampleRecs.map((r,ri)=>{
-      const full=(r.displayText||'').trim();
+      const full=cleanText(r.displayText||'');
       const preview=full.substring(0,90);
       const hasMore=full.length>90;
       const uid='case_'+c.replace(/\s/g,'')+'_'+ri;
@@ -1983,6 +1985,7 @@ function toggleSubChart(id){const el=document.getElementById(id);if(el)el.classL
 // ============================================================
 // TABLE RENDERS
 // ============================================================
+function cleanText(t){return(t||'').replace(/^(General Information|Next Steps|Key Insights|Action Items)[:\s\-]*[\r\n]*/gi,'').trim();}
 function toggleXI(id){const el=document.getElementById('xi_'+id);if(el)el.classList.toggle('open');}
 function toggleNote(id){const el=document.getElementById('note_'+id);if(!el)return;const expanded=el.classList.toggle('note-expanded');el.querySelector('.note-toggle').textContent=expanded?'Ver menos ▲':'Ver más ▼';}
 function toggleCase(uid){

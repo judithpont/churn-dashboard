@@ -1,6 +1,17 @@
 {
-  "generated_at": "2026-03-11T19:54:05.381870",
+  "generated_at": "2026-03-12T06:38:42.887059",
   "total": 150,
+  "resumen": {
+    "churn_detectado": 0,
+    "riesgo": 0,
+    "sin_clasificar": 146,
+    "top_categorias": {
+      "Sin clasificar": 146,
+      "Fallo en la plataforma": 3,
+      "Sin impacto real en su negocio": 1
+    },
+    "top_subcategorias": {}
+  },
   "data": [
     {
       "owner": "Gonzalo Rosales",
@@ -731,6 +742,7 @@
       "owner": "Martina Benalcazar",
       "cliente": "PILAR MARTINEZ",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "PILAR MARTINEZ, Martina Benalcazar",
       "duracion": "6.2",
       "llamada_id": "9481",
@@ -750,7 +762,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6095568574",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:51"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Franco Ferretti",
@@ -856,6 +868,7 @@
       "owner": "Victor Ortega",
       "cliente": "ISABEL Fernández Salcedo",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "ISABEL Fernández Salcedo, Victor Ortega",
       "duracion": "17.9",
       "llamada_id": "9444",
@@ -875,7 +888,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6259978489",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Martina Benalcazar",
@@ -1006,6 +1019,7 @@
       "owner": "Martina Benalcazar",
       "cliente": "Begoña Guadalajara",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "Martina Benalcazar, Begoña Guadalajara",
       "duracion": "9.9",
       "llamada_id": "9378",
@@ -1025,12 +1039,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/15761339356",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Franco Ferretti",
       "cliente": "Isabel Jubert Montaperto",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "Franco Ferretti, Isabel Jubert Montaperto",
       "duracion": "11.7",
       "llamada_id": "9379",
@@ -1050,12 +1065,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6259978489",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Kamila Jiménez",
       "cliente": "Rosa Maria  Muñoz García",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "Kamila Jiménez, Rosa Maria  Muñoz García",
       "duracion": "4.0",
       "llamada_id": "9233",
@@ -1075,12 +1091,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6582040810",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Martina Benalcazar",
       "cliente": "Monica Gonzalez-Sicilia Ibarrola",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "Monica Gonzalez-Sicilia Ibarrola, Martina Benalcazar",
       "duracion": "4.2",
       "llamada_id": "9229",
@@ -1100,12 +1117,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6197184195",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Gonzalo Rosales",
       "cliente": "Bea Huertas",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "Gonzalo Rosales, Bea Huertas",
       "duracion": "14.9",
       "llamada_id": "9228",
@@ -1125,12 +1143,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/10599473102",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Franco Ferretti",
       "cliente": "María Cardona Ferrer",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "María Cardona Ferrer, Franco Ferretti",
       "duracion": "27.9",
       "llamada_id": "9227",
@@ -1150,12 +1169,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/5639608251",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Victor Ortega",
       "cliente": "Leticia Chaman",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "Leticia Chaman, Victor Ortega",
       "duracion": "5.2",
       "llamada_id": "9220",
@@ -1175,12 +1195,13 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6582042864",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Victor Ortega",
       "cliente": "MARIA ANTONIA ARESES ELIZALDE",
       "fecha": "2026-12-02 00:00:00",
+      "mes": "2026-02",
       "participantes": "MARIA ANTONIA ARESES ELIZALDE, Victor Ortega",
       "duracion": "3.6",
       "llamada_id": "9210",
@@ -1200,7 +1221,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/5639608251",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-11 19:52"
+      "actualizado": "2026-03-12 06:38"
     },
     {
       "owner": "Martina Benalcazar",

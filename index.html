@@ -1081,7 +1081,7 @@ function procesarModjoJSON(records){
     const sub=subs[0]||'';
     const esChurnVal=(r.esChurn||'').toLowerCase().trim();
     const esChurn=esChurnVal==='sí'||esChurnVal==='si';
-    rows.push({owner,cliente,categoria:cat,subcategoria:sub,subcategorias:subs,esChurn,fecha:parseDate(fechaStr),fechaStr,displayText:r.displayText||r.resumen_ia||'',contactId:r.contactId||''});
+    rows.push({owner,cliente,categoria:cat,subcategoria:sub,subcategorias:subs,esChurn,fecha:parseDate(fechaStr),fechaStr,displayText:r.displayText||r.resumen_ia||'',motivoPrincipal:r.motivo_principal||'',contactId:r.contactId||''});
   }
   return rows;
 }
@@ -1353,12 +1353,12 @@ function renderTopRootCauses(){
   if(!top3.length){el.innerHTML='';return;}
   const isChurnMode=fCh==='si';
   const cardsHTML=top3.map(([tag,n])=>{
-    const matches=baseRows.filter(r=>r.subcategoria===tag&&(r.displayText||'').trim().length>30);
+    const matches=baseRows.filter(r=>{const rs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);return rs.includes(tag)&&((r.motivoPrincipal||r.displayText||'').trim().length>20);});
     const quotes=[];const seen=new Set();
     for(const r of matches){
       if(seen.has(r.cliente))continue;
       seen.add(r.cliente);
-      const q=findRelevantQuote(r.displayText||'',tag);
+      const q=r.motivoPrincipal?cleanText(r.motivoPrincipal):findRelevantQuote(r.displayText||'',tag);
       if(q)quotes.push({q,cliente:r.cliente});
       if(quotes.length>=2)break;
     }

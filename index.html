@@ -1311,19 +1311,69 @@ const RECOM_LABEL={alta:'Prioridad Alta',media:'Prioridad Media',baja:'Prioridad
 // ============================================================
 // TOP ROOT CAUSES SECTION
 // ============================================================
+// Keyword map: each subcategory → words/phrases likely found in real call summaries
+const SUB_KEYWORDS={
+  'publicaciones-fallan-calendario':['publicaci','no se public','sin publicar','no se subi','calendario','programaci','no aparec','no se program','frecuencia','no cumpl'],
+  'identidad-visual-no-respetada':['identidad','visual','marca','colores','tipograf','logo','diseño','estilo','línea','no reflej','no correspond','corporativ','personaliz'],
+  'errores-tecnicos':['error','fallo','técnic','bug','crash','incidencia','no funciona','se cae','problema técn'],
+  'fallo-conexion-rrss':['conexi','instagram','facebook','meta','linkedin','red social','desconect','vincul','desactiv','perfil'],
+  'problemas-inicio-sesion':['inicio de sesi','login','acceder','no puede entrar','contraseña','acceso','loguearse'],
+  'contenido-generico':['genéric','básic','repetitiv','monóton','similar','igual','no personaliz','falta creatividad','inteligencia artificial','generado por'],
+  'baja-velocidad-entrega':['entrega','retraso','tardanza','demora','lento','plazo','tiempo','tard'],
+  'servicio-no-entregado':['no entregado','sin entregar','no recib','sin recibir','sin publicaciones durante'],
+  'contenido-ai-rechazado':['inteligencia artificial','generado por ia','automátic','ia rechaz'],
+  'cambios-no-aplicados':['cambio','modifica','correc','ajust','no aplic','no realiz','sin cambio','no se hizo','ignorar'],
+  'respuesta-soporte-lenta':['respuesta','soporte','atenci','lento','tardanza','demora','sin respuesta','tiempo sin','meses sin'],
+  'problemas-no-resueltos':['problema','ticket','incidencia','no resuel','sin soluc','sigue','persiste'],
+  'falta-soporte-dedicado':['abandon','desatend','ignor','nadie','nunca respond','confianza','falta de seguimiento'],
+  'funcionalidades-faltantes':['funcionalidad','característica','opción','no existe','no disponi','falta','necesita'],
+  'integracion-no-disponible':['integración','conexión','conectar','no se integra'],
+  'automatizacion-insuficiente':['automatiz','automátic','manual','manualmente','insuficiente','limitad'],
+  'herramienta-no-adoptada':['no usa','nunca usó','no utiliz','adopción','no ha empezado','no activado','sin usar'],
+  'herramienta-demasiado-compleja':['complej','difícil','confus','complicad','no sabe','no entiende'],
+  'falta-recursos-formacion':['formación','training','capacitación','tutorial','recurso','no recibió','ayuda necesaria'],
+  'objetivos-iniciales-no-alcanzados':['objetivo','meta','no cumpl','no alcanz','arranque','implementación'],
+  'precio-demasiado-alto':['precio','caro','costoso','alto','elevado','cuota','tarifa'],
+  'mejor-valor-en-competencia':['competencia','alternativa','otra herramienta','más barato','mejor precio'],
+  'roi-no-justificado':['retorno','roi','no justifica','inversión','no compensa'],
+  'arrepentimiento-compra':['arrepent','no debería haber contratado'],
+  'cliente-fuera-icp':['no encaja','fuera del perfil','no es el perfil','no era el cliente'],
+  'desalineacion-facturacion':['factura','cobro','pago','no correspond','error','discrepancia','cobrar de más'],
+  'cliente-solo-promocion':['promoción','descuento','oferta','prueba gratis','trial','aceptó los tres meses'],
+  'funcionalidad-prometida-no-disponible':['prometi','google maps','vendido como parte','tareas prometidas','no se cumpl'],
+  'servicio-estilo-agencia-prometido':['agencia','gestión de comunidad','personalizado','servicio completo','dedicad'],
+  'precio-prometido-incorrecto':['precio prometi','precio acordado'],
+  'negocio-cerrado':['cierre','cerró','cerrar','negocio','quiebra','liquidación','cese'],
+  'reduccion-personal':['reducción','recorte','despido','personal','plantilla'],
+  'friccion-ux-app':['difícil de usar','interfaz','no intuitiv','complicad'],
+  'problemas-modulo-maya':['módulo maya','maya'],
+};
+
 // Find the most relevant sentence from displayText that matches the sub-motivo tag
 function findRelevantQuote(displayText,tag){
   if(!displayText||displayText.trim().length<20)return'';
   const clean=cleanText(displayText);
   if(!clean)return'';
+  // Get expanded keywords for this subcategory
+  const keywords=SUB_KEYWORDS[tag]||[];
+  // Also use tag words as fallback
   const stopWords=new Set(['de','la','el','en','no','se','que','los','las','con','una','un','por','del','al','su','es','lo','le','ya','ha','si','me','mi','te','tu']);
   const tagWords=tag.toLowerCase().replace(/[\/\-()+]/g,' ').split(/\s+/).filter(w=>w.length>2&&!stopWords.has(w));
   const sentences=clean.split(/[.!?\n]+/).map(s=>s.trim()).filter(s=>s.length>15&&s.length<300);
   if(!sentences.length)return displayText.substring(0,130).trim();
-  const scored=sentences.map(s=>{const sl=s.toLowerCase();const score=tagWords.reduce((acc,w)=>acc+(sl.includes(w)?1:0),0);return{s,score};});
+  const scored=sentences.map(s=>{
+    const sl=s.toLowerCase();
+    // Score by keyword matches (weighted 2) + tag word matches (weighted 1)
+    let score=keywords.reduce((acc,kw)=>acc+(sl.includes(kw.toLowerCase())?2:0),0);
+    score+=tagWords.reduce((acc,w)=>acc+(sl.includes(w)?1:0),0);
+    // Bonus for sentences that mention specific issues (not generic follow-up)
+    if(/insatisf|problema|no\s+funciona|cancel|baja|queja|fallo|error|no\s+cumpl|no\s+reflej/.test(sl))score+=1;
+    return{s,score};
+  });
   const best=scored.sort((a,b)=>b.score-a.score)[0];
   if(best.score===0){
-    const fallback=sentences.find(s=>/baja|cancel|churn|irse|no quiere|no seguir|no renovar|darme de baja/i.test(s));
+    // Fallback: find any sentence mentioning churn-related words
+    const fallback=sentences.find(s=>/baja|cancel|churn|irse|no quiere|no seguir|no renovar|insatisf|problema|queja/i.test(s));
     if(fallback)return fallback.trim();
     return sentences[0].trim();
   }
@@ -1346,12 +1396,12 @@ function renderTopRootCauses(){
   if(!top3.length){el.innerHTML='';return;}
   const isChurnMode=fCh==='si';
   const cardsHTML=top3.map(([tag,n])=>{
-    const matches=baseRows.filter(r=>{const rs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);return rs.includes(tag)&&((r.motivoPrincipal||r.displayText||'').trim().length>20);});
+    const matches=baseRows.filter(r=>{const rs=r.subcategorias&&r.subcategorias.length?r.subcategorias:(r.subcategoria?[r.subcategoria]:[]);return rs.includes(tag)&&((r.displayText||'').trim().length>20);});
     const quotes=[];const seen=new Set();
     for(const r of matches){
       if(seen.has(r.cliente))continue;
       seen.add(r.cliente);
-      const q=r.motivoPrincipal?cleanText(r.motivoPrincipal):findRelevantQuote(r.displayText||'',tag);
+      const q=findRelevantQuote(r.displayText||'',tag);
       if(q)quotes.push({q,cliente:r.cliente});
       if(quotes.length>=2)break;
     }

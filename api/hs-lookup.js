@@ -1,6 +1,6 @@
 // Vercel serverless function: contact ID → company ID + client type
 // GET /api/hs-lookup?contactId=123456
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 

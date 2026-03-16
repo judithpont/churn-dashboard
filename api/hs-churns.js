@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (!token) return res.status(500).json({ error: 'HUBSPOT_TOKEN not configured' });
 
   const PROPS = [
-    'name', 'churn_reason_saas', 'churn_status',
+    'name', 'saas_client_type', 'churn_reason_saas', 'churn_status',
     'fecha_de_solicitud_de_baja', 'churn_subreason_saas__note',
     'churn_que_hemos_hecho_para_analizar_esta_baja',
     'churn_que_conclusion_sacamos', 'hubspot_owner_id'
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       ownerAfter = oData.paging?.next?.after || null;
     } while (ownerAfter);
 
-    // Step 2: Search companies that have solicita_la_baja___saas_ = true OR have churn_reason_saas set
+    // Step 2: Search companies where saas_client_type = "Churn"
     const allResults = [];
     const seenIds = new Set();
     let after = 0;
@@ -39,9 +39,7 @@ export default async function handler(req, res) {
     do {
       const body = {
         filterGroups: [
-          { filters: [{ propertyName: 'solicita_la_baja___saas_', operator: 'EQ', value: 'true' }] },
-          { filters: [{ propertyName: 'churn_reason_saas', operator: 'HAS_PROPERTY' }] },
-          { filters: [{ propertyName: 'fecha_de_solicitud_de_baja', operator: 'HAS_PROPERTY' }] }
+          { filters: [{ propertyName: 'saas_client_type', operator: 'EQ', value: 'Churn' }] }
         ],
         properties: PROPS,
         limit: PAGE,

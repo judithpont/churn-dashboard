@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   const PROPS = [
     'name', 'saas_client_type', 'churn_reason_saas', 'churn_status',
-    'fecha_de_solicitud_de_baja', 'churn_subreason_saas__note',
+    'churn_date', 'fecha_de_solicitud_de_baja', 'churn_subreason_saas__note',
     'churn_que_hemos_hecho_para_analizar_esta_baja',
     'churn_que_conclusion_sacamos', 'hubspot_owner_id'
   ];
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
           note: p.churn_subreason_saas__note || '',
           analysis: p.churn_que_hemos_hecho_para_analizar_esta_baja || '',
           conclusion: p.churn_que_conclusion_sacamos || '',
-          churn_date: p.fecha_de_solicitud_de_baja || '',
+          churn_date: p.churn_date || p.fecha_de_solicitud_de_baja || '',
           owner: ownerMap[ownerId] || ''
         });
       }

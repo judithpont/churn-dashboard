@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       ownerAfter = oData.paging?.next?.after || null;
     } while (ownerAfter);
 
-    // Step 2: Search companies where saas_client_type = "Churn"
+    // Step 2: Search companies that have churn_date set (= confirmed churns)
     const allResults = [];
     const seenIds = new Set();
     let after = 0;
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     do {
       const body = {
         filterGroups: [
-          { filters: [{ propertyName: 'saas_client_type', operator: 'EQ', value: 'Churn' }] }
+          { filters: [{ propertyName: 'churn_date', operator: 'HAS_PROPERTY' }] }
         ],
         properties: PROPS,
         limit: PAGE,

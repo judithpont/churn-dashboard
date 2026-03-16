@@ -40,7 +40,8 @@ export default async function handler(req, res) {
       const body = {
         filterGroups: [
           { filters: [{ propertyName: 'solicita_la_baja___saas_', operator: 'EQ', value: 'true' }] },
-          { filters: [{ propertyName: 'churn_reason_saas', operator: 'HAS_PROPERTY' }] }
+          { filters: [{ propertyName: 'churn_reason_saas', operator: 'HAS_PROPERTY' }] },
+          { filters: [{ propertyName: 'fecha_de_solicitud_de_baja', operator: 'HAS_PROPERTY' }] }
         ],
         properties: PROPS,
         limit: PAGE,

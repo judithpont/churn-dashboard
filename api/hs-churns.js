@@ -30,20 +30,18 @@ export default async function handler(req, res) {
       ownerAfter = oData.paging?.next?.after || null;
     } while (ownerAfter);
 
-    // Step 2: Search companies with solicita_la_baja___saas_ = true
+    // Step 2: Search companies that have solicita_la_baja___saas_ = true OR have churn_reason_saas set
     const allResults = [];
+    const seenIds = new Set();
     let after = 0;
     const PAGE = 100;
 
     do {
       const body = {
-        filterGroups: [{
-          filters: [{
-            propertyName: 'solicita_la_baja___saas_',
-            operator: 'EQ',
-            value: 'true'
-          }]
-        }],
+        filterGroups: [
+          { filters: [{ propertyName: 'solicita_la_baja___saas_', operator: 'EQ', value: 'true' }] },
+          { filters: [{ propertyName: 'churn_reason_saas', operator: 'HAS_PROPERTY' }] }
+        ],
         properties: PROPS,
         limit: PAGE,
         after
@@ -70,6 +68,8 @@ export default async function handler(req, res) {
       const results = searchData.results || [];
 
       for (const r of results) {
+        if (seenIds.has(r.id)) continue;
+        seenIds.add(r.id);
         const p = r.properties || {};
         const ownerId = p.hubspot_owner_id || '';
         allResults.push({

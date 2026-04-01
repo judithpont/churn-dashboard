@@ -1,29 +1,29 @@
 {
-  "generated_at": "2026-03-31T06:59:45.881744",
+  "generated_at": "2026-04-01T07:06:31.257064",
   "total": 535,
   "resumen": {
-    "churn_detectado": 302,
-    "riesgo": 49,
-    "sin_clasificar": 197,
+    "churn_detectado": 301,
+    "riesgo": 48,
+    "sin_clasificar": 199,
     "top_categorias": {
-      "Sin clasificar": 197,
+      "Sin clasificar": 199,
       "Fallo en la plataforma": 111,
-      "Problemas de calidad": 100,
+      "Problemas de calidad": 99,
       "Fallo en el onboarding": 33,
       "Fuera del alcance del plan": 22,
       "No justifica precio": 19,
       "Sin impacto real en su negocio": 16,
       "Negocio cerrado": 15,
-      "Problema de soporte": 12,
+      "Problema de soporte": 11,
       "Promesa irreal": 7
     },
     "top_subcategorias": {
-      "identidad-visual-no-respetada": 75,
+      "identidad-visual-no-respetada": 74,
       "errores-tecnicos": 61,
       "fallo-conexion-rrss": 51,
       "problemas-inicio-sesion": 41,
       "friccion-ux-app": 33,
-      "contenido-generico": 26,
+      "contenido-generico": 25,
       "falta-recursos-formacion": 22,
       "roi-no-justificado": 18,
       "precio-demasiado-alto": 17,
@@ -11049,7 +11049,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6150222012",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Franco Ferretti",
@@ -11075,7 +11075,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6531278268",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Gonzalo Rosales",
@@ -11101,7 +11101,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6582040804",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Kamila Jiménez",
@@ -11127,7 +11127,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6440874948",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Victor Ortega",
@@ -11153,31 +11153,33 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/11817286331",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Kamila Jiménez",
       "cliente": "Mercedes Dulair",
-      "fecha": "2026-03-12",
+      "fecha": "2026-12-03 00:00:00",
       "mes": "2026-03",
       "participantes": "Mercedes Dulair, Kamila Jiménez",
       "duracion": "5.5",
       "llamada_id": "24158",
-      "displayText": "Mercedes mostró interés en la aplicación durante la llamada.\nNo proporcionó detalles específicos sobre sus necesidades.\nLa comunicación tuvo dificultades técnicas, incluyendo problemas para compartir información vía WhatsApp y mensajes de texto.\nMercedes no tiene WhatsApp en su número actual y propuso enviar el contacto por correo.\nKamila intentó mantener la atención y verificar si Mercedes la escuchaba, sugiriendo posibles problemas de conexión.\nKamila volverá a llamar para continuar la conversación y explorar necesidades específicas.\nSe requiere coordinar una demostración en móvil, ya que aún no está disponible para ordenador.\nEs importante obtener un contacto de correo válido para facilitar futuras comunicaciones.\nMantener seguimiento para resolver obstáculos técnicos y confirmar interés en la prueba de la aplicación.",
-      "contactId": "697297915067",
-      "esChurn": "riesgo",
-      "categoria": "Problema de soporte",
-      "subcategorias": [
-        "respuesta-soporte-lenta",
-        "problemas-no-resueltos",
-        "falta-soporte-dedicado"
-      ],
-      "confianza": 0.7,
-      "nivel_riesgo": "medio",
-      "motivo_principal": "Problema de soporte",
-      "resumen_ia": "Mercedes mostró interés en la aplicación durante la llamada.\nNo proporcionó detalles específicos sobre sus necesidades.\nLa comunicación tuvo dificultades técnicas, incluyendo problemas para compartir información vía WhatsApp y mensajes de texto.\nMercedes no tiene WhatsApp en su número actual y propuso enviar el contacto por correo.\nKamila intentó mantener la atención y verificar si Mercedes la escuchaba, sugiriendo posibles problemas de conexión.\nKamila volverá a llamar para continuar la conversación y explorar necesidades específicas.\nSe requiere coordinar una demostración en móvil, ya que aún no está disponible para ordenador.\nEs importante obtener un contacto de correo válido para facilitar futuras comunicaciones.\nMantener seguimiento para resolver obstáculos técnicos y confirmar interés en la prueba de la aplicación.",
-      "fuente_analisis": "ai_reasoning_v2",
-      "actualizado": "2026-03-16 10:19"
+      "displayText": "General Information\nMercedes mostró interés en la aplicación durante la llamada.\nNo proporcionó detalles específicos sobre sus necesidades.\nLa comunicación tuvo dificultades técnicas, incluyendo problemas para compartir información vía WhatsApp y mensajes de texto.\nMercedes no tiene WhatsApp en su número actual y propuso enviar el contacto por correo.\nKamila intentó mantener la atención y verificar si Mercedes la escuchaba, sugiriendo posibles problemas de conexión.\nNext Steps\nKamila volverá a llamar para continuar la conversación y explorar necesidades específicas.\nSe requiere coordinar una demostración en móvil, ya que aún no está disponible para ordenador.\nEs importante obtener un contacto de correo válido para facilitar futuras comunicaciones.\nMantener seguimiento para resolver obstáculos técnicos y confirmar interés en la prueba de la aplicación.",
+      "contactId": "",
+      "esChurn": "sin datos",
+      "categoria": "Sin clasificar",
+      "subcategorias": [],
+      "confianza": 0.0,
+      "nivel_riesgo": "bajo",
+      "motivo_principal": "Error en análisis",
+      "resumen_ia": "",
+      "paso1_comprension": "",
+      "razon_categoria": "",
+      "hs_churn_reason": null,
+      "hs_churn_date": null,
+      "hs_url": "https://app.hubspot.com/contacts/25808060/company/6440874948",
+      "sin_registro_hs": false,
+      "fuente_analisis": "transcript",
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Franco Ferretti",
@@ -11203,7 +11205,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/197316993235",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Martina Benalcazar",
@@ -11229,7 +11231,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/197236621500",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Franco Ferretti",
@@ -11282,26 +11284,28 @@
     {
       "owner": "Gonzalo Rosales",
       "cliente": "Pilar Real garcía",
-      "fecha": "2026-03-12",
+      "fecha": "2026-12-03 00:00:00",
       "mes": "2026-03",
       "participantes": "Pilar Real garcía, Gonzalo Rosales",
       "duracion": "5.4",
       "llamada_id": "23806",
-      "displayText": "Pilar expresa insatisfacción con los resultados actuales de las publicaciones, ya que no recibe las visualizaciones esperadas.\nPrefiere gestionar ella misma las publicaciones, ya que obtiene mayor alcance orgánico con su contenido propio.\nConfirma que dejará de usar el servicio en abril, debido a que no cumple con sus expectativas.\nHubo confusión respecto al plan: le vendieron un pago semanal por dos meses a aproximadamente 7 euros, pero en realidad es un contrato mensual sin permanencia.\nEntendió que el plan incluía 5 publicaciones por semana, pero en realidad son 4 publicaciones al mes 10 en total.\nNecesita subir contenido diario al menos 3 publicaciones diarias para mantener su estrategia, y el volumen actual no es suficiente.\nBusca una solución más personalizada, como una agencia que gestione contenidos sin que ella tenga que hacer nada, solo indicar lo que quiere publicar.\nActualmente aprovecha días libres para crear contenido y prefiere seguir gestionándolo ella misma, ahorrando el costo del servicio.\nConsidera que el coste actual de 79 euros por dos meses es alto para su situación y estaría dispuesta a pagar 90 euros si ella misma continúa gestionando las publicaciones.\nAclara que la página web fue creada por su propia empresa, no por la nuestra.\nTramitar la baja del servicio en el próximo ciclo en coordinación con el equipo.\nConfirmar que Pilar gestionará ella misma las publicaciones en adelante.\nMantener comunicación futura para ofrecer soluciones personalizadas si cambia de estrategia.",
-      "contactId": "684682968252",
-      "esChurn": "sí",
-      "categoria": "Problemas de calidad",
-      "subcategorias": [
-        "contenido-generico",
-        "cambios-no-aplicados",
-        "identidad-visual-no-respetada"
-      ],
-      "confianza": 0.85,
-      "nivel_riesgo": "alto",
-      "motivo_principal": "Problemas de calidad del contenido/servicio",
-      "resumen_ia": "Pilar expresa insatisfacción con los resultados actuales de las publicaciones, ya que no recibe las visualizaciones esperadas.\nPrefiere gestionar ella misma las publicaciones, ya que obtiene mayor alcance orgánico con su contenido propio.\nConfirma que dejará de usar el servicio en abril, debido a que no cumple con sus expectativas.\nHubo confusión respecto al plan: le vendieron un pago semanal por dos meses a aproximadamente 7 euros, pero en realidad es un contrato mensual sin permanencia.\nEntendió que el plan incluía 5 publicaciones por semana, pero en realidad son 4 publicaciones al mes 10 en total.\nNecesita subir contenido diario al menos 3 publicaciones diarias para mantener su estrategia, y el volumen actual no es suficiente.\nBusca una solución más personalizada, como una agencia que gestione contenidos sin que ella tenga que hacer nada, solo indicar lo que quiere publicar.\nActualmente aprovecha días libres para crear contenido y prefiere seguir gestionándolo ella misma, ahorrando el costo del servicio.\nConsidera que el coste actual de 79 euros por dos meses es alto para su situación y estaría dispuesta a pagar 90 euros si ella misma continúa gestionando las publicaciones.\nAclara que la página web fue creada por su propia empresa, no por la nuestra.\nTramitar la baja del servicio en el próximo ciclo en coordinación con el equipo.\nConfirmar que Pilar gestionará ella misma las publicaciones en adelante.\nMantener comunicación futura para ofrecer soluciones personalizadas si cambia de estrategia.",
-      "fuente_analisis": "ai_reasoning_v2",
-      "actualizado": "2026-03-16 10:19"
+      "displayText": "General Information\nPilar expresa insatisfacción con los resultados actuales de las publicaciones, ya que no recibe las visualizaciones esperadas.\nPrefiere gestionar ella misma las publicaciones, ya que obtiene mayor alcance orgánico con su contenido propio.\nConfirma que dejará de usar el servicio en abril, debido a que no cumple con sus expectativas.\nHubo confusión respecto al plan: le vendieron un pago semanal por dos meses a aproximadamente 7 euros, pero en realidad es un contrato mensual sin permanencia.\nEntendió que el plan incluía 5 publicaciones por semana, pero en realidad son 4 publicaciones al mes 10 en total.\nNecesita subir contenido diario al menos 3 publicaciones diarias para mantener su estrategia, y el volumen actual no es suficiente.\nBusca una solución más personalizada, como una agencia que gestione contenidos sin que ella tenga que hacer nada, solo indicar lo que quiere publicar.\nActualmente aprovecha días libres para crear contenido y prefiere seguir gestionándolo ella misma, ahorrando el costo del servicio.\nConsidera que el coste actual de 79 euros por dos meses es alto para su situación y estaría dispuesta a pagar 90 euros si ella misma continúa gestionando las publicaciones.\nAclara que la página web fue creada por su propia empresa, no por la nuestra.\nNext Steps\nTramitar la baja del servicio en el próximo ciclo en coordinación con el equipo.\nConfirmar que Pilar gestionará ella misma las publicaciones en adelante.\nMantener comunicación futura para ofrecer soluciones personalizadas si cambia de estrategia.",
+      "contactId": "",
+      "esChurn": "sin datos",
+      "categoria": "Sin clasificar",
+      "subcategorias": [],
+      "confianza": 0.0,
+      "nivel_riesgo": "bajo",
+      "motivo_principal": "Error en análisis",
+      "resumen_ia": "",
+      "paso1_comprension": "",
+      "razon_categoria": "",
+      "hs_churn_reason": null,
+      "hs_churn_date": null,
+      "hs_url": "https://app.hubspot.com/contacts/25808060/company/6095568574",
+      "sin_registro_hs": false,
+      "fuente_analisis": "transcript",
+      "actualizado": "2026-04-01 07:06"
     },
     {
       "owner": "Martina Benalcazar",
@@ -11617,7 +11621,7 @@
       "hs_url": "https://app.hubspot.com/contacts/25808060/company/6582035675",
       "sin_registro_hs": false,
       "fuente_analisis": "transcript",
-      "actualizado": "2026-03-31 06:59"
+      "actualizado": "2026-04-01 07:06"
     }
   ]
 }
